@@ -29,9 +29,9 @@ export function Hero() {
           </a>
         </FadeDiv>
         <h1 className="mt-8 text-center text-5xl font-semibold tracking-tighter text-gray-900 sm:text-8xl sm:leading-22">
-          <FadeSpan>Autonomy</FadeSpan> <FadeSpan>for</FadeSpan>
+          <FadeSpan>High</FadeSpan> <FadeSpan>End UI</FadeSpan>
           <br />
-          <FadeSpan>every</FadeSpan> <FadeSpan>Farm</FadeSpan>
+          <FadeSpan>built with</FadeSpan> <FadeSpan>ACLR77</FadeSpan>
         </h1>
         <p className="mt-5 max-w-xl text-center text-base text-balance text-gray-700 sm:mt-8 sm:text-xl">
           <FadeSpan>Revolutionizing agriculture with AI-powered</FadeSpan>{" "}
