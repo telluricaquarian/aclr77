@@ -16,7 +16,7 @@ export function Hero() {
           >
             <div className="inline-flex max-w-full items-center gap-3 rounded-full bg-white/5 px-2.5 py-0.5 pr-3 pl-0.5 font-medium text-gray-900 ring-1 shadow-lg shadow-orange-400/20 ring-black/10 filter backdrop-blur-[1px] transition-colors hover:bg-orange-500/2.5 focus:outline-hidden sm:text-sm">
               <span className="shrink-0 truncate rounded-full border bg-gray-50 px-2.5 py-1 text-sm text-gray-600 sm:text-xs">
-                News
+                Grow
               </span>
               <span className="flex items-center gap-1 truncate">
                 <span className="w-full truncate">
@@ -34,9 +34,9 @@ export function Hero() {
           <FadeSpan>built with</FadeSpan> <FadeSpan>ACLR77</FadeSpan>
         </h1>
         <p className="mt-5 max-w-xl text-center text-base text-balance text-gray-700 sm:mt-8 sm:text-xl">
-          <FadeSpan>Revolutionizing agriculture with AI-powered</FadeSpan>{" "}
-          <FadeSpan>sensors, drones, and automation for</FadeSpan>{" "}
-          <FadeSpan>sustainable and efficient farming.</FadeSpan>
+          <FadeSpan>Revolutionizing site and software builds with</FadeSpan>{" "}
+          <FadeSpan>component libraries and frameworks</FadeSpan>{" "}
+          <FadeSpan>to create beautiful,intuitive and functional websites and software.</FadeSpan>
         </p>
         <FadeDiv>
           <a
