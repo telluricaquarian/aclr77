@@ -14,6 +14,13 @@ import { Icons } from "../Icons"
 import { Orbit } from "../Orbit"
 import ChipViz from "./ChipViz"
 
+import {
+  RiBookOpenFill
+} from "@remixicon/react"
+
+// Brand icons (from Simple Icons via react-icons)
+
+
 export default function Features() {
   return (
     <section
