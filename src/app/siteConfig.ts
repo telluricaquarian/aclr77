@@ -1,7 +1,7 @@
 export const siteConfig = {
-  name: "Solar Technologies",
-  url: "https://solar.tremor.so",
-  description: "Automation for every Farm.",
+  name: "Areculateir",
+  url: "https://aclr77.vercel.app/",
+  description: "Made with Areculateirium⁷⁷.",
   baseLinks: {
     home: "/",
   },
