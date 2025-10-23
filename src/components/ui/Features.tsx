@@ -187,19 +187,18 @@ export default function Features() {
                     key="obj1"
                     className="relative flex items-center justify-center"
                   >
-                    <RiTruckFill className="z-10 size-5 text-gray-900" />
-                    <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
-                    <div className="absolute -top-5 left-4">
-                      <div className="flex gap-1">
-                        <div className="flex items-center justify-center rounded-l-full bg-red-500 p-1 text-xs ring-1 ring-gray-200">
-                          <RiCircleLine className="size-3 shrink-0 text-white" />
-                        </div>
-                        <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs whitespace-nowrap ring-1 ring-gray-200">
-                          Drivetrain Error
-                        </div>
-                      </div>
-                    </div>
-                    <div
+                    <RiBookOpenFill className="z-10 size-5 text-gray-900" />
+<div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
+<div className="absolute -top-5 left-4">
+  <div className="flex gap-1">
+    <div className="flex items-center justify-center rounded-l-full bg-emerald-500 p-1 text-xs ring-1 ring-gray-200">
+      <RiCheckLine className="size-3 shrink-0 text-white" />
+    </div>
+    <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs whitespace-nowrap ring-1 ring-gray-200">
+      UI Library
+    </div>
+  </div>
+</div>
                       style={{
                         animationDelay: "1s",
                       }}
@@ -542,7 +541,7 @@ export default function Features() {
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </div >
+    </section >
   )
 }
