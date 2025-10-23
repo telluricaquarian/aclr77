@@ -20,7 +20,7 @@ export function Hero() {
               </span>
               <span className="flex items-center gap-1 truncate">
                 <span className="w-full truncate">
-                  Build a website you're proud of
+                  Build something you are proud of
                 </span>
 
                 <RiArrowRightUpLine className="size-4 shrink-0 text-gray-700" />
