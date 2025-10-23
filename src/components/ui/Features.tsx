@@ -130,25 +130,25 @@ export default function Features() {
         {/* Content */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
-            Smart Farming Solutions
+            The Workflow
             <div className="absolute top-1 -left-[8px] h-5 w-[3px] rounded-r-sm bg-orange-500" />
           </h2>
           <p className="mt-2 text-3xl font-semibold tracking-tighter text-balance text-gray-900 md:text-4xl">
-            A network of autonomous systems for complete farm monitoring
+            Quickly Iterate and Bring Projects to Life
           </p>
           <p className="mt-4 text-balance text-gray-700">
-            Deploy intelligent monitoring and automated response systems across
-            your fields, irrigation networks, and aerial operations with our
-            integrated platform.
+            Seamless and streamlined design and development process for your
+            projects. No more delays, no more headaches.
+            Designed by solo creative founder Llewellyn from Areculateir.
           </p>
         </div>
         <div className="relative col-span-2 flex items-center justify-center overflow-hidden">
           <svg
             className="absolute size-full mask-[linear-gradient(transparent,white_10rem)]"
-            // style={{
-            //   maskImage:
-            //     "linear-gradient(transparent, white 20rem, white calc(100% - 20rem), transparent)",
-            // }}
+          // style={{
+          //   maskImage:
+          //     "linear-gradient(transparent, white 20rem, white calc(100% - 20rem), transparent)",
+          // }}
           >
             <defs>
               <pattern
@@ -443,10 +443,10 @@ export default function Features() {
         <div className="relative col-span-2 flex items-center justify-center overflow-hidden">
           <svg
             className="absolute size-full mask-[linear-gradient(white_10rem,transparent)]"
-            // style={{
-            //   maskImage:
-            //     "linear-gradient(transparent, white 20rem, white calc(100% - 20rem), transparent)",
-            // }}
+          // style={{
+          //   maskImage:
+          //     "linear-gradient(transparent, white 20rem, white calc(100% - 20rem), transparent)",
+          // }}
           >
             <defs>
               <pattern
