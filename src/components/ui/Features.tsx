@@ -1,4 +1,4 @@
-import { RiCursorFill, RiLoaderFill } from "@remixicon/react";
+import { RiLoaderFill } from "@remixicon/react";
 import Image from "next/image";
 
 
@@ -216,40 +216,34 @@ export default function Features() {
                     ></div>
                   </div>,
 
+                  // --- Corrected Cursor orb ---
                   <div
                     key="obj2"
                     className="relative flex items-center justify-center"
                   >
-                    <div key="obj2" className="relative flex items-center justify-center">
-  <Image
-    src="/images/darkcursor.png"
-    alt="Cursor logo"
-    width={28}
-    height={28}
-    className="z-10 rounded-full object-contain"
-  />
+                    <Image
+                      src="/images/darkcursor.png"
+                      alt="Cursor logo"
+                      width={28}
+                      height={28}
+                      className="z-10 rounded-full object-contain"
+                    />
 
-  <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
+                    <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
 
-  <div className="absolute -top-5 left-4">
-    <div className="flex gap-1">
-      <div className="flex items-center justify-center rounded-l-full bg-gray-500 p-1 text-xs ring-1 ring-gray-200">
-        <RiLoaderFill className="size-3 shrink-0 animate-spin text-white" />
-      </div>
-      <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
-        Cursor
-      </div>
-    </div>
-  </div>
+                    <div className="absolute -top-5 left-4">
+                      <div className="flex gap-1">
+                        <div className="flex items-center justify-center rounded-l-full bg-gray-500 p-1 text-xs ring-1 ring-gray-200">
+                          <RiLoaderFill className="size-3 shrink-0 animate-spin text-white" />
+                        </div>
+                        <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
+                          Cursor
+                        </div>
+                      </div>
+                    </div>
 
-  <div
-    style={{ animationDelay: "4s" }}
-    className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
-  ></div>
-</div>
-                      style={{
-                        animationDelay: "4s",
-                      }}
+                    <div
+                      style={{ animationDelay: "4s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
                     ></div>
                   </div>,
