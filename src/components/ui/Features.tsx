@@ -1,9 +1,9 @@
 import { RiLoaderFill } from "@remixicon/react";
+import { VercelMark } from "geist/logos";
 import Image from "next/image";
 
 
 import {
-  RiCarFill,
   RiCheckLine,
   RiCircleLine,
   RiCodepenLine,
@@ -252,7 +252,7 @@ export default function Features() {
                     key="obj3"
                     className="relative flex items-center justify-center"
                   >
-                    <RiCarFill className="z-10 size-5 text-gray-900" />
+                    <VercelMark size={22} className="z-10 text-gray-900" />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div
                       style={{
