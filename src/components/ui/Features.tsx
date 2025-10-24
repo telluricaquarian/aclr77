@@ -1,3 +1,6 @@
+import { SiCursor } from "react-icons/si";
+
+
 import {
   RiCarFill,
   RiCheckLine,
@@ -8,15 +11,15 @@ import {
   RiLoaderFill,
   RiNotification2Line,
   RiPlaneFill
-} from "@remixicon/react"
-import { SolarMark } from "../../../public/SolarMark"
-import { Icons } from "../Icons"
-import { Orbit } from "../Orbit"
-import ChipViz from "./ChipViz"
+} from "@remixicon/react";
+import { SolarMark } from "../../../public/SolarMark";
+import { Icons } from "../Icons";
+import { Orbit } from "../Orbit";
+import ChipViz from "./ChipViz";
 
 import {
   RiBookOpenFill
-} from "@remixicon/react"
+} from "@remixicon/react";
 
 // Brand icons (from Simple Icons via react-icons)
 
@@ -217,7 +220,7 @@ export default function Features() {
                     key="obj2"
                     className="relative flex items-center justify-center"
                   >
-                    <RiPlaneFill className="z-10 size-5 rotate-90 text-gray-900" />
+                    <SiCursor className="z-10 size-5 text-gray-900" />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
@@ -225,7 +228,7 @@ export default function Features() {
                           <RiLoaderFill className="size-3 shrink-0 animate-spin text-white" />
                         </div>
                         <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
-                          Charging
+                          Cursor
                         </div>
                       </div>
                     </div>
