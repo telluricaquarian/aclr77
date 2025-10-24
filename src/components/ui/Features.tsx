@@ -1,4 +1,4 @@
-import { SiCursor } from "react-icons/si";
+import { RiLoaderFill } from "@remixicon/react";
 
 
 import {
@@ -8,7 +8,6 @@ import {
   RiCodepenLine,
   RiContrast2Line,
   RiFullscreenFill,
-  RiLoaderFill,
   RiNotification2Line,
   RiPlaneFill
 } from "@remixicon/react";
