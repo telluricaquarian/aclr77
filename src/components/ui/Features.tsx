@@ -1,5 +1,4 @@
-import { RiLoaderFill } from "@remixicon/react";
-
+import { RiCursorFill, RiLoaderFill } from "@remixicon/react";
 
 import {
   RiCarFill,
