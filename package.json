@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@geist-ui/icons": "^1.0.2",
     "@radix-ui/react-slot": "^1.2.3",
     "@remixicon/react": "^4.6.0",
     "clsx": "^2.1.1",
