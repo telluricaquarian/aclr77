@@ -1,7 +1,12 @@
 import { RiLoaderFill } from "@remixicon/react";
-import { VercelMark } from "geist/logos";
 import Image from "next/image";
-
+function VercelMark(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 1155 1000" aria-hidden="true" {...props}>
+      <path d="M577.3 0L1154.6 1000H0L577.3 0z" fill="currentColor" />
+    </svg>
+  );
+}
 
 import {
   RiCheckLine,
