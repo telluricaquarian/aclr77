@@ -1,12 +1,6 @@
 import { RiLoaderFill } from "@remixicon/react";
 import Image from "next/image";
-function VercelMark(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 1155 1000" aria-hidden="true" {...props}>
-      <path d="M577.3 0L1154.6 1000H0L577.3 0z" fill="currentColor" />
-    </svg>
-  );
-}
+
 
 import {
   RiCheckLine,
@@ -257,7 +251,13 @@ export default function Features() {
                     key="obj3"
                     className="relative flex items-center justify-center"
                   >
-                    <VercelMark size={22} className="z-10 text-gray-900" />
+                    <Image
+                      src="/images/verceldark.png"
+                      alt="Vercel logo"
+                      width={24}
+                      height={24}
+                      className="z-10 object-contain"
+                    />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div
                       style={{
