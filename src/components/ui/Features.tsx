@@ -264,7 +264,7 @@ export default function Features() {
                   // GitHub (replaces Farming/QuadCopter)
                   <div key="obj4" className="relative flex items-center justify-center">
                     <Image
-                      src="/images/github.png"
+                      src="/images/githubdark.png"
                       alt="GitHub logo"
                       width={28}
                       height={28}
