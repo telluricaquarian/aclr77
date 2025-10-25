@@ -3,16 +3,14 @@ import Image from "next/image";
 
 import {
   RiBookOpenFill,
-  RiCheckLine,
   RiCircleLine,
   RiCodepenLine,
   RiContrast2Line,
   RiFullscreenFill,
   RiNotification2Line,
-  RiPlaneFill,
+  RiPlaneFill
 } from "@remixicon/react";
 import { SolarMark } from "../../../public/SolarMark";
-import { Icons } from "../Icons";
 import { Orbit } from "../Orbit";
 import ChipViz from "./ChipViz";
 
@@ -263,20 +261,29 @@ export default function Features() {
                     ></div>
                   </div>,
 
-                  // Farming
+                  // GitHub (replaces Farming/QuadCopter)
                   <div key="obj4" className="relative flex items-center justify-center">
-                    <Icons.QuadCopter className="z-10 size-5 rotate-90 text-gray-900" />
+                    <Image
+                      src="/images/github.png"
+                      alt="GitHub logo"
+                      width={28}
+                      height={28}
+                      className="z-10 rounded-full object-contain"
+                    />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
+
+                    {/* GitHub label pill */}
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
-                        <div className="flex items-center justify-center rounded-l-full bg-emerald-500 p-1 text-xs ring-1 ring-gray-200">
-                          <RiCheckLine className="size-3 shrink-0 text-white" />
+                        <div className="flex items-center justify-center rounded-l-full bg-gray-900 p-1 text-xs ring-1 ring-gray-200">
+                          <RiLoaderFill className="size-3 shrink-0 text-white" />
                         </div>
                         <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
-                          Farming
+                          GitHub
                         </div>
                       </div>
                     </div>
+
                     <div
                       style={{ animationDelay: "6s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
