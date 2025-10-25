@@ -252,7 +252,7 @@ export default function Features() {
                     className="relative flex items-center justify-center"
                   >
                     <Image
-                      src="/public/images/vercellight.png"
+                      src="/images/vercellight.png"
                       alt="Vercel logo"
                       width={24}
                       height={24}
