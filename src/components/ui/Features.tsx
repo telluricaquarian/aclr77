@@ -304,7 +304,15 @@ export default function Features() {
                 <div className="relative flex h-48 w-48 items-center justify-center">
                   <div className="rounded-full p-1 ring-1 ring-black/10">
                     <div className="relative z-10 flex size-20 items-center justify-center rounded-full bg-white ring-1 shadow-[inset_0px_-15px_20px_rgba(0,0,0,0.1),0_7px_10px_0_rgba(0,0,0,0.15)] ring-black/20">
-                      <SolarMark className="size-10" />
+                      {/* REPLACED center mark with your image */}
+                      <Image
+                        src="/images/middleaclr.png"
+                        alt="ACLr logo"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 object-contain"
+                        priority
+                      />
                     </div>
                     <div className="absolute inset-12 animate-[spin_8s_linear_infinite] rounded-full bg-linear-to-t from-transparent via-orange-400 to-transparent blur-lg" />
                   </div>
