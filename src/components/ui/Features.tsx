@@ -1,27 +1,20 @@
 import { RiLoaderFill } from "@remixicon/react";
 import Image from "next/image";
 
-
 import {
+  RiBookOpenFill,
   RiCheckLine,
   RiCircleLine,
   RiCodepenLine,
   RiContrast2Line,
   RiFullscreenFill,
   RiNotification2Line,
-  RiPlaneFill
+  RiPlaneFill,
 } from "@remixicon/react";
 import { SolarMark } from "../../../public/SolarMark";
 import { Icons } from "../Icons";
 import { Orbit } from "../Orbit";
 import ChipViz from "./ChipViz";
-
-import {
-  RiBookOpenFill
-} from "@remixicon/react";
-
-// Brand icons (from Simple Icons via react-icons)
-
 
 export default function Features() {
   return (
@@ -73,6 +66,7 @@ export default function Features() {
             />
           </svg>
         </div>
+
         {/* Middle */}
         <div
           className="absolute inset-y-0 left-1/2 -z-10 -my-20 w-px"
@@ -93,6 +87,7 @@ export default function Features() {
             />
           </svg>
         </div>
+
         {/* 25% */}
         <div
           className="absolute inset-y-0 left-1/4 -z-10 -my-20 hidden w-px sm:block"
@@ -113,6 +108,7 @@ export default function Features() {
             />
           </svg>
         </div>
+
         {/* 75% */}
         <div
           className="absolute inset-y-0 left-3/4 -z-10 -my-20 hidden w-px sm:block"
@@ -134,6 +130,7 @@ export default function Features() {
           </svg>
         </div>
       </div>
+
       <div className="grid grid-cols-1 gap-12 md:grid-cols-4 md:gap-0">
         {/* Content */}
         <div className="col-span-2 my-auto px-2">
@@ -146,18 +143,14 @@ export default function Features() {
           </p>
           <p className="mt-4 text-balance text-gray-700">
             Seamless and streamlined design and development process for your
-            projects. No more delays, no more headaches.
-            Designed by solo creative founder Llewellyn from Areculateir.
+            projects. No more delays, no more headaches. Designed by solo
+            creative founder Llewellyn from Areculateir.
           </p>
         </div>
+
+        {/* Orbit Visualization */}
         <div className="relative col-span-2 flex items-center justify-center overflow-hidden">
-          <svg
-            className="absolute size-full mask-[linear-gradient(transparent,white_10rem)]"
-          // style={{
-          //   maskImage:
-          //     "linear-gradient(transparent, white 20rem, white calc(100% - 20rem), transparent)",
-          // }}
-          >
+          <svg className="absolute size-full mask-[linear-gradient(transparent,white_10rem)]">
             <defs>
               <pattern
                 id="diagonal-feature-pattern"
@@ -166,7 +159,7 @@ export default function Features() {
                 height="64"
               >
                 {Array.from({ length: 17 }, (_, i) => {
-                  const offset = i * 8
+                  const offset = i * 8;
                   return (
                     <path
                       key={i}
@@ -174,16 +167,13 @@ export default function Features() {
                       className="stroke-gray-200/70"
                       strokeWidth="1"
                     />
-                  )
+                  );
                 })}
               </pattern>
             </defs>
-            <rect
-              width="100%"
-              height="100%"
-              fill="url(#diagonal-feature-pattern)"
-            />
+            <rect width="100%" height="100%" fill="url(#diagonal-feature-pattern)" />
           </svg>
+
           <div className="pointer-events-none h-104 p-10 select-none">
             <div className="relative flex flex-col items-center justify-center">
               <Orbit
@@ -191,10 +181,8 @@ export default function Features() {
                 radiusPx={140}
                 keepUpright
                 orbitingObjects={[
-                  <div
-                    key="obj1"
-                    className="relative flex items-center justify-center"
-                  >
+                  // UI Library
+                  <div key="obj1" className="relative flex items-center justify-center">
                     <RiBookOpenFill className="z-10 size-5 text-gray-900" />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div className="absolute -top-5 left-4">
@@ -208,18 +196,13 @@ export default function Features() {
                       </div>
                     </div>
                     <div
-                      style={{
-                        animationDelay: "1s",
-                      }}
+                      style={{ animationDelay: "1s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
                     ></div>
                   </div>,
 
-                  // --- Corrected Cursor orb ---
-                  <div
-                    key="obj2"
-                    className="relative flex items-center justify-center"
-                  >
+                  // Cursor
+                  <div key="obj2" className="relative flex items-center justify-center">
                     <Image
                       src="/images/darkcursor.png"
                       alt="Cursor logo"
@@ -227,9 +210,7 @@ export default function Features() {
                       height={28}
                       className="z-10 rounded-full object-contain"
                     />
-
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
-
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
                         <div className="flex items-center justify-center rounded-l-full bg-gray-500 p-1 text-xs ring-1 ring-gray-200">
@@ -240,17 +221,14 @@ export default function Features() {
                         </div>
                       </div>
                     </div>
-
                     <div
                       style={{ animationDelay: "4s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
                     ></div>
                   </div>,
 
-                  <div
-                    key="obj3"
-                    className="relative flex items-center justify-center"
-                  >
+                  // Vercel (with label)
+                  <div key="obj3" className="relative flex items-center justify-center">
                     <Image
                       src="/images/vercellight.png"
                       alt="Vercel logo"
@@ -259,17 +237,34 @@ export default function Features() {
                       className="z-10 object-contain"
                     />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
+
+                    {/* Vercel label pill */}
+                    <div className="absolute -top-5 left-4">
+                      <div className="flex gap-1">
+                        <div className="flex items-center justify-center rounded-l-full bg-gray-900 p-1 text-xs ring-1 ring-gray-200">
+                          {/* tiny triangle as a mark (optional) */}
+                          <svg
+                            viewBox="0 0 1155 1000"
+                            className="h-3 w-3 text-white"
+                            aria-hidden="true"
+                          >
+                            <path d="M577.3 0L1154.6 1000H0L577.3 0z" fill="currentColor" />
+                          </svg>
+                        </div>
+                        <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
+                          Vercel
+                        </div>
+                      </div>
+                    </div>
+
                     <div
-                      style={{
-                        animationDelay: "2s",
-                      }}
+                      style={{ animationDelay: "2s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
                     ></div>
                   </div>,
-                  <div
-                    key="obj4"
-                    className="relative flex items-center justify-center"
-                  >
+
+                  // Farming
+                  <div key="obj4" className="relative flex items-center justify-center">
                     <Icons.QuadCopter className="z-10 size-5 rotate-90 text-gray-900" />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div className="absolute -top-5 left-4">
@@ -282,24 +277,18 @@ export default function Features() {
                         </div>
                       </div>
                     </div>
-
                     <div
-                      style={{
-                        animationDelay: "6s",
-                      }}
+                      style={{ animationDelay: "6s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
                     ></div>
                   </div>,
-                  <div
-                    key="obj5"
-                    className="relative flex items-center justify-center"
-                  >
+
+                  // Plane
+                  <div key="obj5" className="relative flex items-center justify-center">
                     <RiPlaneFill className="z-10 size-5 rotate-90 text-gray-900" />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div
-                      style={{
-                        animationDelay: "3s",
-                      }}
+                      style={{ animationDelay: "3s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
                     ></div>
                   </div>,
@@ -318,6 +307,7 @@ export default function Features() {
           </div>
         </div>
 
+        {/* Precision Agriculture */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
             Precision Agriculture
@@ -333,6 +323,7 @@ export default function Features() {
             yields.
           </p>
         </div>
+
         <div className="relative col-span-2 flex items-center justify-center overflow-hidden">
           <svg className="absolute size-full">
             <defs>
@@ -343,7 +334,7 @@ export default function Features() {
                 height="64"
               >
                 {Array.from({ length: 17 }, (_, i) => {
-                  const offset = i * 8
+                  const offset = i * 8;
                   return (
                     <path
                       key={i}
@@ -351,16 +342,13 @@ export default function Features() {
                       className="stroke-gray-200/70"
                       strokeWidth="1"
                     />
-                  )
+                  );
                 })}
               </pattern>
             </defs>
-            <rect
-              width="100%"
-              height="100%"
-              fill="url(#diagonal-feature-pattern)"
-            />
+            <rect width="100%" height="100%" fill="url(#diagonal-feature-pattern)" />
           </svg>
+
           <div className="relative h-[432px] w-[432px]">
             <svg
               id="grid"
@@ -380,13 +368,12 @@ export default function Features() {
                   <SolarMark className="h-8 w-8" />
                 </div>
               </div>
-              <div className="absolute top-[144px] left-[48px]">
+
+              <div className="absolute top=[144px] left-[48px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">
-                      14°C
-                    </span>
+                    <span className="text-sm font-medium text-gray-500">14°C</span>
                   </div>
                 </div>
               </div>
@@ -395,9 +382,7 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">
-                      18°C
-                    </span>
+                    <span className="text-sm font-medium text-gray-500">18°C</span>
                   </div>
                 </div>
               </div>
@@ -406,9 +391,7 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">
-                      17°C
-                    </span>
+                    <span className="text-sm font-medium text-gray-500">17°C</span>
                   </div>
                 </div>
               </div>
@@ -417,9 +400,7 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">
-                      14°C
-                    </span>
+                    <span className="text-sm font-medium text-gray-500">14°C</span>
                   </div>
                 </div>
               </div>
@@ -428,9 +409,7 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">
-                      12°C
-                    </span>
+                    <span className="text-sm font-medium text-gray-500">12°C</span>
                   </div>
                 </div>
               </div>
@@ -439,15 +418,15 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">
-                      17°C
-                    </span>
+                    <span className="text-sm font-medium text-gray-500">17°C</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Easy Expansion */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
             Easy Expansion
@@ -462,14 +441,9 @@ export default function Features() {
             with each other.
           </p>
         </div>
+
         <div className="relative col-span-2 flex items-center justify-center overflow-hidden">
-          <svg
-            className="absolute size-full mask-[linear-gradient(white_10rem,transparent)]"
-          // style={{
-          //   maskImage:
-          //     "linear-gradient(transparent, white 20rem, white calc(100% - 20rem), transparent)",
-          // }}
-          >
+          <svg className="absolute size-full mask-[linear-gradient(white_10rem,transparent)]">
             <defs>
               <pattern
                 id="diagonal-feature-pattern"
@@ -478,7 +452,7 @@ export default function Features() {
                 height="64"
               >
                 {Array.from({ length: 17 }, (_, i) => {
-                  const offset = i * 8
+                  const offset = i * 8;
                   return (
                     <path
                       key={i}
@@ -486,59 +460,48 @@ export default function Features() {
                       className="stroke-gray-200/70"
                       strokeWidth="1"
                     />
-                  )
+                  );
                 })}
               </pattern>
             </defs>
-            <rect
-              width="100%"
-              height="100%"
-              fill="url(#diagonal-feature-pattern)"
-            />
+            <rect width="100%" height="100%" fill="url(#diagonal-feature-pattern)" />
           </svg>
+
           <div className="pointer-events-none relative flex size-full h-104 items-center justify-center p-10 select-none">
             <div className="relative">
               <div className="absolute top-24 left-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.09),0_3px_5px_0_rgba(0,0,0,0.19)] ring-white/50 ring-inset">
-                    <RiNotification2Line
-                      className="size-5 text-gray-900"
-                      aria-hidden="true"
-                    />
+                    <RiNotification2Line className="size-5 text-gray-900" aria-hidden="true" />
                   </div>
                 </div>
               </div>
+
               <div className="absolute top-24 right-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
-                    <RiContrast2Line
-                      className="size-5 text-gray-900"
-                      aria-hidden="true"
-                    />
+                    <RiContrast2Line className="size-5 text-gray-900" aria-hidden="true" />
                   </div>
                 </div>
               </div>
+
               <div className="absolute right-24 bottom-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
-                    <RiCodepenLine
-                      className="size-5 text-gray-900"
-                      aria-hidden="true"
-                    />
+                    <RiCodepenLine className="size-5 text-gray-900" aria-hidden="true" />
                   </div>
                 </div>
               </div>
+
               <div className="absolute bottom-24 left-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
-                    <RiFullscreenFill
-                      className="size-5 text-gray-900"
-                      aria-hidden="true"
-                    />
+                    <RiFullscreenFill className="size-5 text-gray-900" aria-hidden="true" />
                   </div>
                 </div>
               </div>
             </div>
+
             <div className="relative">
               {[0, 45, 135, 180, 225, 315, 360].map((rotation, index) => (
                 <div
@@ -564,7 +527,7 @@ export default function Features() {
             </div>
           </div>
         </div>
-      </div >
-    </section >
-  )
+      </div>
+    </section>
+  );
 }
