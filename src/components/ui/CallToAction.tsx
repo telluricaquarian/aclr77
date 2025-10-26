@@ -29,15 +29,15 @@ export function CallToAction() {
         <div className="relative isolate rounded-xl sm:col-span-4 sm:h-full">
           <Image
             aria-hidden
-            alt="Farm with vehicles"
-            src="/images/farm-footer.webp"
+            alt="aclrthumb"
+            src="/images/aclrthumb.png"
             height={1000}
             width={1000}
             className="absolute inset-0 -z-10 rounded-2xl blur-xl"
           />
           <Image
-            alt="Farm with vehicles"
-            src="/images/farm-footer.webp"
+            alt="aclrthumb"
+            src="/images/aclrthumb.png"
             height={1000}
             width={1000}
             className="relative z-10 rounded-2xl"
