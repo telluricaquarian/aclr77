@@ -10,7 +10,6 @@ import {
   RiNotification2Line,
   RiPlaneFill
 } from "@remixicon/react";
-import { SolarMark } from "../../../public/SolarMark";
 import { Orbit } from "../Orbit";
 import ChipViz from "./ChipViz";
 
@@ -389,7 +388,14 @@ export default function Features() {
             <div className="pointer-events-none relative h-full select-none">
               <div className="absolute top-[192px] left-[191.8px]">
                 <div className="flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                  <SolarMark className="h-8 w-8" />
+                  <Image
+                    src="/images/middleaclr.png"
+                    alt="Areculateir mark"
+                    width={24}
+                    height={24}
+                    className="h-8 w-8 object-contain"
+                    priority
+                  />
                 </div>
               </div>
 
