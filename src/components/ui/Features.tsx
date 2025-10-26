@@ -337,17 +337,14 @@ export default function Features() {
         {/* Precision Agriculture */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
-            Precision Agriculture
+            Building with UI Libraries
             <div className="absolute top-1 -left-[8px] h-5 w-[3px] rounded-r-sm bg-orange-500" />
           </h2>
           <p className="mt-2 text-3xl font-semibold tracking-tighter text-balance text-gray-900 md:text-4xl">
-            Turn every acre into a data-driven powerhouse
+            Want something that visually communicates value?
           </p>
           <p className="mt-4 text-balance text-gray-700">
-            Revolutionize your farming operation with edge-computing AI that
-            transforms raw field data into actionable insights in real-time.
-            Make informed decisions faster, reduce resource waste, and maximize
-            yields.
+            Using components that look professonal, sleek and appealing command not just attention but respect.
           </p>
         </div>
 
