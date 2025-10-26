@@ -14,7 +14,7 @@ export function CallToAction() {
             Ready to get started?
           </h2>
           <p className="mt-3 mb-8 text-lg text-gray-600">
-            Begin your smart farming journey today or talk to our agronomists
+            Start building your prototype A.S.A.P or talk to our team
             about your specific needs.
           </p>
           <div className="flex flex-wrap gap-4">
