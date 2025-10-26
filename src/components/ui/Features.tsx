@@ -240,7 +240,6 @@ export default function Features() {
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
                         <div className="flex items-center justify-center rounded-l-full bg-gray-900 p-1 text-xs ring-1 ring-gray-200">
-                          {/* tiny triangle as a mark (optional) */}
                           <svg
                             viewBox="0 0 1155 1000"
                             className="h-3 w-3 text-white"
@@ -290,10 +289,23 @@ export default function Features() {
                     ></div>
                   </div>,
 
-                  // Plane
+                  // Plane — now with "Ship Fast" label
                   <div key="obj5" className="relative flex items-center justify-center">
                     <RiPlaneFill className="z-10 size-5 rotate-90 text-gray-900" />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
+
+                    {/* Ship Fast label pill */}
+                    <div className="absolute -top-5 left-4">
+                      <div className="flex gap-1">
+                        <div className="flex items-center justify-center rounded-l-full bg-sky-500 p-1 text-xs ring-1 ring-gray-200">
+                          <RiPlaneFill className="size-3 shrink-0 -rotate-90 text-white" />
+                        </div>
+                        <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
+                          Ship Fast
+                        </div>
+                      </div>
+                    </div>
+
                     <div
                       style={{ animationDelay: "3s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
@@ -304,7 +316,7 @@ export default function Features() {
                 <div className="relative flex h-48 w-48 items-center justify-center">
                   <div className="rounded-full p-1 ring-1 ring-black/10">
                     <div className="relative z-10 flex size-20 items-center justify-center rounded-full bg-white ring-1 shadow-[inset_0px_-15px_20px_rgba(0,0,0,0.1),0_7px_10px_0_rgba(0,0,0,0.15)] ring-black/20">
-                      {/* REPLACED center mark with your image */}
+                      {/* center mark uses your image */}
                       <Image
                         src="/images/middleaclr.png"
                         alt="ACLr logo"
