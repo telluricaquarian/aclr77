@@ -26,22 +26,31 @@ export function CallToAction() {
             </Button>
           </div>
         </div>
-        <div className="relative isolate rounded-xl sm:col-span-4 sm:h-full">
-          <Image
-            aria-hidden
-            alt="aclrthumb"
-            src="/images/aclrthumb.png"
-            height={1000}
-            width={1000}
-            className="absolute inset-0 -z-10 rounded-2xl blur-xl"
-          />
-          <Image
-            alt="aclrthumb"
-            src="/images/aclrthumb.png"
-            height={1000}
-            width={1000}
-            className="relative z-10 rounded-2xl"
-          />
+
+        {/* Image side */}
+        <div className="relative isolate rounded-xl sm:col-span-4">
+          {/* Give the media a definite height via aspect ratio */}
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl">
+            {/* Blurred glow layer */}
+            <Image
+              aria-hidden
+              alt="aclrthumb"
+              src="/images/aclrthumb.png"
+              fill
+              priority
+              sizes="(min-width: 640px) 66vw, 100vw"
+              className="absolute inset-0 -z-10 blur-xl object-cover"
+            />
+            {/* Main sharp image */}
+            <Image
+              alt="aclrthumb"
+              src="/images/aclrthumb.png"
+              fill
+              priority
+              sizes="(min-width: 640px) 66vw, 100vw"
+              className="object-cover"
+            />
+          </div>
         </div>
       </div>
     </section>
