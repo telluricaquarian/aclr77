@@ -8,8 +8,9 @@ import {
   RiContrast2Line,
   RiFullscreenFill,
   RiNotification2Line,
-  RiPlaneFill
+  RiPlaneFill,
 } from "@remixicon/react";
+import { SolarMark } from "../../../public/SolarMark"; // center mark
 import { Orbit } from "../Orbit";
 import ChipViz from "./ChipViz";
 
@@ -315,7 +316,6 @@ export default function Features() {
                 <div className="relative flex h-48 w-48 items-center justify-center">
                   <div className="rounded-full p-1 ring-1 ring-black/10">
                     <div className="relative z-10 flex size-20 items-center justify-center rounded-full bg-white ring-1 shadow-[inset_0px_-15px_20px_rgba(0,0,0,0.1),0_7px_10px_0_rgba(0,0,0,0.15)] ring-black/20">
-                      {/* center mark uses your image */}
                       <Image
                         src="/images/middleaclr.png"
                         alt="ACLr logo"
@@ -333,7 +333,7 @@ export default function Features() {
           </div>
         </div>
 
-        {/* Precision Agriculture */}
+        {/* Building with UI Libraries */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
             Building with UI Libraries
@@ -343,10 +343,12 @@ export default function Features() {
             Want something that visually communicates value?
           </p>
           <p className="mt-4 text-balance text-gray-700">
-            Using components that look professonal, sleek and appealing command not just attention but respect.
+            Using components that look professonal, sleek and appealing command
+            not just attention but respect.
           </p>
         </div>
 
+        {/* Grid with brand tiles */}
         <div className="relative col-span-2 flex items-center justify-center overflow-hidden">
           <svg className="absolute size-full">
             <defs>
@@ -386,69 +388,105 @@ export default function Features() {
             </svg>
 
             <div className="pointer-events-none relative h-full select-none">
+              {/* CENTER — Solar logo */}
               <div className="absolute top-[192px] left-[191.8px]">
                 <div className="flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                  <Image
-                    src="/images/middleaclr.png"
-                    alt="Areculateir mark"
-                    width={24}
-                    height={24}
-                    className="h-8 w-8 object-contain"
-                    priority
-                  />
+                  <SolarMark className="h-8 w-8" />
                 </div>
               </div>
 
-              <div className="absolute top=[144px] left-[48px]">
+              {/* 14°C -> 21stdev.jpg */}
+              <div className="absolute top-[144px] left-[48px]">
                 <div className="relative">
-                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
+                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">14°C</span>
+                    <Image
+                      src="/images/21stdev.jpg"
+                      alt="21st.dev"
+                      width={24}
+                      height={24}
+                      className="h-8 w-8 object-cover rounded"
+                    />
                   </div>
                 </div>
               </div>
 
+              {/* 18°C -> blockslogo.png */}
               <div className="absolute top-[48px] left-[144px]">
                 <div className="relative">
-                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
+                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">18°C</span>
+                    <Image
+                      src="/images/blockslogo.png"
+                      alt="Blocks UI"
+                      width={24}
+                      height={24}
+                      className="h-8 w-8 object-contain"
+                    />
                   </div>
                 </div>
               </div>
 
+              {/* 17°C -> elevenlabs.png */}
               <div className="absolute top-[96px] left-[240px]">
                 <div className="relative">
-                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
+                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">17°C</span>
+                    <Image
+                      src="/images/elevenlabs.png"
+                      alt="ElevenLabs"
+                      width={24}
+                      height={24}
+                      className="h-8 w-8 object-contain"
+                    />
                   </div>
                 </div>
               </div>
 
+              {/* 14°C -> kibo.svg */}
               <div className="absolute top-[240px] left-[385px]">
                 <div className="relative">
-                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
+                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">14°C</span>
+                    <Image
+                      src="/images/kibo.svg"
+                      alt="Kibo"
+                      width={24}
+                      height={24}
+                      className="h-8 w-8 object-contain"
+                    />
                   </div>
                 </div>
               </div>
 
+              {/* 12°C -> shadcn.png */}
               <div className="absolute top-[337px] left-[336px]">
                 <div className="relative">
-                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
+                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">12°C</span>
+                    <Image
+                      src="/images/shadcn.png"
+                      alt="shadcn/ui"
+                      width={24}
+                      height={24}
+                      className="h-8 w-8 object-contain"
+                    />
                   </div>
                 </div>
               </div>
 
+              {/* 17°C -> magicui.png */}
               <div className="absolute top-[288px] left-[144px]">
                 <div className="relative">
-                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]"></div>
+                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <span className="text-sm font-medium text-gray-500">17°C</span>
+                    <Image
+                      src="/images/magicui.png"
+                      alt="Magic UI"
+                      width={24}
+                      height={24}
+                      className="h-8 w-8 object-contain"
+                    />
                   </div>
                 </div>
               </div>
@@ -502,7 +540,7 @@ export default function Features() {
               <div className="absolute top-24 left-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.09),0_3px_5px_0_rgba(0,0,0,0.19)] ring-white/50 ring-inset">
-                    <RiNotification2Line className="size-5 text-gray-900" aria-hidden="true" />
+                    <RiNotification2Line className="size-5 text-gray-900" aria-hidden />
                   </div>
                 </div>
               </div>
@@ -510,7 +548,7 @@ export default function Features() {
               <div className="absolute top-24 right-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
-                    <RiContrast2Line className="size-5 text-gray-900" aria-hidden="true" />
+                    <RiContrast2Line className="size-5 text-gray-900" aria-hidden />
                   </div>
                 </div>
               </div>
@@ -518,7 +556,7 @@ export default function Features() {
               <div className="absolute right-24 bottom-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
-                    <RiCodepenLine className="size-5 text-gray-900" aria-hidden="true" />
+                    <RiCodepenLine className="size-5 text-gray-900" aria-hidden />
                   </div>
                 </div>
               </div>
@@ -526,7 +564,7 @@ export default function Features() {
               <div className="absolute bottom-24 left-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
-                    <RiFullscreenFill className="size-5 text-gray-900" aria-hidden="true" />
+                    <RiFullscreenFill className="size-5 text-gray-900" aria-hidden />
                   </div>
                 </div>
               </div>
