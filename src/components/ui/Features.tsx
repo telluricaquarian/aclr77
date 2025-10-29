@@ -1,16 +1,15 @@
-import { RiLoaderFill } from "@remixicon/react";
-import Image from "next/image";
-
 import {
   RiBookOpenFill,
   RiCircleLine,
   RiCodepenLine,
   RiContrast2Line,
   RiFullscreenFill,
+  RiLoaderFill,
   RiNotification2Line,
   RiPlaneFill,
 } from "@remixicon/react";
-import { SolarMark } from "../../../public/SolarMark"; // center mark
+import Image from "next/image";
+
 import { Orbit } from "../Orbit";
 import ChipViz from "./ChipViz";
 
@@ -207,6 +206,7 @@ export default function Features() {
                       width={28}
                       height={28}
                       className="z-10 rounded-full object-contain"
+                      unoptimized
                     />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div className="absolute -top-5 left-4">
@@ -225,7 +225,7 @@ export default function Features() {
                     ></div>
                   </div>,
 
-                  // Vercel (with label)
+                  // Vercel
                   <div key="obj3" className="relative flex items-center justify-center">
                     <Image
                       src="/images/vercellight.png"
@@ -233,10 +233,9 @@ export default function Features() {
                       width={24}
                       height={24}
                       className="z-10 object-contain"
+                      unoptimized
                     />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
-
-                    {/* Vercel label pill */}
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
                         <div className="flex items-center justify-center rounded-l-full bg-gray-900 p-1 text-xs ring-1 ring-gray-200">
@@ -253,14 +252,13 @@ export default function Features() {
                         </div>
                       </div>
                     </div>
-
                     <div
                       style={{ animationDelay: "2s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
                     ></div>
                   </div>,
 
-                  // GitHub (replaces Farming/QuadCopter)
+                  // GitHub
                   <div key="obj4" className="relative flex items-center justify-center">
                     <Image
                       src="/images/githubdark.png"
@@ -268,10 +266,9 @@ export default function Features() {
                       width={28}
                       height={28}
                       className="z-10 rounded-full object-contain"
+                      unoptimized
                     />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
-
-                    {/* GitHub label pill */}
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
                         <div className="flex items-center justify-center rounded-l-full bg-gray-900 p-1 text-xs ring-1 ring-gray-200">
@@ -282,19 +279,16 @@ export default function Features() {
                         </div>
                       </div>
                     </div>
-
                     <div
                       style={{ animationDelay: "6s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
                     ></div>
                   </div>,
 
-                  // Plane — now with "Ship Fast" label
+                  // Plane — with "Ship Fast"
                   <div key="obj5" className="relative flex items-center justify-center">
                     <RiPlaneFill className="z-10 size-5 rotate-90 text-gray-900" />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
-
-                    {/* Ship Fast label pill */}
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
                         <div className="flex items-center justify-center rounded-l-full bg-sky-500 p-1 text-xs ring-1 ring-gray-200">
@@ -305,7 +299,6 @@ export default function Features() {
                         </div>
                       </div>
                     </div>
-
                     <div
                       style={{ animationDelay: "3s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
@@ -318,11 +311,12 @@ export default function Features() {
                     <div className="relative z-10 flex size-20 items-center justify-center rounded-full bg-white ring-1 shadow-[inset_0px_-15px_20px_rgba(0,0,0,0.1),0_7px_10px_0_rgba(0,0,0,0.15)] ring-black/20">
                       <Image
                         src="/images/middleaclr.png"
-                        alt="ACLr logo"
+                        alt="Areculateir logo"
                         width={40}
                         height={40}
                         className="h-10 w-10 object-contain"
                         priority
+                        unoptimized
                       />
                     </div>
                     <div className="absolute inset-12 animate-[spin_8s_linear_infinite] rounded-full bg-linear-to-t from-transparent via-orange-400 to-transparent blur-lg" />
@@ -333,7 +327,7 @@ export default function Features() {
           </div>
         </div>
 
-        {/* Building with UI Libraries */}
+        {/* Section 2 */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
             Building with UI Libraries
@@ -343,12 +337,11 @@ export default function Features() {
             Want something that visually communicates value?
           </p>
           <p className="mt-4 text-balance text-gray-700">
-            Using components that look professonal, sleek and appealing command
+            Using components that look professional, sleek and appealing command
             not just attention but respect.
           </p>
         </div>
 
-        {/* Grid with brand tiles */}
         <div className="relative col-span-2 flex items-center justify-center overflow-hidden">
           <svg className="absolute size-full">
             <defs>
@@ -375,12 +368,8 @@ export default function Features() {
           </svg>
 
           <div className="relative h-[432px] w-[432px]">
-            <svg
-              id="grid"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              className="mask absolute size-[432px]"
-            >
+            {/* Grid */}
+            <svg id="grid" xmlns="http://www.w3.org/2000/svg" fill="none" className="mask absolute size-[432px]">
               <path
                 className="stroke-gray-300"
                 d="M48 0v432M96 0v432M144 0v432M192 0v432M240 0v432M288 0v432M336 0v432M384 0v432M0 48h432M0 96h432M0 144h432M0 192h432M0 240h432M0 288h432M0 336h432M0 384h432"
@@ -388,46 +377,56 @@ export default function Features() {
             </svg>
 
             <div className="pointer-events-none relative h-full select-none">
-              {/* CENTER — Solar logo */}
+              {/* CENTER — Areculateir mark */}
               <div className="absolute top-[192px] left-[191.8px]">
                 <div className="flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                  <SolarMark className="h-8 w-8" />
+                  <Image
+                    src="/images/middleaclr.png"
+                    alt="Areculateir mark"
+                    width={24}
+                    height={24}
+                    className="h-8 w-8 object-contain"
+                    priority
+                    unoptimized
+                  />
                 </div>
               </div>
 
-              {/* 14°C -> 21stdev.jpg */}
-              <div className="absolute top-[144px] left-[48px]">
+              {/* 14°C → 21stdev.jpg */}
+              <div className="absolute top-[0px] left-[48px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     <Image
                       src="/images/21stdev.jpg"
-                      alt="21st.dev"
+                      alt="21stdev"
                       width={24}
                       height={24}
-                      className="h-8 w-8 object-cover rounded"
+                      className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
               </div>
 
-              {/* 18°C -> blockslogo.png */}
+              {/* 18°C → blockslogo.png */}
               <div className="absolute top-[48px] left-[144px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     <Image
                       src="/images/blockslogo.png"
-                      alt="Blocks UI"
+                      alt="Blocks"
                       width={24}
                       height={24}
-                      className="h-8 w-8 object-contain"
+                      className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
               </div>
 
-              {/* 17°C -> elevenlabs.png */}
+              {/* 17°C → elevenlabs.png */}
               <div className="absolute top-[96px] left-[240px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
@@ -437,13 +436,14 @@ export default function Features() {
                       alt="ElevenLabs"
                       width={24}
                       height={24}
-                      className="h-8 w-8 object-contain"
+                      className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
               </div>
 
-              {/* 14°C -> kibo.svg */}
+              {/* (right) 14°C → kibo.svg */}
               <div className="absolute top-[240px] left-[385px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
@@ -453,29 +453,14 @@ export default function Features() {
                       alt="Kibo"
                       width={24}
                       height={24}
-                      className="h-8 w-8 object-contain"
+                      className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
               </div>
 
-              {/* 12°C -> shadcn.png */}
-              <div className="absolute top-[337px] left-[336px]">
-                <div className="relative">
-                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
-                  <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <Image
-                      src="/images/shadcn.png"
-                      alt="shadcn/ui"
-                      width={24}
-                      height={24}
-                      className="h-8 w-8 object-contain"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* 17°C -> magicui.png */}
+              {/* 17°C (bottom-left) → magicui.png */}
               <div className="absolute top-[288px] left-[144px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
@@ -485,7 +470,25 @@ export default function Features() {
                       alt="Magic UI"
                       width={24}
                       height={24}
-                      className="h-8 w-8 object-contain"
+                      className="h-6 w-6 object-contain"
+                      unoptimized
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 12°C → shadcn.png */}
+              <div className="absolute top-[337px] left-[336px]">
+                <div className="relative">
+                  <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
+                  <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
+                    <Image
+                      src="/images/shadcn.png"
+                      alt="shadcn/ui"
+                      width={24}
+                      height={24}
+                      className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
@@ -494,7 +497,7 @@ export default function Features() {
           </div>
         </div>
 
-        {/* Easy Expansion */}
+        {/* Section 3 */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
             Easy Expansion
