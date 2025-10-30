@@ -386,13 +386,12 @@ export default function Features() {
               <div className="absolute top-[192px] left-[191.8px]">
                 <div className="flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                   <Image
-                    src="/images/middleaclr.png"
+                    src={middleAclr}
                     alt="Areculateir mark"
                     width={24}
                     height={24}
                     className="h-8 w-8 object-contain"
                     priority
-                    unoptimized
                   />
                 </div>
               </div>
@@ -403,12 +402,11 @@ export default function Features() {
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     <Image
-                      src="/images/21stdev.jpg"
+                      src={img21stdev}
                       alt="21stdev"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
-                      unoptimized
                     />
                   </div>
                 </div>
@@ -420,12 +418,11 @@ export default function Features() {
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     <Image
-                      src="/images/blockslogo.png"
+                      src={blocksLogo}
                       alt="Blocks"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
-                      unoptimized
                     />
                   </div>
                 </div>
@@ -437,29 +434,29 @@ export default function Features() {
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     <Image
-                      src="/images/elevenlabs.png"
+                      src={elevenLabs}
                       alt="ElevenLabs"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
-                      unoptimized
                     />
                   </div>
                 </div>
               </div>
 
-              {/* (right) 14°C → kibo.svg */}
+              {/* (right) 14°C → kibo.svg (use <img> for SVG) */}
               <div className="absolute top-[240px] left-[385px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <Image
+                    <img
                       src="/images/kibo.svg"
                       alt="Kibo"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
-                      unoptimized
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                 </div>
@@ -471,12 +468,11 @@ export default function Features() {
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     <Image
-                      src="/images/magicui.png"
+                      src={magicUi}
                       alt="Magic UI"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
-                      unoptimized
                     />
                   </div>
                 </div>
@@ -488,12 +484,11 @@ export default function Features() {
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     <Image
-                      src="/images/shadcn.png"
+                      src={shadcn}
                       alt="shadcn/ui"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
-                      unoptimized
                     />
                   </div>
                 </div>
