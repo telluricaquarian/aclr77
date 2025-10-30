@@ -10,6 +10,11 @@ import {
 } from "@remixicon/react";
 import Image from "next/image";
 
+
+
+// bitmap assets from /public/images
+
+
 import { Orbit } from "../Orbit";
 import ChipViz from "./ChipViz";
 
