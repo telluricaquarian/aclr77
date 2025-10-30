@@ -12,9 +12,6 @@ import Image from "next/image";
 
 
 
-// bitmap assets from /public/images
-
-
 import { Orbit } from "../Orbit";
 import ChipViz from "./ChipViz";
 
@@ -385,13 +382,15 @@ export default function Features() {
               {/* CENTER — Areculateir mark */}
               <div className="absolute top-[192px] left-[191.8px]">
                 <div className="flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                  <Image
+                  <{/* CENTER — Areculateir mark */}
+<Image
                     src={middleAclr}
                     alt="Areculateir mark"
                     width={24}
                     height={24}
                     className="h-8 w-8 object-contain"
                     priority
+                    unoptimized
                   />
                 </div>
               </div>
@@ -401,12 +400,14 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
+                    {/* 14°C → 21stdev.jpg */}
                     <Image
                       src={img21stdev}
                       alt="21stdev"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
@@ -417,12 +418,14 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
+                    {/* 18°C → blockslogo.png */}
                     <Image
                       src={blocksLogo}
                       alt="Blocks"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
@@ -433,12 +436,14 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
+                    {/* 17°C → elevenlabs.png */}
                     <Image
                       src={elevenLabs}
                       alt="ElevenLabs"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
@@ -449,14 +454,14 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    <img
-                      src="/images/kibo.svg"
+                    {/* (right) 14°C → kibo.svg */}
+                    <Image
+                      src={kibo}
                       alt="Kibo"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
-                      loading="lazy"
-                      decoding="async"
+                      unoptimized
                     />
                   </div>
                 </div>
@@ -467,12 +472,14 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
+                    {/* 17°C (bottom-left) → magicui.png */}
                     <Image
                       src={magicUi}
                       alt="Magic UI"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
@@ -483,12 +490,14 @@ export default function Features() {
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
+                    {/* 12°C → shadcn.png */}
                     <Image
                       src={shadcn}
                       alt="shadcn/ui"
                       width={24}
                       height={24}
                       className="h-6 w-6 object-contain"
+                      unoptimized
                     />
                   </div>
                 </div>
