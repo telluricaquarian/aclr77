@@ -14,7 +14,7 @@ export default function Testimonial() {
       <div className="absolute top-76 -right-14 w-76 sm:top-48 sm:right-3 sm:w-92 md:top-48 md:right-0 md:w-100 lg:top-64 lg:right-12 lg:w-136">
         <Image
           alt="ACLR helmet"
-          src="/images/helmetfinal.png"
+          src="/images/helmetclean.png"
           width={1080}
           height={1080}
           className="animate-hover w-full h-auto object-contain"
