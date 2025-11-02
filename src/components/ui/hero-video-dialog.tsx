@@ -38,7 +38,7 @@ const animationVariants = {
 export function HeroVideoDialog({
   animationStyle = "from-center",
   videoSrc,
-  thumbnailSrc = "/images/herothumb.png",
+  thumbnailSrc = "/images/aclr77thumb.png",
   thumbnailAlt = "Video thumbnail",
   className = "",
 }: HeroVideoProps) {
