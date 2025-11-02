@@ -1,6 +1,6 @@
-import { HeroVideoDialog } from "@/components/ui/hero-video-dialog"; // ✅ import video component
 import { RiArrowRightUpLine } from "@remixicon/react";
 import { FadeContainer, FadeDiv, FadeSpan } from "../Fade";
+import { HeroVideoDialog } from "./hero-video-dialog"; // fixed path: same folder, named export
 import GameOfLife from "./HeroBackground";
 
 export function Hero() {
@@ -38,10 +38,12 @@ export function Hero() {
         <p className="mt-5 max-w-xl text-center text-base text-balance text-gray-700 sm:mt-8 sm:text-xl">
           <FadeSpan>Revolutionizing site and software builds with</FadeSpan>{" "}
           <FadeSpan>component libraries and frameworks</FadeSpan>{" "}
-          <FadeSpan>to create beautiful, intuitive and functional websites and software.</FadeSpan>
+          <FadeSpan>
+            to create beautiful, intuitive and functional websites and software.
+          </FadeSpan>
         </p>
 
-        {/* 👇 Add the Hero Video Dialog component here */}
+        {/* Hero Video Dialog */}
         <HeroVideoDialog
           className="mt-10 w-full max-w-3xl"
           videoSrc="https://fast.wistia.net/embed/iframe/4hojzyo8f0?seo=false&videoFoam=true"
@@ -65,5 +67,5 @@ export function Hero() {
         </div>
       </FadeContainer>
     </section>
-  )
+  );
 }
