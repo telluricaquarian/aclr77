@@ -14,7 +14,7 @@ export default function Testimonial() {
       <div className="absolute top-76 -right-14 w-76 sm:top-48 sm:right-3 sm:w-92 md:top-48 md:right-0 md:w-100 lg:top-64 lg:right-12 lg:w-136">
         <Image
           alt="ACLR helmet"
-          src="/images/aclrhelmet.png"
+          src="/images/helmetfinal.png"
           width={1080}
           height={1080}
           className="animate-hover w-full h-auto object-contain"
@@ -25,12 +25,10 @@ export default function Testimonial() {
           <blockquote className="relative max-w-2xl text-xl leading-relaxed tracking-tight text-gray-900 md:text-2xl lg:text-3xl">
             <p className="before:absolute before:top-0 before:right-full before:content-['“'] after:text-gray-900/70 after:content-['”']">
               <strong className="font-semibold">
-                Solar transformed our environmental monitoring capabilities.
+                Areculateir is founded and built by Llewellyn..
               </strong>{" "}
               <span className="text-gray-900/70">
-                Their autonomous network provides real-time data on forest
-                health, wildlife patterns, and ecosystem changes with
-                unprecedented precision and efficiency.
+                The central service offering is high end UI element website / project builds. With discretionary media buying and funnel optimisation services, offered as indicated to the discretion of Llewellyn, owner of Areculateir
               </span>
             </p>
           </blockquote>
