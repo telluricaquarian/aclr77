@@ -75,7 +75,7 @@ const ChipViz = () => {
                     alt="Cursor logo"
                     width={24}
                     height={24}
-                    className="h-6 w-6 object-contain"
+                    className="h-6 w-6 rounded-full object-contain"
                     priority
                     unoptimized
                   />
