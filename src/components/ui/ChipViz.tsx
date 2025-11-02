@@ -1,14 +1,15 @@
-"use client"
-import { motion, Variants } from "motion/react"
-import { SolarMark } from "../../../public/SolarMark"
+"use client";
+
+import { motion, Variants } from "motion/react";
+import Image from "next/image";
 
 const ChipViz = () => {
   const createVariants = ({
     scale,
     delay,
   }: {
-    scale: number
-    delay: number
+    scale: number;
+    delay: number;
   }): Variants => ({
     initial: { scale: 1 },
     animate: {
@@ -22,37 +23,46 @@ const ChipViz = () => {
         delay,
       },
     },
-  })
+  });
 
   return (
     <div className="relative flex items-center">
       <div className="relative">
+        {/* Outer soft glow */}
         <motion.div
           variants={createVariants({ scale: 1.1, delay: 0 })}
           initial="initial"
           animate="animate"
           className="absolute -inset-px z-0 rounded-full bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 opacity-30 blur-xl"
         />
+
+        {/* Outer ring / shell */}
         <motion.div
           variants={createVariants({ scale: 1.08, delay: 0.1 })}
           initial="initial"
           animate="animate"
           className="relative z-0 min-h-[80px] min-w-[80px] rounded-full border bg-gradient-to-b from-white to-orange-50 shadow-xl shadow-orange-500/20"
         >
+          {/* Mid ring */}
           <motion.div
             variants={createVariants({ scale: 1.06, delay: 0.2 })}
             initial="initial"
             animate="animate"
             className="absolute inset-1 rounded-full bg-gradient-to-t from-yellow-500 via-amber-500 to-orange-500 p-0.5 shadow-xl"
           >
+            {/* Inner well */}
             <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-black/40 shadow-xs shadow-white/40 will-change-transform">
               <div className="size-full bg-black/30" />
+
+              {/* Inner glow */}
               <motion.div
                 variants={createVariants({ scale: 1.04, delay: 0.3 })}
                 initial="initial"
                 animate="animate"
                 className="absolute inset-0 rounded-full bg-gradient-to-t from-yellow-500 via-amber-500 to-orange-500 opacity-50 shadow-[inset_0_0_16px_4px_rgba(0,0,0,1)]"
               />
+
+              {/* Core badge */}
               <motion.div
                 variants={createVariants({ scale: 1.02, delay: 0.4 })}
                 initial="initial"
@@ -60,7 +70,15 @@ const ChipViz = () => {
                 className="absolute inset-[6px] rounded-full bg-white/10 p-1 backdrop-blur-[1px]"
               >
                 <div className="relative flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-white to-gray-300 shadow-lg shadow-black/40">
-                  <SolarMark className="w-6" />
+                  <Image
+                    src="/images/darkcursor.png"
+                    alt="Cursor logo"
+                    width={24}
+                    height={24}
+                    className="h-6 w-6 object-contain"
+                    priority
+                    unoptimized
+                  />
                 </div>
               </motion.div>
             </div>
@@ -68,7 +86,7 @@ const ChipViz = () => {
         </motion.div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ChipViz
+export default ChipViz;
