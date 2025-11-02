@@ -21,9 +21,6 @@ export function CallToAction() {
             <Button asChild className="text-md">
               <Link href="#">Start now</Link>
             </Button>
-            <Button asChild className="text-md" variant="secondary">
-              <Link href="#">Find nearest dealer</Link>
-            </Button>
           </div>
         </div>
 
