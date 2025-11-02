@@ -10,8 +10,6 @@ import {
 } from "@remixicon/react";
 import Image from "next/image";
 
-
-
 import { Orbit } from "../Orbit";
 import ChipViz from "./ChipViz";
 
@@ -382,7 +380,7 @@ export default function Features() {
               {/* CENTER — Areculateir mark */}
               <div className="absolute top-[192px] left-[191.8px]">
                 <div className="flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                  <{/* CENTER — Areculateir mark */}
+                  {/* CENTER — Areculateir mark */}
                   <Image
                     src="/images/middleaclr.png"
                     alt="Areculateir mark"
@@ -402,7 +400,7 @@ export default function Features() {
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     {/* 14°C → 21stdev.jpg */}
                     <Image
-                      src={img21stdev}
+                      src="/images/21stdev.jpg"
                       alt="21stdev"
                       width={24}
                       height={24}
@@ -420,7 +418,7 @@ export default function Features() {
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     {/* 18°C → blockslogo.png */}
                     <Image
-                      src={blocksLogo}
+                      src="/images/blockslogo.png"
                       alt="Blocks"
                       width={24}
                       height={24}
@@ -438,7 +436,7 @@ export default function Features() {
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     {/* 17°C → elevenlabs.png */}
                     <Image
-                      src={elevenLabs}
+                      src="/images/elevenlabs.png"
                       alt="ElevenLabs"
                       width={24}
                       height={24}
@@ -449,14 +447,14 @@ export default function Features() {
                 </div>
               </div>
 
-              {/* (right) 14°C → kibo.svg (use <img> for SVG) */}
+              {/* (right) 14°C → kibo.svg */}
               <div className="absolute top-[240px] left-[385px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     {/* (right) 14°C → kibo.svg */}
                     <Image
-                      src={kibo}
+                      src="/images/kibo.svg"
                       alt="Kibo"
                       width={24}
                       height={24}
@@ -474,7 +472,7 @@ export default function Features() {
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     {/* 17°C (bottom-left) → magicui.png */}
                     <Image
-                      src={magicUi}
+                      src="/images/magicui.png"
                       alt="Magic UI"
                       width={24}
                       height={24}
@@ -492,7 +490,7 @@ export default function Features() {
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                     {/* 12°C → shadcn.png */}
                     <Image
-                      src={shadcn}
+                      src="/images/shadcn.png"
                       alt="shadcn/ui"
                       width={24}
                       height={24}
