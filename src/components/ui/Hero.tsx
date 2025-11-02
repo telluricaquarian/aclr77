@@ -1,6 +1,7 @@
-import { RiArrowRightUpLine } from "@remixicon/react"
-import { FadeContainer, FadeDiv, FadeSpan } from "../Fade"
-import GameOfLife from "./HeroBackground"
+import { HeroVideoDialog } from "@/components/ui/hero-video-dialog"; // ✅ import video component
+import { RiArrowRightUpLine } from "@remixicon/react";
+import { FadeContainer, FadeDiv, FadeSpan } from "../Fade";
+import GameOfLife from "./HeroBackground";
 
 export function Hero() {
   return (
@@ -22,22 +23,34 @@ export function Hero() {
                 <span className="w-full truncate">
                   Build something you are proud of
                 </span>
-
                 <RiArrowRightUpLine className="size-4 shrink-0 text-gray-700" />
               </span>
             </div>
           </a>
         </FadeDiv>
+
         <h1 className="mt-8 text-center text-5xl font-semibold tracking-tighter text-gray-900 sm:text-8xl sm:leading-22">
           <FadeSpan>High</FadeSpan> <FadeSpan>End UI</FadeSpan>
           <br />
           <FadeSpan>built with</FadeSpan> <FadeSpan>ACLR77</FadeSpan>
         </h1>
+
         <p className="mt-5 max-w-xl text-center text-base text-balance text-gray-700 sm:mt-8 sm:text-xl">
           <FadeSpan>Revolutionizing site and software builds with</FadeSpan>{" "}
           <FadeSpan>component libraries and frameworks</FadeSpan>{" "}
-          <FadeSpan>to create beautiful,intuitive and functional websites and software.</FadeSpan>
+          <FadeSpan>to create beautiful, intuitive and functional websites and software.</FadeSpan>
         </p>
+
+        {/* 👇 Add the Hero Video Dialog component here */}
+        <HeroVideoDialog
+          className="mt-10 w-full max-w-3xl"
+          videoSrc="https://fast.wistia.net/embed/iframe/4hojzyo8f0?seo=false&videoFoam=true"
+          thumbnailSrc="https://fast.wistia.com/embed/medias/4hojzyo8f0/swatch"
+          thumbnailAlt="Building with Premium UI – Example"
+          animationStyle="from-center"
+        />
+
+        {/* Existing orange CTA button */}
         <FadeDiv>
           <a
             className="mt-6 inline-flex cursor-pointer flex-row items-center justify-center gap-1 rounded-md border-b-[1.5px] border-orange-700 bg-linear-to-b from-orange-400 to-orange-500 px-5 py-3 leading-4 font-medium tracking-wide whitespace-nowrap text-white shadow-[0_0_0_2px_rgba(0,0,0,0.04),0_0_14px_0_rgba(255,255,255,0.19)] transition-all duration-200 ease-in-out hover:shadow-orange-300"
@@ -46,6 +59,7 @@ export function Hero() {
             Free Prototype + Makeshift Build
           </a>
         </FadeDiv>
+
         <div className="absolute inset-0 -z-10 flex items-center justify-center">
           <GameOfLife />
         </div>

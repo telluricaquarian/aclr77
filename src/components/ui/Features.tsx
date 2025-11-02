@@ -383,8 +383,8 @@ export default function Features() {
               <div className="absolute top-[192px] left-[191.8px]">
                 <div className="flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
                   <{/* CENTER — Areculateir mark */}
-<Image
-                    src={middleAclr}
+                  <Image
+                    src="/images/middleaclr.png"
                     alt="Areculateir mark"
                     width={24}
                     height={24}
