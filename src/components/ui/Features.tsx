@@ -507,11 +507,11 @@ export default function Features() {
         {/* Section 3 */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
-            Easy Expansion
+            Cursor as “Mission control”
             <div className="absolute top-1 -left-[7px] h-5 w-[3px] rounded-r-sm bg-orange-500" />
           </h2>
           <p className="mt-2 text-3xl font-semibold tracking-tighter text-balance text-gray-900 md:text-4xl">
-            Scale your smart farm with plug-and-play simplicity
+            Complete Contextual Visibility
           </p>
           <p className="mt-4 text-balance text-gray-700">
             Add new sensors and capabilities to your farm network with zero
