@@ -34,10 +34,10 @@ export function NavBar() {
                 How it works
               </Link>
               <Link className="px-2 py-1 text-gray-900" href="#farm-management">
-                Farm Management
+                Media Buying
               </Link>
               <Link className="px-2 py-1 text-gray-900" href="#solar-analytics">
-                Analytics
+                Funnel Optimization
               </Link>
             </div>
           </nav>
