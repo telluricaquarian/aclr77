@@ -13,13 +13,9 @@ const Footer = () => {
     solutions: {
       title: "Solutions",
       items: [
-        { label: "Crop Monitoring", href: "#" },
-        { label: "Irrigation Control", href: "#" },
-        { label: "Soil Analytics", href: "#" },
-        { label: "Weather Integration", href: "#" },
-        { label: "Documentation", href: "#" },
-        { label: "Smart Farming Guide", href: "#" },
-        { label: "Equipment", href: "#" },
+        { label: "High-End UI Site/Project Builds", href: "#" },
+        { label: "Media Buying", href: "#" },
+        { label: "Funnel Optimization", href: "#" },
       ],
     },
     company: {
@@ -109,10 +105,10 @@ const Footer = () => {
         </div>
         <svg
           className="mb-10 h-20 w-full border-y border-dashed border-gray-300 stroke-gray-300"
-          // style={{
-          //   maskImage:
-          //     "linear-gradient(transparent, white 10rem, white calc(100% - 10rem), transparent)",
-          // }}
+        // style={{
+        //   maskImage:
+        //     "linear-gradient(transparent, white 10rem, white calc(100% - 10rem), transparent)",
+        // }}
         >
           <defs>
             <pattern
