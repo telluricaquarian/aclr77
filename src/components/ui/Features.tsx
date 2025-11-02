@@ -514,9 +514,8 @@ export default function Features() {
             Complete Contextual Visibility
           </p>
           <p className="mt-4 text-balance text-gray-700">
-            Add new sensors and capabilities to your farm network with zero
-            setup required. Our systems automatically connect and coordinate
-            with each other.
+            Cursor provides developers full context of their code.
+            Areculateir extends that same power to founders — transforming Cursor into a programmable interface that can run and automate their entire business stack.
           </p>
         </div>
 
