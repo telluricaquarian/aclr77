@@ -1,6 +1,6 @@
 import { RiArrowRightUpLine } from "@remixicon/react";
 import { FadeContainer, FadeDiv, FadeSpan } from "../Fade";
-import { HeroVideoDialog } from "./hero-video-dialog"; // fixed path: same folder, named export
+import { HeroVideoDialog } from "./hero-video-dialog"; // same folder, named export
 import GameOfLife from "./HeroBackground";
 
 export function Hero() {
@@ -45,7 +45,7 @@ export function Hero() {
 
         {/* Hero Video Dialog */}
         <HeroVideoDialog
-          className="mt-10 w-full max-w-3xl"
+          className="mt-10 w-full max-w-3xl mx-auto" // <-- center the video block
           videoSrc="https://fast.wistia.net/embed/iframe/4hojzyo8f0?seo=false&videoFoam=true"
           thumbnailSrc="https://fast.wistia.com/embed/medias/4hojzyo8f0/swatch"
           thumbnailAlt="Building with Premium UI – Example"
@@ -62,6 +62,7 @@ export function Hero() {
           </a>
         </FadeDiv>
 
+        {/* Background */}
         <div className="absolute inset-0 -z-10 flex items-center justify-center">
           <GameOfLife />
         </div>
