@@ -23,7 +23,7 @@ const Footer = () => {
       title: "Resources",
       items: [
         { label: "Farmer Network", href: "#" },
-        { label: "Community", href: "#", external: true },
+        { label: "Community", href: "#" },
         { label: "Contact", href: "#" },
         { label: "Support", href: "#" },
         { label: "Privacy Policy", href: "#" },
@@ -44,9 +44,7 @@ const Footer = () => {
           {/* Left */}
           <div
             className="absolute inset-y-0 -my-20 w-px"
-            style={{
-              maskImage: "linear-gradient(transparent, white 5rem)",
-            }}
+            style={{ maskImage: "linear-gradient(transparent, white 5rem)" }}
           >
             <svg className="h-full w-full" preserveAspectRatio="none">
               <line
@@ -64,9 +62,7 @@ const Footer = () => {
           {/* Right */}
           <div
             className="absolute inset-y-0 right-0 -my-20 w-px"
-            style={{
-              maskImage: "linear-gradient(transparent, white 5rem)",
-            }}
+            style={{ maskImage: "linear-gradient(transparent, white 5rem)" }}
           >
             <svg className="h-full w-full" preserveAspectRatio="none">
               <line
@@ -118,35 +114,26 @@ const Footer = () => {
 
           <div>
             <div className="mt-4 flex items-center">
-              {/* Social Icons */}
               <Link
                 href="#"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="rounded-sm p-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200 hover:text-gray-900"
               >
                 <RiTwitterXFill className="size-5" />
               </Link>
               <Link
                 href="#"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="rounded-sm p-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200 hover:text-gray-900"
               >
                 <RiYoutubeFill className="size-5" />
               </Link>
               <Link
                 href="#"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="rounded-sm p-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200 hover:text-gray-900"
               >
                 <RiGithubFill className="size-5" />
               </Link>
               <Link
                 href="#"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="rounded-sm p-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200 hover:text-gray-900"
               >
                 <RiSlackFill className="size-5" />
@@ -169,8 +156,6 @@ const Footer = () => {
                 <li key={item.label} className="text-sm">
                   <Link
                     href={item.href}
-                    target={item.external ? "_blank" : undefined}
-                    rel={item.external ? "noopener noreferrer" : undefined}
                     className="text-gray-600 transition-colors duration-200 hover:text-gray-900"
                   >
                     {item.label}
