@@ -3,10 +3,11 @@ import {
   RiSlackFill,
   RiTwitterXFill,
   RiYoutubeFill,
-} from "@remixicon/react"
-import Link from "next/link"
-import { SolarLogo } from "../../../public/SolarLogo"
-const CURRENT_YEAR = new Date().getFullYear()
+} from "@remixicon/react";
+import Link from "next/link";
+import { SolarLogo } from "../../../public/SolarLogo";
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 const Footer = () => {
   const sections = {
@@ -18,25 +19,11 @@ const Footer = () => {
         { label: "Funnel Optimization", href: "#" },
       ],
     },
-    company: {
-      title: "Company",
-      items: [
-        { label: "About us", href: "#" },
-        { label: "Blog", href: "#" },
-        { label: "Careers", href: "#" },
-        { label: "Success Stories", href: "#" },
-        { label: "Sustainability", href: "#" },
-      ],
-    },
     resources: {
       title: "Resources",
       items: [
         { label: "Farmer Network", href: "#" },
-        {
-          label: "Community",
-          href: "#",
-          external: true,
-        },
+        { label: "Community", href: "#", external: true },
         { label: "Contact", href: "#" },
         { label: "Support", href: "#" },
         { label: "Privacy Policy", href: "#" },
@@ -44,16 +31,7 @@ const Footer = () => {
         { label: "Report an Issue", href: "#" },
       ],
     },
-    partners: {
-      title: "Partners",
-      items: [
-        { label: "Dealer Network", href: "#", external: true },
-        { label: "System Status", href: "#", external: true },
-        { label: "Research Partners", href: "#", external: true },
-        { label: "Integration Guide", href: "#" },
-      ],
-    },
-  }
+  } as const;
 
   return (
     <div className="px-4 xl:px-0">
@@ -103,13 +81,8 @@ const Footer = () => {
             </svg>
           </div>
         </div>
-        <svg
-          className="mb-10 h-20 w-full border-y border-dashed border-gray-300 stroke-gray-300"
-        // style={{
-        //   maskImage:
-        //     "linear-gradient(transparent, white 10rem, white calc(100% - 10rem), transparent)",
-        // }}
-        >
+
+        <svg className="mb-10 h-20 w-full border-y border-dashed border-gray-300 stroke-gray-300">
           <defs>
             <pattern
               id="diagonal-footer-pattern"
@@ -118,7 +91,7 @@ const Footer = () => {
               height="64"
             >
               {Array.from({ length: 17 }, (_, i) => {
-                const offset = i * 8
+                const offset = i * 8;
                 return (
                   <path
                     key={i}
@@ -126,24 +99,20 @@ const Footer = () => {
                     stroke=""
                     strokeWidth="1"
                   />
-                )
+                );
               })}
             </pattern>
           </defs>
-          <rect
-            stroke="none"
-            width="100%"
-            height="100%"
-            fill="url(#diagonal-footer-pattern)"
-          />
+          <rect stroke="none" width="100%" height="100%" fill="url(#diagonal-footer-pattern)" />
         </svg>
+
+        {/* Left block: logo + socials */}
         <div className="mr-auto flex w-full justify-between lg:w-fit lg:flex-col">
           <Link
             href="/"
-            className="flex items-center font-medium text-gray-700 select-none sm:text-sm"
+            className="flex items-center select-none font-medium text-gray-700 sm:text-sm"
           >
             <SolarLogo className="ml-2 w-20" />
-
             <span className="sr-only">Solar Logo (go home)</span>
           </Link>
 
@@ -189,7 +158,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Footer Sections */}
+        {/* Footer Sections: Solutions + Resources only */}
         {Object.entries(sections).map(([key, section]) => (
           <div key={key} className="mt-10 min-w-44 pl-2 lg:mt-0 lg:pl-0">
             <h3 className="mb-4 font-medium text-gray-900 sm:text-sm">
@@ -200,6 +169,8 @@ const Footer = () => {
                 <li key={item.label} className="text-sm">
                   <Link
                     href={item.href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
                     className="text-gray-600 transition-colors duration-200 hover:text-gray-900"
                   >
                     {item.label}
@@ -211,7 +182,7 @@ const Footer = () => {
         ))}
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;
