@@ -1,4 +1,4 @@
-import MetaAdsFlow from "../MetaAdsFlow"; // ✅ new import
+import MetaAdsFlow from "../MetaAdsFlow"; // ✅ correct path (ui/MetaAdsFlow.tsx)
 
 export const Map = () => {
   return (
@@ -19,8 +19,8 @@ export const Map = () => {
           <defs>
             <pattern id="diagonal-border-pattern" patternUnits="userSpaceOnUse" width="64" height="64">
               {Array.from({ length: 17 }, (_, i) => {
-                const offset = i * 8
-                return <path key={i} d={`M${-106 + offset} 110L${22 + offset} -18`} stroke="" strokeWidth="1" />
+                const offset = i * 8;
+                return <path key={i} d={`M${-106 + offset} 110L${22 + offset} -18`} stroke="" strokeWidth="1" />;
               })}
             </pattern>
           </defs>
@@ -40,8 +40,8 @@ export const Map = () => {
           <defs>
             <pattern id="diagonal-border-pattern" patternUnits="userSpaceOnUse" width="64" height="64">
               {Array.from({ length: 17 }, (_, i) => {
-                const offset = i * 8
-                return <path key={i} d={`M${-106 + offset} 110L${22 + offset} -18`} stroke="" strokeWidth="1" />
+                const offset = i * 8;
+                return <path key={i} d={`M${-106 + offset} 110L${22 + offset} -18`} stroke="" strokeWidth="1" />;
               })}
             </pattern>
           </defs>
@@ -68,13 +68,14 @@ export const Map = () => {
         <br />- Initial Campaign Setup and Running of first campaign.
       </p>
 
-      {/* === NEW: Meta Ads flow chart === */}
-      <div className="relative mt-20 mb-10 scale-90 sm:mb-16 md:mt-24 md:scale-100">
-        <MetaAdsFlow className="mx-auto w-full md:w-[840px]" />
+      {/* === Meta Ads flow chart === */}
+      <div className="relative mt-20 mb-10 md:mt-24">
+        {/* full width on mobile, capped on desktop; centered */}
+        <MetaAdsFlow className="mx-auto w-full max-w-[940px]" />
         <p className="mt-4 text-center text-xs text-zinc-400">
           Campaign → Ad Sets → Ads. Example labels shown for structure only.
         </p>
       </div>
     </section>
-  )
-}
+  );
+};
