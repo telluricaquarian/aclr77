@@ -25,7 +25,7 @@ export default function MetaAdsFlow({
 }: MetaAdsFlowProps) {
     const [isMobile, setIsMobile] = useState(false);
 
-    // Mobile detection (legacy-safe)
+    // Mobile detection with legacy-safe types
     useEffect(() => {
         if (typeof window === "undefined") return;
 
@@ -38,14 +38,13 @@ export default function MetaAdsFlow({
         const handleChange = (e: MediaQueryListEvent | MediaQueryList) =>
             setIsMobile("matches" in e ? e.matches : (e as MediaQueryList).matches);
 
-        // init + subscribe (modern)
+        // init + subscribe
         handleChange(mq);
         if (typeof mq.addEventListener === "function") {
             mq.addEventListener("change", handleChange);
             return () => mq.removeEventListener("change", handleChange);
         }
 
-        // legacy
         interface LegacyMQ extends MediaQueryList {
             addListener(cb: (e: MediaQueryListEvent) => void): void;
             removeListener(cb: (e: MediaQueryListEvent) => void): void;
@@ -56,28 +55,26 @@ export default function MetaAdsFlow({
         }
     }, [forceMobile]);
 
-    // Desktop gets a bit wider viewBox for breathing room
-    const VBW = isMobile ? 1000 : 1200;
-    const VBH = 600;
+    // Desktop: wider canvas for spacing
+    const VBW = isMobile ? 1000 : 1400;
+    const VBH = 640;
 
-    // Base sizes
-    const desktopBox = { w: 300, h: 90 };
-    const baseBox = isMobile ? { w: 260, h: 86 } : desktopBox;
+    // Base sizes (desktop larger)
+    const baseBox = isMobile ? { w: 260, h: 86 } : { w: 340, h: 104 };
 
-    // ------- DESKTOP LAYOUT (short labels) -------
+    // ----- DESKTOP (bigger / wider spread) -----
     const desktopNodes: Node[] = [
-        { id: "campaign", label: "Campaign", x: 50, y: 16, w: 320, h: 100 },
+        { id: "campaign", label: "Campaign", x: 50, y: 15, w: 420, h: 112 },
 
-        { id: "adset1", label: "Ad Set — Configurations", x: 30, y: 44, w: 340, h: 92 },
-        { id: "adset2", label: "Ad Set — Configurations", x: 70, y: 44, w: 340, h: 92 },
+        { id: "adset1", label: "Ad Set — Configurations", x: 28, y: 44, w: 380, h: 100 },
+        { id: "adset2", label: "Ad Set — Configurations", x: 72, y: 44, w: 380, h: 100 },
 
-        { id: "ad1a", label: "Ad / Creative / Media", x: 18, y: 78, w: 300, h: 86 },
-        { id: "ad1b", label: "Ad / Creative / Media", x: 42, y: 78, w: 300, h: 86 },
+        { id: "ad1a", label: "Ad / Creative / Media", x: 16, y: 79, w: 320, h: 96 },
+        { id: "ad1b", label: "Ad / Creative / Media", x: 40, y: 79, w: 320, h: 96 },
 
-        { id: "ad2a", label: "Ad / Creative / Media", x: 58, y: 78, w: 300, h: 86 },
-        { id: "ad2b", label: "Ad / Creative / Media", x: 82, y: 78, w: 300, h: 86 },
+        { id: "ad2a", label: "Ad / Creative / Media", x: 60, y: 79, w: 320, h: 96 },
+        { id: "ad2b", label: "Ad / Creative / Media", x: 84, y: 79, w: 320, h: 96 },
     ];
-
     const desktopEdges: Edge[] = [
         { from: "campaign", to: "adset1" },
         { from: "campaign", to: "adset2" },
@@ -87,7 +84,7 @@ export default function MetaAdsFlow({
         { from: "adset2", to: "ad2b" },
     ];
 
-    // ------- MOBILE LAYOUT (stacked) -------
+    // ----- MOBILE (unchanged stacked layout) -----
     const mobileNodes: Node[] = [
         { id: "campaign", label: "Campaign", x: 50, y: 10, w: 340, h: 96 },
 
@@ -100,7 +97,6 @@ export default function MetaAdsFlow({
         { id: "ad2a", label: "Ad / Creative / Media", x: 30, y: 92, w: 280, h: 86 },
         { id: "ad2b", label: "Ad / Creative / Media", x: 70, y: 92, w: 280, h: 86 },
     ];
-
     const mobileEdges: Edge[] = [
         { from: "campaign", to: "adset1" },
         { from: "adset1", to: "ad1a" },
@@ -114,6 +110,7 @@ export default function MetaAdsFlow({
     const edges = isMobile ? mobileEdges : desktopEdges;
 
     const N = (id: string) => nodes.find((n) => n.id === id)!;
+    const arrowStroke = isMobile ? 2 : 3;
 
     return (
         <svg
@@ -127,7 +124,7 @@ export default function MetaAdsFlow({
             {...props}
         >
             <defs>
-                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
                     <path d="M 0 0 L 10 5 L 0 10 z" className="fill-orange-400" />
                 </marker>
                 <filter id="soft-glow" x="-40%" y="-40%" width="180%" height="180%">
@@ -187,13 +184,13 @@ export default function MetaAdsFlow({
                             key={idx}
                             d={`M ${ax} ${ay} C ${mx} ${ay}, ${mx} ${by}, ${bx} ${by}`}
                             fill="none"
-                            strokeWidth={2}
-                            strokeDasharray="10 7"
+                            strokeWidth={arrowStroke}
+                            strokeDasharray="12 8"
                             strokeDashoffset={0}
                             markerEnd="url(#arrow)"
                             className="stroke-orange-500/70"
-                            animate={{ strokeDashoffset: [0, -60] }}
-                            transition={{ duration: 2.2, ease: "linear", repeat: Infinity }}
+                            animate={{ strokeDashoffset: [0, -70] }}
+                            transition={{ duration: 2.3, ease: "linear", repeat: Infinity }}
                             filter="url(#soft-glow)"
                             vectorEffect="non-scaling-stroke"
                         />
@@ -210,9 +207,10 @@ export default function MetaAdsFlow({
 
                 const isTop = n.id === "campaign";
                 const isAdSet = n.id.startsWith("adset");
+
                 const fs = isMobile
                     ? (isTop ? 24 : isAdSet ? 18 : 16)
-                    : (isTop ? 26 : isAdSet ? 18 : 16);
+                    : (isTop ? 28 : isAdSet ? 20 : 18);
 
                 return (
                     <g key={n.id} transform={`translate(${x}, ${y})`} filter="url(#soft-glow)">
