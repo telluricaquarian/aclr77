@@ -26,29 +26,35 @@ export default function MetaAdsFlow({
 }: MetaAdsFlowProps) {
     const [isMobile, setIsMobile] = useState(false);
 
-    // --- Robust mobile detection (no ResizeObserver issues on iOS) ---
+    // Robust mobile detection (no ResizeObserver; works on iOS)
     useEffect(() => {
         if (typeof window === "undefined") return;
+
         if (typeof forceMobile === "boolean") {
             setIsMobile(forceMobile);
             return;
         }
-        const mq = window.matchMedia("(max-width: 640px)");
-        const onChange = (e: MediaQueryListEvent | MediaQueryList) =>
-            setIsMobile("matches" in e ? e.matches : (e as MediaQueryList).matches);
 
-        // init & subscribe
-        onChange(mq as any);
-        try {
-            mq.addEventListener("change", onChange as any);
-            return () => mq.removeEventListener("change", onChange as any);
-        } catch {
-            // Safari < 14 fallback
-            // @ts-ignore
-            mq.addListener(onChange);
-            // @ts-ignore
-            return () => mq.removeListener(onChange);
+        const mq = window.matchMedia("(max-width: 640px)");
+        const handleChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+
+        // init
+        setIsMobile(mq.matches);
+
+        if (typeof mq.addEventListener === "function") {
+            mq.addEventListener("change", handleChange);
+            return () => mq.removeEventListener("change", handleChange);
         }
+
+        // Safari < 14 fallback
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error - addListener exists on older Safari/Chromium
+        mq.addListener(handleChange);
+        return () => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error - removeListener exists on older Safari/Chromium
+            mq.removeListener(handleChange);
+        };
     }, [forceMobile]);
 
     // Constant viewBox so it scales nicely
@@ -114,7 +120,7 @@ export default function MetaAdsFlow({
             preserveAspectRatio="xMidYMid meet"
             role="img"
             aria-label="Meta Ads Campaign Structure: Campaign to Ad Sets to Ads"
-            className={["block max-w-full drop-shadow-sm", className].filter(Boolean).join(" ")} // note: block
+            className={["block max-w-full drop-shadow-sm", className].filter(Boolean).join(" ")}
             {...props}
         >
             <defs>
@@ -135,10 +141,10 @@ export default function MetaAdsFlow({
                 {[...Array(12)].map((_, i) => (
                     <line
                         key={`v${i}`}
-                        x1={(i + 1) * (VBW / 13)}
-                        x2={(i + 1) * (VBW / 13)}
+                        x1={(i + 1) * (1000 / 13)}
+                        x2={(i + 1) * (1000 / 13)}
                         y1={0}
-                        y2={VBH}
+                        y2={600}
                         className="stroke-zinc-900"
                         strokeWidth={1}
                         vectorEffect="non-scaling-stroke"
@@ -148,9 +154,9 @@ export default function MetaAdsFlow({
                     <line
                         key={`h${i}`}
                         x1={0}
-                        x2={VBW}
-                        y1={(i + 1) * (VBH / 7)}
-                        y2={(i + 1) * (VBH / 7)}
+                        x2={1000}
+                        y1={(i + 1) * (600 / 7)}
+                        y2={(i + 1) * (600 / 7)}
                         className="stroke-zinc-900"
                         strokeWidth={1}
                         vectorEffect="non-scaling-stroke"
@@ -163,15 +169,13 @@ export default function MetaAdsFlow({
                 {edges.map((e, idx) => {
                     const a = N(e.from);
                     const b = N(e.to);
-                    const aw = a.w ?? baseBox.w;
                     const ah = a.h ?? baseBox.h;
-                    const bw = b.w ?? baseBox.w;
                     const bh = b.h ?? baseBox.h;
 
-                    const ax = (a.x / 100) * VBW;
-                    const ay = (a.y / 100) * VBH + ah / 2;
-                    const bx = (b.x / 100) * VBW;
-                    const by = (b.y / 100) * VBH - bh / 2;
+                    const ax = (a.x / 100) * 1000;
+                    const ay = (a.y / 100) * 600 + ah / 2;
+                    const bx = (b.x / 100) * 1000;
+                    const by = (b.y / 100) * 600 - bh / 2;
                     const mx = (ax + bx) / 2;
 
                     return (
@@ -197,8 +201,8 @@ export default function MetaAdsFlow({
             {nodes.map((n) => {
                 const w = n.w ?? baseBox.w;
                 const h = n.h ?? baseBox.h;
-                const x = (n.x / 100) * VBW - w / 2;
-                const y = (n.y / 100) * VBH - h / 2;
+                const x = (n.x / 100) * 1000 - w / 2;
+                const y = (n.y / 100) * 600 - h / 2;
 
                 const isTop = n.id === "campaign";
                 const isAdSet = n.id.startsWith("adset");
