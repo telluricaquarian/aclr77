@@ -32,7 +32,7 @@ export function NavBar() {
     }
   }, []);
 
-  const go = (id: string) => (e: React.MouseEvent) => {
+  const go = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     setOpen(false);
     scrollToId(id);
@@ -41,13 +41,15 @@ export function NavBar() {
   return (
     <header
       className={cx(
-        "fixed inset-x-4 top-4 z-50 mx-auto flex max-w-6xl justify-center rounded-lg border border-transparent px-3 py-3 transition duration-300",
+        // smaller on mobile, same look on desktop
+        "fixed inset-x-4 top-4 z-50 mx-auto flex max-w-6xl justify-center rounded-lg border border-transparent px-3 py-2 sm:py-3 transition duration-300",
         scrolled || open
           ? "border-gray-200/50 bg-white/80 shadow-2xl shadow-black/5 backdrop-blur-sm"
           : "bg-white/0",
       )}
     >
-      <div className="w-full md:my-auto">
+      {/* make this relative so the mobile dropdown can be absolutely positioned to it */}
+      <div className="relative w-full md:my-auto">
         <div className="relative flex items-center justify-between">
           <Link href={siteConfig.baseLinks.home} aria-label="Home">
             <span className="sr-only">Solar Tech Logo</span>
@@ -103,31 +105,37 @@ export function NavBar() {
           </Button>
         </div>
 
-        {/* mobile nav */}
+        {/* mobile nav - absolute dropdown; hidden state doesn't affect layout */}
         <nav
           className={cx(
-            "mt-6 flex flex-col gap-6 text-lg transition-all duration-300 ease-in-out will-change-transform sm:hidden",
-            open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none",
+            "absolute left-1/2 top-full z-40 w-[calc(100%-1rem)] -translate-x-1/2 sm:hidden",
+            // panel styling
+            "mt-2 rounded-xl bg-white/90 p-5 text-base shadow-xl backdrop-blur-md transition-all duration-200 ease-out",
+            // open/closed states
+            open
+              ? "visible opacity-100 translate-y-0 pointer-events-auto"
+              : "invisible opacity-0 -translate-y-1 pointer-events-none",
           )}
+          aria-hidden={!open}
         >
           <ul className="space-y-4 font-medium">
             <li>
-              <a href="#solutions" onClick={go("solutions")}>
+              <a href="#solutions" onClick={go("solutions")} className="block">
                 High End UI
               </a>
             </li>
             <li>
-              <a href="#farm-management" onClick={go("farm-management")}>
+              <a href="#farm-management" onClick={go("farm-management")} className="block">
                 Media Buying
               </a>
             </li>
             <li>
-              <a href="#solar-analytics" onClick={go("solar-analytics")}>
+              <a href="#solar-analytics" onClick={go("solar-analytics")} className="block">
                 Funnel Optimization
               </a>
             </li>
           </ul>
-          <Button variant="secondary" className="text-lg">
+          <Button variant="secondary" className="mt-4 w-full text-lg">
             Get a quote
           </Button>
         </nav>
