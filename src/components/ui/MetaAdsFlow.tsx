@@ -2,56 +2,75 @@
 
 import { motion } from "framer-motion";
 import type { SVGProps } from "react";
+import { useEffect, useState } from "react";
 
 type Node = {
     id: string;
     label: string;
-    x: number; // 0–100 (percent of viewBox width)
-    y: number; // 0–100 (percent of viewBox height)
-    note?: string;
+    x: number; // % of viewBox width
+    y: number; // % of viewBox height
+    w?: number;
+    h?: number;
 };
-
 type Edge = { from: string; to: string };
 
 export type MetaAdsFlowProps = SVGProps<SVGSVGElement> & {
-    width?: number;
-    height?: number;
+    /** Optional override for testing */
+    forceMobile?: boolean;
 };
 
-/**
- * Flow chart for Meta Ads structure:
- * Campaign -> Ad Sets -> Ads
- * Dark theme-friendly (uses Tailwind stroke/fill utilities).
- */
 export default function MetaAdsFlow({
-    width = 840,
-    height = 360,
+    className,
+    forceMobile,
     ...props
 }: MetaAdsFlowProps) {
-    const nodes: Node[] = [
+    const [isMobile, setIsMobile] = useState(false);
+
+    // --- Robust mobile detection (no ResizeObserver issues on iOS) ---
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        if (typeof forceMobile === "boolean") {
+            setIsMobile(forceMobile);
+            return;
+        }
+        const mq = window.matchMedia("(max-width: 640px)");
+        const onChange = (e: MediaQueryListEvent | MediaQueryList) =>
+            setIsMobile("matches" in e ? e.matches : (e as MediaQueryList).matches);
+
+        // init & subscribe
+        onChange(mq as any);
+        try {
+            mq.addEventListener("change", onChange as any);
+            return () => mq.removeEventListener("change", onChange as any);
+        } catch {
+            // Safari < 14 fallback
+            // @ts-ignore
+            mq.addListener(onChange);
+            // @ts-ignore
+            return () => mq.removeListener(onChange);
+        }
+    }, [forceMobile]);
+
+    // Constant viewBox so it scales nicely
+    const VBW = 1000;
+    const VBH = 600;
+
+    const baseBox = { w: 260, h: 86 };
+
+    // Desktop: two columns
+    const desktopNodes: Node[] = [
         { id: "campaign", label: "Campaign\n(Objective • Budget)", x: 50, y: 14 },
 
-        {
-            id: "adset1",
-            label: "Ad Set • Prospecting\n(Audience • Placements • Bid)",
-            x: 25,
-            y: 42,
-        },
-        {
-            id: "adset2",
-            label: "Ad Set • Retargeting\n(7–30d engagers • Placements)",
-            x: 75,
-            y: 42,
-        },
+        { id: "adset1", label: "Ad Set • Prospecting\n(Audience • Placements • Bid)", x: 28, y: 40 },
+        { id: "adset2", label: "Ad Set • Retargeting\n(7–30d engagers • Placements)", x: 72, y: 40 },
 
-        { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 10, y: 74 },
-        { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 28, y: 74 },
+        { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 18, y: 72 },
+        { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 38, y: 72 },
 
-        { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 62, y: 74 },
-        { id: "ad2b", label: "Ad D\n(Carousel)", x: 80, y: 74 },
+        { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 62, y: 72 },
+        { id: "ad2b", label: "Ad D\n(Carousel)", x: 82, y: 72 },
     ];
-
-    const edges: Edge[] = [
+    const desktopEdges: Edge[] = [
         { from: "campaign", to: "adset1" },
         { from: "campaign", to: "adset2" },
         { from: "adset1", to: "ad1a" },
@@ -60,36 +79,48 @@ export default function MetaAdsFlow({
         { from: "adset2", to: "ad2b" },
     ];
 
-    // Helper to find a node by id
-    const N = (id: string) => nodes.find((n) => n.id === id)!;
+    // Mobile: stacked with bigger boxes
+    const mobileNodes: Node[] = [
+        { id: "campaign", label: "Campaign\n(Objective • Budget)", x: 50, y: 10, w: 360, h: 96 },
 
-    // Box metrics
-    const box = { w: 240, h: 72, rx: 14 };
+        { id: "adset1", label: "Ad Set • Prospecting\n(Audience • Placements • Bid)", x: 50, y: 32, w: 380, h: 96 },
+        { id: "adset2", label: "Ad Set • Retargeting\n(7–30d engagers • Placements)", x: 50, y: 54, w: 380, h: 96 },
+
+        { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 30, y: 76, w: 280, h: 86 },
+        { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 70, y: 76, w: 280, h: 86 },
+
+        { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 30, y: 92, w: 280, h: 86 },
+        { id: "ad2b", label: "Ad D\n(Carousel)", x: 70, y: 92, w: 280, h: 86 },
+    ];
+    const mobileEdges: Edge[] = [
+        { from: "campaign", to: "adset1" },
+        { from: "adset1", to: "ad1a" },
+        { from: "adset1", to: "ad1b" },
+        { from: "campaign", to: "adset2" },
+        { from: "adset2", to: "ad2a" },
+        { from: "adset2", to: "ad2b" },
+    ];
+
+    const nodes = isMobile ? mobileNodes : desktopNodes;
+    const edges = isMobile ? mobileEdges : desktopEdges;
+
+    const N = (id: string) => nodes.find((n) => n.id === id)!;
 
     return (
         <svg
-            viewBox={`0 0 ${width} ${height}`}
-            width={width}
-            height={height}
+            viewBox={`0 0 ${VBW} ${VBH}`}
+            width="100%"
+            height="auto"
+            preserveAspectRatio="xMidYMid meet"
             role="img"
             aria-label="Meta Ads Campaign Structure: Campaign to Ad Sets to Ads"
-            className="max-w-full drop-shadow-sm"
+            className={["block max-w-full drop-shadow-sm", className].filter(Boolean).join(" ")} // note: block
             {...props}
         >
-            {/* defs: arrowheads & subtle glow */}
             <defs>
-                <marker
-                    id="arrow"
-                    viewBox="0 0 10 10"
-                    refX="9"
-                    refY="5"
-                    markerWidth="8"
-                    markerHeight="8"
-                    orient="auto-start-reverse"
-                >
+                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
                     <path d="M 0 0 L 10 5 L 0 10 z" className="fill-orange-400" />
                 </marker>
-
                 <filter id="soft-glow" x="-40%" y="-40%" width="180%" height="180%">
                     <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
                     <feMerge>
@@ -99,63 +130,64 @@ export default function MetaAdsFlow({
                 </filter>
             </defs>
 
-            {/* background grid (very subtle) */}
+            {/* subtle grid */}
             <g opacity="0.25">
-                {[...Array(14)].map((_, i) => (
+                {[...Array(12)].map((_, i) => (
                     <line
                         key={`v${i}`}
-                        x1={(i + 1) * (width / 15)}
-                        x2={(i + 1) * (width / 15)}
+                        x1={(i + 1) * (VBW / 13)}
+                        x2={(i + 1) * (VBW / 13)}
                         y1={0}
-                        y2={height}
+                        y2={VBH}
                         className="stroke-zinc-900"
                         strokeWidth={1}
+                        vectorEffect="non-scaling-stroke"
                     />
                 ))}
                 {[...Array(6)].map((_, i) => (
                     <line
                         key={`h${i}`}
                         x1={0}
-                        x2={width}
-                        y1={(i + 1) * (height / 7)}
-                        y2={(i + 1) * (height / 7)}
+                        x2={VBW}
+                        y1={(i + 1) * (VBH / 7)}
+                        y2={(i + 1) * (VBH / 7)}
                         className="stroke-zinc-900"
                         strokeWidth={1}
+                        vectorEffect="non-scaling-stroke"
                     />
                 ))}
             </g>
 
-            {/* edges (animated dashed flow) */}
+            {/* animated edges */}
             <g className="stroke-zinc-700">
                 {edges.map((e, idx) => {
                     const a = N(e.from);
                     const b = N(e.to);
-                    const ax = (a.x / 100) * width;
-                    const ay = (a.y / 100) * height + box.h / 2;
-                    const bx = (b.x / 100) * width;
-                    const by = (b.y / 100) * height - box.h / 2;
+                    const aw = a.w ?? baseBox.w;
+                    const ah = a.h ?? baseBox.h;
+                    const bw = b.w ?? baseBox.w;
+                    const bh = b.h ?? baseBox.h;
 
-                    // curved connector
+                    const ax = (a.x / 100) * VBW;
+                    const ay = (a.y / 100) * VBH + ah / 2;
+                    const bx = (b.x / 100) * VBW;
+                    const by = (b.y / 100) * VBH - bh / 2;
                     const mx = (ax + bx) / 2;
-                    const path = `M ${ax} ${ay} C ${mx} ${ay}, ${mx} ${by}, ${bx} ${by}`;
 
                     return (
                         <motion.path
                             key={idx}
-                            d={path}
+                            d={`M ${ax} ${ay} C ${mx} ${ay}, ${mx} ${by}, ${bx} ${by}`}
                             fill="none"
                             strokeWidth={2}
-                            strokeDasharray="8 6"
+                            strokeDasharray="10 7"
                             strokeDashoffset={0}
                             markerEnd="url(#arrow)"
                             className="stroke-orange-500/70"
-                            animate={{ strokeDashoffset: [0, -40] }}
-                            transition={{
-                                duration: 2,
-                                ease: "linear",
-                                repeat: Infinity,
-                            }}
+                            animate={{ strokeDashoffset: [0, -60] }}
+                            transition={{ duration: 2.2, ease: "linear", repeat: Infinity }}
                             filter="url(#soft-glow)"
+                            vectorEffect="non-scaling-stroke"
                         />
                     );
                 })}
@@ -163,31 +195,33 @@ export default function MetaAdsFlow({
 
             {/* nodes */}
             {nodes.map((n) => {
-                const x = (n.x / 100) * width - box.w / 2;
-                const y = (n.y / 100) * height - box.h / 2;
+                const w = n.w ?? baseBox.w;
+                const h = n.h ?? baseBox.h;
+                const x = (n.x / 100) * VBW - w / 2;
+                const y = (n.y / 100) * VBH - h / 2;
 
                 const isTop = n.id === "campaign";
                 const isAdSet = n.id.startsWith("adset");
+                const fs = isMobile ? (isTop ? 22 : isAdSet ? 18 : 16) : (isTop ? 22 : isAdSet ? 16 : 16);
 
                 return (
                     <g key={n.id} transform={`translate(${x}, ${y})`} filter="url(#soft-glow)">
-                        {/* pulsing halo for key tiers */}
                         {(isTop || isAdSet) && (
                             <motion.rect
                                 initial={{ opacity: 0.0, scale: 1 }}
-                                animate={{ opacity: [0.15, 0.35, 0.15], scale: [1, 1.03, 1] }}
-                                transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                                width={box.w}
-                                height={box.h}
-                                rx={box.rx}
+                                animate={{ opacity: [0.12, 0.3, 0.12], scale: [1, 1.03, 1] }}
+                                transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+                                width={w}
+                                height={h}
+                                rx={16}
                                 className="fill-zinc-900"
                             />
                         )}
 
                         <rect
-                            width={box.w}
-                            height={box.h}
-                            rx={box.rx}
+                            width={w}
+                            height={h}
+                            rx={16}
                             className={
                                 isTop
                                     ? "fill-zinc-900 stroke-orange-500/70"
@@ -196,15 +230,16 @@ export default function MetaAdsFlow({
                                         : "fill-zinc-900 stroke-zinc-800"
                             }
                             strokeWidth={2}
+                            vectorEffect="non-scaling-stroke"
                         />
 
                         <text
-                            x={box.w / 2}
-                            y={box.h / 2}
+                            x={w / 2}
+                            y={h / 2}
                             dominantBaseline="middle"
                             textAnchor="middle"
                             className={isTop ? "fill-white font-semibold" : "fill-zinc-200"}
-                            style={{ whiteSpace: "pre-line" }}
+                            style={{ whiteSpace: "pre-line", fontSize: fs }}
                         >
                             {n.label}
                         </text>

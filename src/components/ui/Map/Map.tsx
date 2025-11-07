@@ -70,7 +70,6 @@ export const Map = () => {
 
       {/* === Meta Ads flow chart === */}
       <div className="relative mt-20 mb-10 md:mt-24">
-        {/* full width on mobile, capped on desktop; centered */}
         <MetaAdsFlow className="mx-auto w-full max-w-[940px]" />
         <p className="mt-4 text-center text-xs text-zinc-400">
           Campaign → Ad Sets → Ads. Example labels shown for structure only.
