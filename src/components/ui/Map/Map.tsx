@@ -95,9 +95,12 @@ export const Map = () => {
         Post Andromeda Meta, i.e Facebook & Instagram Ads
       </h2>
       <p className="mt-4 max-w-2xl text-center text-base text-balance text-gray-400 sm:mt-8 sm:text-xl">
-        Complete oversight of your farming operations across fields, irrigation
-        systems, and aerial monitoring, delivering insights even in remote rural
-        locations.
+        Creative Strategy & Creative Direction in relation to meta ads is what will be provided as a part of this discretionary service.
+        This will include the following:
+
+        - Templates of ad formats that are being shown to statistically work.
+        - Initial Campaign Setup and Running of first campaign.
+
       </p>
 
       <div className="relative mt-20 mb-10 ml-68 scale-90 sm:mb-16 md:mt-24 md:ml-0 md:scale-100">
