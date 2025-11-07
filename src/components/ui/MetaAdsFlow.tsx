@@ -15,7 +15,6 @@ type Node = {
 type Edge = { from: string; to: string };
 
 export type MetaAdsFlowProps = SVGProps<SVGSVGElement> & {
-    /** Optional override for testing */
     forceMobile?: boolean;
 };
 
@@ -26,7 +25,7 @@ export default function MetaAdsFlow({
 }: MetaAdsFlowProps) {
     const [isMobile, setIsMobile] = useState(false);
 
-    // Robust mobile detection (no ResizeObserver; works on iOS)
+    // --- Mobile detection with typed legacy fallback (no any, no ts-ignore) ---
     useEffect(() => {
         if (typeof window === "undefined") return;
 
@@ -36,43 +35,40 @@ export default function MetaAdsFlow({
         }
 
         const mq = window.matchMedia("(max-width: 640px)");
-        const handleChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+        const handleChange = (e: MediaQueryListEvent | MediaQueryList) =>
+            setIsMobile("matches" in e ? e.matches : (e as MediaQueryList).matches);
 
         // init
-        setIsMobile(mq.matches);
+        handleChange(mq);
 
+        // modern
         if (typeof mq.addEventListener === "function") {
             mq.addEventListener("change", handleChange);
             return () => mq.removeEventListener("change", handleChange);
         }
 
-        // Safari < 14 fallback
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error - addListener exists on older Safari/Chromium
-        mq.addListener(handleChange);
-        return () => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error - removeListener exists on older Safari/Chromium
-            mq.removeListener(handleChange);
-        };
+        // legacy Safari/Chromium types
+        interface LegacyMQ extends MediaQueryList {
+            addListener(cb: (e: MediaQueryListEvent) => void): void;
+            removeListener(cb: (e: MediaQueryListEvent) => void): void;
+        }
+        if ("addListener" in mq && "removeListener" in mq) {
+            (mq as LegacyMQ).addListener(handleChange as (e: MediaQueryListEvent) => void);
+            return () => (mq as LegacyMQ).removeListener(handleChange as (e: MediaQueryListEvent) => void);
+        }
     }, [forceMobile]);
 
-    // Constant viewBox so it scales nicely
+    // --- CONSTANTS / LAYOUT (unchanged) ---
     const VBW = 1000;
     const VBH = 600;
-
     const baseBox = { w: 260, h: 86 };
 
-    // Desktop: two columns
     const desktopNodes: Node[] = [
         { id: "campaign", label: "Campaign\n(Objective • Budget)", x: 50, y: 14 },
-
         { id: "adset1", label: "Ad Set • Prospecting\n(Audience • Placements • Bid)", x: 28, y: 40 },
         { id: "adset2", label: "Ad Set • Retargeting\n(7–30d engagers • Placements)", x: 72, y: 40 },
-
         { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 18, y: 72 },
         { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 38, y: 72 },
-
         { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 62, y: 72 },
         { id: "ad2b", label: "Ad D\n(Carousel)", x: 82, y: 72 },
     ];
@@ -85,16 +81,12 @@ export default function MetaAdsFlow({
         { from: "adset2", to: "ad2b" },
     ];
 
-    // Mobile: stacked with bigger boxes
     const mobileNodes: Node[] = [
         { id: "campaign", label: "Campaign\n(Objective • Budget)", x: 50, y: 10, w: 360, h: 96 },
-
         { id: "adset1", label: "Ad Set • Prospecting\n(Audience • Placements • Bid)", x: 50, y: 32, w: 380, h: 96 },
         { id: "adset2", label: "Ad Set • Retargeting\n(7–30d engagers • Placements)", x: 50, y: 54, w: 380, h: 96 },
-
         { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 30, y: 76, w: 280, h: 86 },
         { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 70, y: 76, w: 280, h: 86 },
-
         { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 30, y: 92, w: 280, h: 86 },
         { id: "ad2b", label: "Ad D\n(Carousel)", x: 70, y: 92, w: 280, h: 86 },
     ];
@@ -109,7 +101,6 @@ export default function MetaAdsFlow({
 
     const nodes = isMobile ? mobileNodes : desktopNodes;
     const edges = isMobile ? mobileEdges : desktopEdges;
-
     const N = (id: string) => nodes.find((n) => n.id === id)!;
 
     return (
