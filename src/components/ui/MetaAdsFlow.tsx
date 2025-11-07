@@ -25,7 +25,7 @@ export default function MetaAdsFlow({
 }: MetaAdsFlowProps) {
     const [isMobile, setIsMobile] = useState(false);
 
-    // Mobile detection with legacy-safe types
+    // Mobile detection (legacy-safe)
     useEffect(() => {
         if (typeof window === "undefined") return;
 
@@ -38,13 +38,14 @@ export default function MetaAdsFlow({
         const handleChange = (e: MediaQueryListEvent | MediaQueryList) =>
             setIsMobile("matches" in e ? e.matches : (e as MediaQueryList).matches);
 
+        // init + subscribe (modern)
         handleChange(mq);
-
         if (typeof mq.addEventListener === "function") {
             mq.addEventListener("change", handleChange);
             return () => mq.removeEventListener("change", handleChange);
         }
 
+        // legacy
         interface LegacyMQ extends MediaQueryList {
             addListener(cb: (e: MediaQueryListEvent) => void): void;
             removeListener(cb: (e: MediaQueryListEvent) => void): void;
@@ -55,26 +56,26 @@ export default function MetaAdsFlow({
         }
     }, [forceMobile]);
 
-    // ---- ViewBox: a bit wider for desktop for nicer spacing ----
+    // Desktop gets a bit wider viewBox for breathing room
     const VBW = isMobile ? 1000 : 1200;
-    const VBH = 620;
+    const VBH = 600;
 
-    // Desktop sizing (bigger boxes); mobile uses per-node overrides later
-    const desktopBox = { w: 300, h: 96 };
+    // Base sizes
+    const desktopBox = { w: 300, h: 90 };
     const baseBox = isMobile ? { w: 260, h: 86 } : desktopBox;
 
-    // ---------- DESKTOP LAYOUT (wider spread) ----------
+    // ------- DESKTOP LAYOUT (short labels) -------
     const desktopNodes: Node[] = [
-        { id: "campaign", label: "Campaign\n(Objective • Budget)", x: 50, y: 16, w: 360, h: 104 },
+        { id: "campaign", label: "Campaign", x: 50, y: 16, w: 320, h: 100 },
 
-        { id: "adset1", label: "Ad Set • Prospecting\n(Audience • Placements • Bid)", x: 30, y: 44 },
-        { id: "adset2", label: "Ad Set • Retargeting\n(7–30d engagers • Placements)", x: 70, y: 44 },
+        { id: "adset1", label: "Ad Set — Configurations", x: 30, y: 44, w: 340, h: 92 },
+        { id: "adset2", label: "Ad Set — Configurations", x: 70, y: 44, w: 340, h: 92 },
 
-        { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 18, y: 78 },
-        { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 42, y: 78 },
+        { id: "ad1a", label: "Ad / Creative / Media", x: 18, y: 78, w: 300, h: 86 },
+        { id: "ad1b", label: "Ad / Creative / Media", x: 42, y: 78, w: 300, h: 86 },
 
-        { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 58, y: 78 },
-        { id: "ad2b", label: "Ad D\n(Carousel)", x: 82, y: 78 },
+        { id: "ad2a", label: "Ad / Creative / Media", x: 58, y: 78, w: 300, h: 86 },
+        { id: "ad2b", label: "Ad / Creative / Media", x: 82, y: 78, w: 300, h: 86 },
     ];
 
     const desktopEdges: Edge[] = [
@@ -86,18 +87,18 @@ export default function MetaAdsFlow({
         { from: "adset2", to: "ad2b" },
     ];
 
-    // ---------- MOBILE LAYOUT (stacked, already good) ----------
+    // ------- MOBILE LAYOUT (stacked) -------
     const mobileNodes: Node[] = [
-        { id: "campaign", label: "Campaign\n(Objective • Budget)", x: 50, y: 10, w: 360, h: 96 },
+        { id: "campaign", label: "Campaign", x: 50, y: 10, w: 340, h: 96 },
 
-        { id: "adset1", label: "Ad Set • Prospecting\n(Audience • Placements • Bid)", x: 50, y: 32, w: 380, h: 96 },
-        { id: "adset2", label: "Ad Set • Retargeting\n(7–30d engagers • Placements)", x: 50, y: 54, w: 380, h: 96 },
+        { id: "adset1", label: "Ad Set — Configurations", x: 50, y: 32, w: 360, h: 96 },
+        { id: "adset2", label: "Ad Set — Configurations", x: 50, y: 54, w: 360, h: 96 },
 
-        { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 30, y: 76, w: 280, h: 86 },
-        { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 70, y: 76, w: 280, h: 86 },
+        { id: "ad1a", label: "Ad / Creative / Media", x: 30, y: 76, w: 280, h: 86 },
+        { id: "ad1b", label: "Ad / Creative / Media", x: 70, y: 76, w: 280, h: 86 },
 
-        { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 30, y: 92, w: 280, h: 86 },
-        { id: "ad2b", label: "Ad D\n(Carousel)", x: 70, y: 92, w: 280, h: 86 },
+        { id: "ad2a", label: "Ad / Creative / Media", x: 30, y: 92, w: 280, h: 86 },
+        { id: "ad2b", label: "Ad / Creative / Media", x: 70, y: 92, w: 280, h: 86 },
     ];
 
     const mobileEdges: Edge[] = [
@@ -121,7 +122,7 @@ export default function MetaAdsFlow({
             height="auto"
             preserveAspectRatio="xMidYMid meet"
             role="img"
-            aria-label="Meta Ads Campaign Structure: Campaign to Ad Sets to Ads"
+            aria-label="Meta Ads Campaign Structure"
             className={["block max-w-full drop-shadow-sm", className].filter(Boolean).join(" ")}
             {...props}
         >
@@ -172,8 +173,8 @@ export default function MetaAdsFlow({
                     const a = N(e.from);
                     const b = N(e.to);
 
-                    const ah = (a.h ?? baseBox.h);
-                    const bh = (b.h ?? baseBox.h);
+                    const ah = a.h ?? baseBox.h;
+                    const bh = b.h ?? baseBox.h;
 
                     const ax = (a.x / 100) * VBW;
                     const ay = (a.y / 100) * VBH + ah / 2;
@@ -209,11 +210,9 @@ export default function MetaAdsFlow({
 
                 const isTop = n.id === "campaign";
                 const isAdSet = n.id.startsWith("adset");
-
-                // Desktop gets a bump in type sizes
                 const fs = isMobile
-                    ? (isTop ? 22 : isAdSet ? 18 : 16)
-                    : (isTop ? 24 : isAdSet ? 18 : 16);
+                    ? (isTop ? 24 : isAdSet ? 18 : 16)
+                    : (isTop ? 26 : isAdSet ? 18 : 16);
 
                 return (
                     <g key={n.id} transform={`translate(${x}, ${y})`} filter="url(#soft-glow)">
