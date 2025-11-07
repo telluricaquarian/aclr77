@@ -25,7 +25,7 @@ export default function MetaAdsFlow({
 }: MetaAdsFlowProps) {
     const [isMobile, setIsMobile] = useState(false);
 
-    // --- Mobile detection with typed legacy fallback (no any, no ts-ignore) ---
+    // Mobile detection with legacy-safe types
     useEffect(() => {
         if (typeof window === "undefined") return;
 
@@ -38,16 +38,13 @@ export default function MetaAdsFlow({
         const handleChange = (e: MediaQueryListEvent | MediaQueryList) =>
             setIsMobile("matches" in e ? e.matches : (e as MediaQueryList).matches);
 
-        // init
         handleChange(mq);
 
-        // modern
         if (typeof mq.addEventListener === "function") {
             mq.addEventListener("change", handleChange);
             return () => mq.removeEventListener("change", handleChange);
         }
 
-        // legacy Safari/Chromium types
         interface LegacyMQ extends MediaQueryList {
             addListener(cb: (e: MediaQueryListEvent) => void): void;
             removeListener(cb: (e: MediaQueryListEvent) => void): void;
@@ -58,20 +55,28 @@ export default function MetaAdsFlow({
         }
     }, [forceMobile]);
 
-    // --- CONSTANTS / LAYOUT (unchanged) ---
-    const VBW = 1000;
-    const VBH = 600;
-    const baseBox = { w: 260, h: 86 };
+    // ---- ViewBox: a bit wider for desktop for nicer spacing ----
+    const VBW = isMobile ? 1000 : 1200;
+    const VBH = 620;
 
+    // Desktop sizing (bigger boxes); mobile uses per-node overrides later
+    const desktopBox = { w: 300, h: 96 };
+    const baseBox = isMobile ? { w: 260, h: 86 } : desktopBox;
+
+    // ---------- DESKTOP LAYOUT (wider spread) ----------
     const desktopNodes: Node[] = [
-        { id: "campaign", label: "Campaign\n(Objective • Budget)", x: 50, y: 14 },
-        { id: "adset1", label: "Ad Set • Prospecting\n(Audience • Placements • Bid)", x: 28, y: 40 },
-        { id: "adset2", label: "Ad Set • Retargeting\n(7–30d engagers • Placements)", x: 72, y: 40 },
-        { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 18, y: 72 },
-        { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 38, y: 72 },
-        { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 62, y: 72 },
-        { id: "ad2b", label: "Ad D\n(Carousel)", x: 82, y: 72 },
+        { id: "campaign", label: "Campaign\n(Objective • Budget)", x: 50, y: 16, w: 360, h: 104 },
+
+        { id: "adset1", label: "Ad Set • Prospecting\n(Audience • Placements • Bid)", x: 30, y: 44 },
+        { id: "adset2", label: "Ad Set • Retargeting\n(7–30d engagers • Placements)", x: 70, y: 44 },
+
+        { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 18, y: 78 },
+        { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 42, y: 78 },
+
+        { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 58, y: 78 },
+        { id: "ad2b", label: "Ad D\n(Carousel)", x: 82, y: 78 },
     ];
+
     const desktopEdges: Edge[] = [
         { from: "campaign", to: "adset1" },
         { from: "campaign", to: "adset2" },
@@ -81,15 +86,20 @@ export default function MetaAdsFlow({
         { from: "adset2", to: "ad2b" },
     ];
 
+    // ---------- MOBILE LAYOUT (stacked, already good) ----------
     const mobileNodes: Node[] = [
         { id: "campaign", label: "Campaign\n(Objective • Budget)", x: 50, y: 10, w: 360, h: 96 },
+
         { id: "adset1", label: "Ad Set • Prospecting\n(Audience • Placements • Bid)", x: 50, y: 32, w: 380, h: 96 },
         { id: "adset2", label: "Ad Set • Retargeting\n(7–30d engagers • Placements)", x: 50, y: 54, w: 380, h: 96 },
+
         { id: "ad1a", label: "Ad A\n(UGC Hook 1)", x: 30, y: 76, w: 280, h: 86 },
         { id: "ad1b", label: "Ad B\n(Static • H1 Test)", x: 70, y: 76, w: 280, h: 86 },
+
         { id: "ad2a", label: "Ad C\n(Video • 15s)", x: 30, y: 92, w: 280, h: 86 },
         { id: "ad2b", label: "Ad D\n(Carousel)", x: 70, y: 92, w: 280, h: 86 },
     ];
+
     const mobileEdges: Edge[] = [
         { from: "campaign", to: "adset1" },
         { from: "adset1", to: "ad1a" },
@@ -101,6 +111,7 @@ export default function MetaAdsFlow({
 
     const nodes = isMobile ? mobileNodes : desktopNodes;
     const edges = isMobile ? mobileEdges : desktopEdges;
+
     const N = (id: string) => nodes.find((n) => n.id === id)!;
 
     return (
@@ -128,14 +139,14 @@ export default function MetaAdsFlow({
             </defs>
 
             {/* subtle grid */}
-            <g opacity="0.25">
+            <g opacity="0.22">
                 {[...Array(12)].map((_, i) => (
                     <line
                         key={`v${i}`}
-                        x1={(i + 1) * (1000 / 13)}
-                        x2={(i + 1) * (1000 / 13)}
+                        x1={(i + 1) * (VBW / 13)}
+                        x2={(i + 1) * (VBW / 13)}
                         y1={0}
-                        y2={600}
+                        y2={VBH}
                         className="stroke-zinc-900"
                         strokeWidth={1}
                         vectorEffect="non-scaling-stroke"
@@ -145,9 +156,9 @@ export default function MetaAdsFlow({
                     <line
                         key={`h${i}`}
                         x1={0}
-                        x2={1000}
-                        y1={(i + 1) * (600 / 7)}
-                        y2={(i + 1) * (600 / 7)}
+                        x2={VBW}
+                        y1={(i + 1) * (VBH / 7)}
+                        y2={(i + 1) * (VBH / 7)}
                         className="stroke-zinc-900"
                         strokeWidth={1}
                         vectorEffect="non-scaling-stroke"
@@ -160,13 +171,14 @@ export default function MetaAdsFlow({
                 {edges.map((e, idx) => {
                     const a = N(e.from);
                     const b = N(e.to);
-                    const ah = a.h ?? baseBox.h;
-                    const bh = b.h ?? baseBox.h;
 
-                    const ax = (a.x / 100) * 1000;
-                    const ay = (a.y / 100) * 600 + ah / 2;
-                    const bx = (b.x / 100) * 1000;
-                    const by = (b.y / 100) * 600 - bh / 2;
+                    const ah = (a.h ?? baseBox.h);
+                    const bh = (b.h ?? baseBox.h);
+
+                    const ax = (a.x / 100) * VBW;
+                    const ay = (a.y / 100) * VBH + ah / 2;
+                    const bx = (b.x / 100) * VBW;
+                    const by = (b.y / 100) * VBH - bh / 2;
                     const mx = (ax + bx) / 2;
 
                     return (
@@ -192,12 +204,16 @@ export default function MetaAdsFlow({
             {nodes.map((n) => {
                 const w = n.w ?? baseBox.w;
                 const h = n.h ?? baseBox.h;
-                const x = (n.x / 100) * 1000 - w / 2;
-                const y = (n.y / 100) * 600 - h / 2;
+                const x = (n.x / 100) * VBW - w / 2;
+                const y = (n.y / 100) * VBH - h / 2;
 
                 const isTop = n.id === "campaign";
                 const isAdSet = n.id.startsWith("adset");
-                const fs = isMobile ? (isTop ? 22 : isAdSet ? 18 : 16) : (isTop ? 22 : isAdSet ? 16 : 16);
+
+                // Desktop gets a bump in type sizes
+                const fs = isMobile
+                    ? (isTop ? 22 : isAdSet ? 18 : 16)
+                    : (isTop ? 24 : isAdSet ? 18 : 16);
 
                 return (
                     <g key={n.id} transform={`translate(${x}, ${y})`} filter="url(#soft-glow)">
