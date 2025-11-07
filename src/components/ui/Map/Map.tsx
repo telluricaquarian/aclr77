@@ -86,13 +86,13 @@ export const Map = () => {
       </div>
 
       <div className="pt-12 text-base font-semibold tracking-tight text-orange-400 sm:pt-20 sm:text-lg">
-        Farm Management
+        Media Buying
       </div>
       <h2
         id="management-title"
         className="mt-6 max-w-[700px] text-center text-2xl font-semibold tracking-tight text-balance text-white md:text-5xl"
       >
-        Monitoring & Control for Precision Agriculture
+        Post Andromeda Meta, i.e Facebook & Instagram Ads
       </h2>
       <p className="mt-4 max-w-2xl text-center text-base text-balance text-gray-400 sm:mt-8 sm:text-xl">
         Complete oversight of your farming operations across fields, irrigation
