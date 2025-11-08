@@ -12,12 +12,12 @@ import {
 const summary = [
   {
     name: "Awareness & Engagement Campaign",
-    value: "21,349 bu",
-    planted: "19,000 bu",
-    water: "14,033 gal",
-    yield: "+11.2%",
-    efficiency: "+7.8%",
-    nutrients: "+4.9%",
+    value: "$1,555.00",
+    planted: "54,343",
+    water: "100,467",
+    yield: "3.2",
+    efficiency: "$0.23",
+    nutrients: "Using Ad set Budget",
     bgColor: "bg-amber-500",
     changeType: "positive",
   },
