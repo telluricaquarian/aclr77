@@ -17,7 +17,7 @@ export const metadata: Metadata = {
       url: "",
     },
   ],
-  creator: "yourname",
+  creator: "Founded by Llewellyn",
   openGraph: {
     type: "website",
     locale: "en_US",
