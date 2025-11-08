@@ -14,7 +14,7 @@ const Footer = () => {
     solutions: {
       title: "Solutions",
       items: [
-        { label: "High-End UI Site/Project Builds", href: "#" },
+        { label: "High-End UI", href: "#" },
         { label: "Media Buying", href: "#" },
         { label: "Funnel Optimization", href: "#" },
       ],
@@ -22,13 +22,12 @@ const Footer = () => {
     resources: {
       title: "Resources",
       items: [
-        { label: "Farmer Network", href: "#" },
+        { label: "Gumroad", href: "#" },
         { label: "Community", href: "#" },
         { label: "Contact", href: "#" },
         { label: "Support", href: "#" },
         { label: "Privacy Policy", href: "#" },
         { label: "Terms of Service", href: "#" },
-        { label: "Report an Issue", href: "#" },
       ],
     },
   } as const;
