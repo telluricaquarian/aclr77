@@ -33,7 +33,7 @@ const summary = [
     changeType: "positive",
   },
   {
-    name: "Conversion Campaignt",
+    name: "Conversion Campaign",
     value: "9,443 bu",
     planted: "14,600 bu",
     water: "2,033 gal",
