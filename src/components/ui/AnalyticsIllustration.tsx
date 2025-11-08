@@ -54,8 +54,8 @@ export default function FieldPerformance() {
           32,227 bushels
         </p>
         <p className="mt-1 text-sm font-medium">
-          <span className="text-emerald-700">+430 bushels (4.1%)</span>{" "}
-          <span className="font-normal text-gray-500">Past growing season</span>
+          <span className="text-emerald-700">+430 Leads (4.1%)</span>{" "}
+          <span className="font-normal text-gray-500">Highest Performing Campaign</span>
         </p>
         <LineChartIllustration className="mt-8 w-full min-w-200 shrink-0" />
 
@@ -66,19 +66,19 @@ export default function FieldPerformance() {
                 <TableHeaderCell>Field</TableHeaderCell>
                 <TableHeaderCell className="text-right">Yield</TableHeaderCell>
                 <TableHeaderCell className="text-right">
-                  Expected
+                  Results
                 </TableHeaderCell>
                 <TableHeaderCell className="text-right">
-                  Water Used
+                  Reach
                 </TableHeaderCell>
                 <TableHeaderCell className="text-right">
-                  Yield Diff
+                  Frequency
                 </TableHeaderCell>
                 <TableHeaderCell className="text-right">
-                  Efficiency
+                  Cost Per Result
                 </TableHeaderCell>
                 <TableHeaderCell className="text-right">
-                  Nutrients
+                  Budget
                 </TableHeaderCell>
               </TableRow>
             </TableHead>
