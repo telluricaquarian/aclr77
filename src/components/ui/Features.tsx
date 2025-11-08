@@ -1,13 +1,4 @@
-import {
-  RiBookOpenFill,
-  RiCircleLine,
-  RiCodepenLine,
-  RiContrast2Line,
-  RiFullscreenFill,
-  RiLoaderFill,
-  RiNotification2Line,
-  RiPlaneFill,
-} from "@remixicon/react";
+import { RiBookOpenFill, RiPlaneFill } from "@remixicon/react";
 import Image from "next/image";
 
 import { Orbit } from "../Orbit";
@@ -16,11 +7,11 @@ import ChipViz from "./ChipViz";
 export default function Features() {
   return (
     <section
-      aria-label="Solar Technologies Features for Farms"
+      aria-label="Areculateir Feature Workflow"
       id="solutions"
       className="relative mx-auto max-w-6xl scroll-my-24"
     >
-      {/* Vertical Lines */}
+      {/* vertical guide lines (unchanged) */}
       <div className="pointer-events-none inset-0 select-none">
         {/* Left */}
         <div
@@ -129,7 +120,7 @@ export default function Features() {
       </div>
 
       <div className="grid grid-cols-1 gap-12 md:grid-cols-4 md:gap-0">
-        {/* Content */}
+        {/* ===================== Section 1: The Workflow (Orbit) ===================== */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
             The Workflow
@@ -145,7 +136,6 @@ export default function Features() {
           </p>
         </div>
 
-        {/* Orbit Visualization */}
         <div className="relative col-span-2 flex items-center justify-center overflow-hidden">
           <svg className="absolute size-full mask-[linear-gradient(transparent,white_10rem)]">
             <defs>
@@ -184,8 +174,8 @@ export default function Features() {
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
-                        <div className="flex items-center justify-center rounded-l-full bg-red-500 p-1 text-xs ring-1 ring-gray-200">
-                          <RiCircleLine className="size-3 shrink-0 text-white" />
+                        <div className="flex items-center justify-center rounded-l-full bg-red-500 p-1 text-xs ring-1 ring-gray-200 text-white">
+                          ●
                         </div>
                         <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs whitespace-nowrap ring-1 ring-gray-200">
                           UI Library
@@ -195,7 +185,7 @@ export default function Features() {
                     <div
                       style={{ animationDelay: "1s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
-                    ></div>
+                    />
                   </div>,
 
                   // Cursor
@@ -211,8 +201,8 @@ export default function Features() {
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
-                        <div className="flex items-center justify-center rounded-l-full bg-gray-500 p-1 text-xs ring-1 ring-gray-200">
-                          <RiLoaderFill className="size-3 shrink-0 animate-spin text-white" />
+                        <div className="flex items-center justify-center rounded-l-full bg-gray-500 p-1 text-xs ring-1 ring-gray-200 text-white">
+                          ⟳
                         </div>
                         <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
                           Cursor
@@ -222,7 +212,7 @@ export default function Features() {
                     <div
                       style={{ animationDelay: "4s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
-                    ></div>
+                    />
                   </div>,
 
                   // Vercel
@@ -238,14 +228,8 @@ export default function Features() {
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
-                        <div className="flex items-center justify-center rounded-l-full bg-gray-900 p-1 text-xs ring-1 ring-gray-200">
-                          <svg
-                            viewBox="0 0 1155 1000"
-                            className="h-3 w-3 text-white"
-                            aria-hidden="true"
-                          >
-                            <path d="M577.3 0L1154.6 1000H0L577.3 0z" fill="currentColor" />
-                          </svg>
+                        <div className="flex items-center justify-center rounded-l-full bg-gray-900 p-1 text-xs ring-1 ring-gray-200 text-white">
+                          ▲
                         </div>
                         <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
                           Vercel
@@ -255,7 +239,7 @@ export default function Features() {
                     <div
                       style={{ animationDelay: "2s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
-                    ></div>
+                    />
                   </div>,
 
                   // GitHub
@@ -271,8 +255,8 @@ export default function Features() {
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
-                        <div className="flex items-center justify-center rounded-l-full bg-gray-900 p-1 text-xs ring-1 ring-gray-200">
-                          <RiLoaderFill className="size-3 shrink-0 text-white" />
+                        <div className="flex items-center justify-center rounded-l-full bg-gray-900 p-1 text-xs ring-1 ring-gray-200 text-white">
+                          ⬤
                         </div>
                         <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
                           GitHub
@@ -282,17 +266,17 @@ export default function Features() {
                     <div
                       style={{ animationDelay: "6s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
-                    ></div>
+                    />
                   </div>,
 
-                  // Plane — with "Ship Fast"
+                  // Plane — Ship Fast
                   <div key="obj5" className="relative flex items-center justify-center">
                     <RiPlaneFill className="z-10 size-5 rotate-90 text-gray-900" />
                     <div className="absolute size-10 rounded-full bg-white/50 ring-1 shadow-lg ring-black/5"></div>
                     <div className="absolute -top-5 left-4">
                       <div className="flex gap-1">
-                        <div className="flex items-center justify-center rounded-l-full bg-sky-500 p-1 text-xs ring-1 ring-gray-200">
-                          <RiPlaneFill className="size-3 shrink-0 -rotate-90 text-white" />
+                        <div className="flex items-center justify-center rounded-l-full bg-sky-500 p-1 text-xs ring-1 ring-gray-200 text-white">
+                          ✈
                         </div>
                         <div className="rounded-r-full bg-white/50 py-0.5 pr-1.5 pl-1 text-xs ring-1 ring-gray-200">
                           Ship Fast
@@ -302,7 +286,7 @@ export default function Features() {
                     <div
                       style={{ animationDelay: "3s" }}
                       className="absolute size-10 animate-[ping_7s_ease_infinite] rounded-full ring-1 ring-orange-500/50"
-                    ></div>
+                    />
                   </div>,
                 ]}
               >
@@ -327,7 +311,7 @@ export default function Features() {
           </div>
         </div>
 
-        {/* Section 2 */}
+        {/* ===================== Section 2: Building with UI Libraries ===================== */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
             Building with UI Libraries
@@ -377,10 +361,9 @@ export default function Features() {
             </svg>
 
             <div className="pointer-events-none relative h-full select-none">
-              {/* CENTER — Areculateir mark */}
+              {/* Center mark */}
               <div className="absolute top-[192px] left-[191.8px]">
                 <div className="flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                  {/* CENTER — Areculateir mark */}
                   <Image
                     src="/images/middleaclr.png"
                     alt="Areculateir mark"
@@ -393,12 +376,11 @@ export default function Features() {
                 </div>
               </div>
 
-              {/* 14°C → 21stdev.jpg */}
+              {/* (sample nodes unchanged) */}
               <div className="absolute top-[0px] left-[48px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    {/* 14°C → 21stdev.jpg */}
                     <Image
                       src="/images/21stdev.jpg"
                       alt="21stdev"
@@ -411,12 +393,10 @@ export default function Features() {
                 </div>
               </div>
 
-              {/* 18°C → blockslogo.png */}
               <div className="absolute top-[48px] left-[144px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    {/* 18°C → blockslogo.png */}
                     <Image
                       src="/images/blockslogo.png"
                       alt="Blocks"
@@ -429,12 +409,10 @@ export default function Features() {
                 </div>
               </div>
 
-              {/* 17°C → elevenlabs.png */}
               <div className="absolute top-[96px] left-[240px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    {/* 17°C → elevenlabs.png */}
                     <Image
                       src="/images/elevenlabs.png"
                       alt="ElevenLabs"
@@ -447,12 +425,10 @@ export default function Features() {
                 </div>
               </div>
 
-              {/* (right) 14°C → kibo.svg */}
               <div className="absolute top-[240px] left-[385px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    {/* (right) 14°C → kibo.svg */}
                     <Image
                       src="/images/kibo.svg"
                       alt="Kibo"
@@ -465,12 +441,10 @@ export default function Features() {
                 </div>
               </div>
 
-              {/* 17°C (bottom-left) → magicui.png */}
               <div className="absolute top-[288px] left-[144px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    {/* 17°C (bottom-left) → magicui.png */}
                     <Image
                       src="/images/magicui.png"
                       alt="Magic UI"
@@ -483,12 +457,10 @@ export default function Features() {
                 </div>
               </div>
 
-              {/* 12°C → shadcn.png */}
               <div className="absolute top-[337px] left-[336px]">
                 <div className="relative">
                   <div className="absolute inset-0 size-12 animate-pulse bg-orange-200 blur-[3px]" />
                   <div className="relative flex h-12 w-12 items-center justify-center bg-white ring-1 shadow-sm ring-black/15">
-                    {/* 12°C → shadcn.png */}
                     <Image
                       src="/images/shadcn.png"
                       alt="shadcn/ui"
@@ -504,7 +476,7 @@ export default function Features() {
           </div>
         </div>
 
-        {/* Section 3 */}
+        {/* ===================== Section 3: Cursor as Mission Control (UPDATED) ===================== */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
             Cursor as “Mission control”
@@ -515,7 +487,8 @@ export default function Features() {
           </p>
           <p className="mt-4 text-balance text-gray-700">
             Cursor provides developers full context of their code.
-            Areculateir extends that same power to founders — transforming Cursor into a programmable interface that can run and automate their entire business stack.
+            Areculateir extends that same power to founders — transforming Cursor into a programmable
+            interface that can run and automate their entire business stack.
           </p>
         </div>
 
@@ -545,40 +518,74 @@ export default function Features() {
           </svg>
 
           <div className="pointer-events-none relative flex size-full h-104 items-center justify-center p-10 select-none">
+            {/* Four floating brand pills (UPDATED) */}
             <div className="relative">
+              {/* top-left → Replit */}
               <div className="absolute top-24 left-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.09),0_3px_5px_0_rgba(0,0,0,0.19)] ring-white/50 ring-inset">
-                    <RiNotification2Line className="size-5 text-gray-900" aria-hidden />
+                    <Image
+                      src="/images/replit.png"
+                      alt="Replit"
+                      width={20}
+                      height={20}
+                      className="h-5 w-5 object-contain"
+                      unoptimized
+                    />
                   </div>
                 </div>
               </div>
 
+              {/* top-right → Loveable */}
               <div className="absolute top-24 right-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
-                    <RiContrast2Line className="size-5 text-gray-900" aria-hidden />
+                    <Image
+                      src="/images/loveable.png"
+                      alt="Loveable"
+                      width={20}
+                      height={20}
+                      className="h-5 w-5 object-contain"
+                      unoptimized
+                    />
                   </div>
                 </div>
               </div>
 
+              {/* bottom-right → shadcn/ui */}
               <div className="absolute right-24 bottom-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
-                    <RiCodepenLine className="size-5 text-gray-900" aria-hidden />
+                    <Image
+                      src="/images/shadcn.png"
+                      alt="shadcn/ui"
+                      width={20}
+                      height={20}
+                      className="h-5 w-5 object-contain"
+                      unoptimized
+                    />
                   </div>
                 </div>
               </div>
 
+              {/* bottom-left → Aura */}
               <div className="absolute bottom-24 left-24 z-20">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
-                    <RiFullscreenFill className="size-5 text-gray-900" aria-hidden />
+                    <Image
+                      src="/images/logo-aura.svg"
+                      alt="Aura"
+                      width={20}
+                      height={20}
+                      className="h-5 w-5 object-contain"
+                      unoptimized
+                    />
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* central ChipViz + radial sweep lines (unchanged) */}
             <div className="relative">
               {[0, 45, 135, 180, 225, 315, 360].map((rotation, index) => (
                 <div
