@@ -11,7 +11,7 @@ import {
 
 const summary = [
   {
-    name: "North Field Corn",
+    name: "Awareness & Engagement Campaign",
     value: "21,349 bu",
     planted: "19,000 bu",
     water: "14,033 gal",
@@ -22,7 +22,7 @@ const summary = [
     changeType: "positive",
   },
   {
-    name: "West Field Soybeans",
+    name: "Lead Generation Campaign",
     value: "25,943 bu",
     planted: "23,600 bu",
     water: "11,033 gal",
@@ -33,7 +33,7 @@ const summary = [
     changeType: "positive",
   },
   {
-    name: "South Field Wheat",
+    name: "Conversion Campaignt",
     value: "9,443 bu",
     planted: "14,600 bu",
     water: "2,033 gal",
