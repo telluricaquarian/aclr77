@@ -64,7 +64,7 @@ export default function FieldPerformance() {
             <TableHead>
               <TableRow>
                 <TableHeaderCell>Field</TableHeaderCell>
-                <TableHeaderCell className="text-right">Yield</TableHeaderCell>
+                <TableHeaderCell className="text-right">Amount Spent</TableHeaderCell>
                 <TableHeaderCell className="text-right">
                   Results
                 </TableHeaderCell>
