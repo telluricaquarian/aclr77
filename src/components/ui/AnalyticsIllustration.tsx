@@ -51,7 +51,7 @@ export default function FieldPerformance() {
       <div className="-translate-y-10 -translate-z-10 rotate-x-10 rotate-y-20 -rotate-z-10 transform-3d">
         <h3 className="text-sm text-gray-500">Field Yield Performance</h3>
         <p className="mt-1 text-3xl font-semibold text-gray-900">
-          32,227 bushels
+          32,227 Leads Generated
         </p>
         <p className="mt-1 text-sm font-medium">
           <span className="text-emerald-700">+430 Leads (4.1%)</span>{" "}
