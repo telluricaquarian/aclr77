@@ -19,11 +19,11 @@ export function SolarAnalytics() {
           id="solar-analytics"
           className="relative scroll-my-24 text-lg font-semibold tracking-tight text-orange-500"
         >
-          Solar Analytics
+          Funnel Optimization
           <div className="absolute top-1 -left-[8px] h-5 w-[3px] rounded-r-sm bg-orange-500" />
         </h2>
         <p className="mt-2 max-w-lg text-3xl font-semibold tracking-tighter text-balance text-gray-900 md:text-4xl">
-          Turn field data into profitable harvests with real-time insights
+          Iteration and Strategic Tweaking of Your Funnel
         </p>
       </div>
       <div className="*:pointer-events-none">
