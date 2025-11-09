@@ -114,25 +114,37 @@ const Footer = () => {
           <div>
             <div className="mt-4 flex items-center">
               <Link
-                href="#"
+                href="https://x.com/areculateir"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Areculateir on X (Twitter)"
                 className="rounded-sm p-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200 hover:text-gray-900"
               >
                 <RiTwitterXFill className="size-5" />
               </Link>
               <Link
-                href="#"
+                href="https://www.youtube.com/@Areculateir"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Areculateir on YouTube"
                 className="rounded-sm p-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200 hover:text-gray-900"
               >
                 <RiYoutubeFill className="size-5" />
               </Link>
               <Link
-                href="#"
+                href="https://github.com/telluricaquarian"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub: telluricaquarian"
                 className="rounded-sm p-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200 hover:text-gray-900"
               >
                 <RiGithubFill className="size-5" />
               </Link>
               <Link
-                href="#"
+                href="https://uibuilds.slack.com/team/U09S3G22Q81"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Slack profile"
                 className="rounded-sm p-2 text-gray-700 transition-colors duration-200 hover:bg-gray-200 hover:text-gray-900"
               >
                 <RiSlackFill className="size-5" />
