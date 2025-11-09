@@ -475,7 +475,6 @@ export default function Features() {
             </div>
           </div>
         </div>
-
         {/* ===================== Section 3: Cursor as Mission Control (FIXED) ===================== */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
