@@ -476,7 +476,7 @@ export default function Features() {
           </div>
         </div>
 
-        {/* ===================== Section 3: Cursor as Mission Control (UPDATED) ===================== */}
+        {/* ===================== Section 3: Cursor as Mission Control (FIXED) ===================== */}
         <div className="col-span-2 my-auto px-2">
           <h2 className="relative text-lg font-semibold tracking-tight text-orange-500">
             Cursor as “Mission control”
@@ -486,21 +486,17 @@ export default function Features() {
             Complete Contextual Visibility
           </p>
           <p className="mt-4 text-balance text-gray-700">
-            Cursor provides developers full context of their code.
-            Areculateir extends that same power to founders — transforming Cursor into a programmable
-            interface that can run and automate their entire business stack.
+            Cursor provides developers full context of their code. Areculateir extends that same power to
+            founders — transforming Cursor into a programmable interface that can run and automate their
+            entire business stack.
           </p>
         </div>
 
         <div className="relative col-span-2 flex items-center justify-center overflow-hidden">
+          {/* background diagonal hatch */}
           <svg className="absolute size-full mask-[linear-gradient(white_10rem,transparent)]">
             <defs>
-              <pattern
-                id="diagonal-feature-pattern"
-                patternUnits="userSpaceOnUse"
-                width="64"
-                height="64"
-              >
+              <pattern id="diagonal-feature-pattern-3" patternUnits="userSpaceOnUse" width="64" height="64">
                 {Array.from({ length: 17 }, (_, i) => {
                   const offset = i * 8;
                   return (
@@ -514,14 +510,16 @@ export default function Features() {
                 })}
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#diagonal-feature-pattern)" />
+            <rect width="100%" height="100%" fill="url(#diagonal-feature-pattern-3)" />
           </svg>
 
-          <div className="pointer-events-none relative flex size-full h-104 items-center justify-center p-10 select-none">
-            {/* Four floating brand pills (UPDATED) */}
-            <div className="relative">
+          {/* content layer */}
+          <div className="pointer-events-none relative z-10 flex h-104 w-full items-center justify-center p-10 select-none">
+            {/* ---- Four floating brand pills ---- */}
+            {/* give the arena explicit size so absolute positions are visible */}
+            <div className="relative h-[360px] w-[360px]">
               {/* top-left → Replit */}
-              <div className="absolute top-24 left-24 z-20">
+              <div className="absolute top-10 left-10">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.09),0_3px_5px_0_rgba(0,0,0,0.19)] ring-white/50 ring-inset">
                     <Image
@@ -529,7 +527,7 @@ export default function Features() {
                       alt="Replit"
                       width={20}
                       height={20}
-                      className="h-5 w-5 object-contain"
+                      className="h-5 w-5 object-contain relative z-10"
                       unoptimized
                     />
                   </div>
@@ -537,7 +535,7 @@ export default function Features() {
               </div>
 
               {/* top-right → Loveable */}
-              <div className="absolute top-24 right-24 z-20">
+              <div className="absolute top-10 right-10">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
                     <Image
@@ -545,7 +543,7 @@ export default function Features() {
                       alt="Loveable"
                       width={20}
                       height={20}
-                      className="h-5 w-5 object-contain"
+                      className="h-5 w-5 object-contain relative z-10"
                       unoptimized
                     />
                   </div>
@@ -553,7 +551,7 @@ export default function Features() {
               </div>
 
               {/* bottom-right → shadcn/ui */}
-              <div className="absolute right-24 bottom-24 z-20">
+              <div className="absolute bottom-10 right-10">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
                     <Image
@@ -561,7 +559,7 @@ export default function Features() {
                       alt="shadcn/ui"
                       width={20}
                       height={20}
-                      className="h-5 w-5 object-contain"
+                      className="h-5 w-5 object-contain relative z-10"
                       unoptimized
                     />
                   </div>
@@ -569,7 +567,7 @@ export default function Features() {
               </div>
 
               {/* bottom-left → Aura */}
-              <div className="absolute bottom-24 left-24 z-20">
+              <div className="absolute bottom-10 left-10">
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
                     <Image
@@ -577,7 +575,7 @@ export default function Features() {
                       alt="Aura"
                       width={20}
                       height={20}
-                      className="h-5 w-5 object-contain"
+                      className="h-5 w-5 object-contain relative z-10"
                       unoptimized
                     />
                   </div>
@@ -585,8 +583,8 @@ export default function Features() {
               </div>
             </div>
 
-            {/* central ChipViz + radial sweep lines (unchanged) */}
-            <div className="relative">
+            {/* ---- central ChipViz + radial sweep lines ---- */}
+            <div className="relative z-20">
               {[0, 45, 135, 180, 225, 315, 360].map((rotation, index) => (
                 <div
                   key={rotation}
@@ -611,7 +609,34 @@ export default function Features() {
             </div>
           </div>
         </div>
+
+        {/* central ChipViz + radial sweep lines (unchanged) */}
+        <div className="relative">
+          {[0, 45, 135, 180, 225, 315, 360].map((rotation, index) => (
+            <div
+              key={rotation}
+              className="absolute origin-left overflow-hidden"
+              style={{ transform: `rotate(${rotation}deg)` }}
+            >
+              <div className="relative">
+                <div className="h-0.5 w-60 bg-linear-to-r from-gray-300 to-transparent" />
+                <div
+                  className="absolute top-0 left-0 h-0.5 w-28 bg-linear-to-r from-transparent via-orange-300 to-transparent"
+                  style={{
+                    animation: `gridMovingLine 5s linear infinite ${index * 1.2}s`,
+                    animationFillMode: "backwards",
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+          <div className="absolute -translate-x-1/2 -translate-y-1/2">
+            <ChipViz />
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
+      </div >
+    </section >
   );
 }
