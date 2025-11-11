@@ -610,3 +610,5 @@ export default function Features() {
       </div> {/* end grid */}
       {/* end Features */}
     </section>
+  );
+}
