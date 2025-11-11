@@ -607,6 +607,6 @@ export default function Features() {
           </div>
         </div>
         {/* ===== END Section 3 right column ===== */}
-      </div>   {/* end grid */}
+      </div> {/* end grid */}
+      {/* end Features */}
     </section>
-{/* end Features */ }
