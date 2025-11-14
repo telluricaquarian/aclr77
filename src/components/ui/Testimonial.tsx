@@ -33,7 +33,7 @@ export default function Testimonial() {
               <strong className="font-semibold">
                 Areculateir is founded and built by Llewellyn..
               </strong>{" "}
-              <span className="text-gray-900/70">
+              <span className="text-white">
                 The central service offering is high end UI element website /
                 project builds. With discretionary media buying and funnel
                 optimisation services, offered as indicated to the discretion of
