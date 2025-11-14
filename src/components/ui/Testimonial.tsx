@@ -36,7 +36,7 @@ export default function Testimonial() {
               <span className="text-white">
                 The central service offering is high end UI element website /
                 project builds. With discretionary media buying and funnel
-                optimisation services, offered as indicated to the discretion of
+                optimisation services, offered, as indicated, to the discretion of
                 Llewellyn, owner of Areculateir
               </span>
             </p>
