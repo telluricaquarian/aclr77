@@ -7,7 +7,7 @@ export default function Testimonial() {
       <div className="absolute inset-0 -z-10">
         <Image
           alt="clouds background"
-          src="/images/branding.png"
+          src="/images/brandingnew.png"
           fill
           className="object-cover"
           priority
