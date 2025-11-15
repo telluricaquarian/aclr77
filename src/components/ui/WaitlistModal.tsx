@@ -20,10 +20,30 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
         message: "",
     });
 
-    const handleSubmit = () => {
-        console.log("Form submitted:", formData);
-        // Add your form submission logic here
-        onClose();
+    const handleSubmit = async () => {
+        try {
+            const response = await fetch('/api/waitlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                }),
+            });
+
+            if (response.ok) {
+                alert('Thank you for joining the waitlist!');
+                setFormData({ name: '', email: '', role: '', companySize: '', message: '' });
+                onClose();
+            } else {
+                alert('Something went wrong. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Something went wrong. Please try again.');
+        }
     };
 
     const isQuote = modalType === "quote";

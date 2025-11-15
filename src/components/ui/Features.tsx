@@ -568,7 +568,7 @@ export default function Features() {
                 <div className="relative mx-auto w-fit rounded-full bg-gray-50 p-1 ring-1 shadow-md shadow-black/10 ring-black/10">
                   <div className="w-fit rounded-full bg-linear-to-b from-white to-gray-100 p-3 ring-1 shadow-[inset_0px_-2px_6px_rgba(0,0,0,0.05),0_7px_10px_0_rgba(0,0,0,0.10)] ring-white/50 ring-inset">
                     <Image
-                      src="/images/logo-aura.svg"
+                      src="/images/aura-logo.svg"
                       alt="Aura"
                       width={20}
                       height={20}
