@@ -63,7 +63,7 @@ export default function FieldPerformance() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableHeaderCell>Field</TableHeaderCell>
+                <TableHeaderCell>Marketing Campaigns</TableHeaderCell>
                 <TableHeaderCell className="text-right">Amount Spent</TableHeaderCell>
                 <TableHeaderCell className="text-right">
                   Results
