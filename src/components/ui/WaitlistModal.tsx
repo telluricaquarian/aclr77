@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 interface QuoteModalProps {
@@ -63,7 +64,13 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
 
                             {/* Logo/Brand */}
                             <div className="mb-6 flex items-center gap-2">
-                                <div className="text-2xl font-bold text-white">77</div>
+                                <Image
+                                    src="/images/aa.png"
+                                    alt="Areculateir Logo"
+                                    width={32}
+                                    height={32}
+                                    className="h-8 w-8"
+                                />
                                 <div className="text-sm text-zinc-400">ACLR77</div>
                             </div>
 
