@@ -26,7 +26,7 @@ const ChipViz = () => {
   });
 
   return (
-    <div className="relative flex items-center">
+    <div className="relative flex items-center justify-center">
       <div className="relative">
         {/* Outer soft glow */}
         <motion.div
