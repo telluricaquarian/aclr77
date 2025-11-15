@@ -581,7 +581,8 @@ export default function Features() {
             </div>
 
             {/* central ChipViz + radial sweep lines */}
-            <div className="relative z-20">
+            {/* ADDED: absolute inset-1/2 to center this entire block */}
+            <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
               {[0, 45, 135, 180, 225, 315, 360].map((rotation, index) => (
                 <div
                   key={rotation}
@@ -600,6 +601,7 @@ export default function Features() {
                   </div>
                 </div>
               ))}
+              {/* This div containing ChipViz is already correctly positioned relative to its parent */}
               <div className="absolute -translate-x-1/2 -translate-y-1/2">
                 <ChipViz />
               </div>
