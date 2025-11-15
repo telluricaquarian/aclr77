@@ -1,3 +1,5 @@
+"use client";
+
 import QuoteModal from "@/components/ui/WaitlistModal";
 import { RiArrowRightUpLine } from "@remixicon/react";
 import { useState } from "react";
