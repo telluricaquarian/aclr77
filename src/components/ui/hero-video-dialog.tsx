@@ -5,6 +5,9 @@ import { Play, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
+// ⭐ Add RainbowButton import
+import { RainbowButton } from "@/components/ui/rainbow-button";
+
 type AnimationStyle =
   | "from-bottom"
   | "from-center"
@@ -47,14 +50,13 @@ export function HeroVideoDialog({
 
   return (
     <div className={`relative w-full ${className}`}>
-      {/* Force a stable box for the thumbnail */}
+      {/* Thumbnail trigger */}
       <button
         type="button"
         aria-label="Play video"
         onClick={() => setIsVideoOpen(true)}
         className="group relative mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border bg-transparent p-0 shadow-lg"
       >
-        {/* Aspect ratio wrapper ensures consistent size */}
         <div className="relative aspect-video w-full">
           <img
             src={thumbnailSrc}
@@ -63,7 +65,8 @@ export function HeroVideoDialog({
             height={1080}
             className="absolute inset-0 h-full w-full object-cover"
           />
-          {/* Centered overlay */}
+
+          {/* Play Button */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex size-28 items-center justify-center rounded-full bg-black/10 backdrop-blur-md">
               <div className="relative flex size-20 items-center justify-center rounded-full bg-gradient-to-b from-white/90 to-white shadow-md transition-transform duration-200 ease-out group-hover:scale-110">
@@ -80,6 +83,7 @@ export function HeroVideoDialog({
         </div>
       </button>
 
+      {/* Modal */}
       <AnimatePresence>
         {isVideoOpen && (
           <motion.div
@@ -89,7 +93,8 @@ export function HeroVideoDialog({
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === "Escape" || e.key === "Enter" || e.key === " ") setIsVideoOpen(false);
+              if (e.key === "Escape" || e.key === "Enter" || e.key === " ")
+                setIsVideoOpen(false);
             }}
             onClick={() => setIsVideoOpen(false)}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md"
@@ -98,7 +103,9 @@ export function HeroVideoDialog({
               {...selectedAnimation}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="relative mx-4 w-full max-w-4xl md:mx-0"
+              onClick={(e) => e.stopPropagation()} // prevent modal click from closing
             >
+              {/* Close Button */}
               <motion.button
                 onClick={() => setIsVideoOpen(false)}
                 className="absolute -top-16 right-0 rounded-full bg-neutral-900/50 p-2 text-white ring-1 backdrop-blur-md dark:bg-neutral-100/50 dark:text-black"
@@ -106,6 +113,7 @@ export function HeroVideoDialog({
                 <XIcon className="size-5" />
               </motion.button>
 
+              {/* Video Frame */}
               <div className="relative aspect-video overflow-hidden rounded-2xl border-2 border-white">
                 <iframe
                   src={videoSrc}
@@ -114,6 +122,13 @@ export function HeroVideoDialog({
                   allowFullScreen
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 />
+              </div>
+
+              {/* ⭐ RainbowButton Positioned Under Video */}
+              <div className="mt-6 flex justify-center">
+                <RainbowButton className="px-8 py-3 text-base font-semibold">
+                  Join Waitlist
+                </RainbowButton>
               </div>
             </motion.div>
           </motion.div>
