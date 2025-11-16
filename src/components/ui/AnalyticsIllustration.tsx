@@ -22,7 +22,7 @@ const summary = [
   },
   {
     name: "Lead Generation Campaign",
-    value: "25,943 bu",
+    value: "$2,346.00",
     planted: "23,600 bu",
     water: "11,033 gal",
     yield: "+3.1%",
@@ -33,7 +33,7 @@ const summary = [
   },
   {
     name: "Conversion Campaign",
-    value: "9,443 bu",
+    value: "$4323.20",
     planted: "14,600 bu",
     water: "2,033 gal",
     yield: "-5.1%",
