@@ -14,7 +14,7 @@ export default function NotFound() {
         Error 404
       </p>
       <h1 className="mt-4 text-2xl font-semibold text-gray-900">
-        Page not found
+        Page not found 
       </h1>
       <p className="mt-2 text-sm text-gray-600">
         Sorry, we couldn’t find the page you’re looking for.
