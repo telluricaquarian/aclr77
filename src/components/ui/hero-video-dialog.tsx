@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { RainbowButton } from "@/components/ui/rainbow-button";
 import { Play, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState, type FormEvent } from "react";
-import { RainbowButton } from "@/components/ui/rainbow-button";
 
 type AnimationStyle =
   | "from-bottom"
@@ -189,3 +189,78 @@ export function HeroVideoDialog({
             >
               {/* Close Button */}
               <motion.button
+                onClick={() => setIsVideoOpen(false)}
+                className="absolute -top-16 right-0 rounded-full bg-neutral-900/50 p-2 text-white ring-1 backdrop-blur-md dark:bg-neutral-100/50 dark:text-black"
+              >
+                <XIcon className="size-5" />
+              </motion.button>
+
+              <div className="space-y-6">
+                {/* Video Frame */}
+                <div className="relative aspect-video overflow-hidden rounded-2xl border-2 border-white">
+                  <iframe
+                    src={videoSrc}
+                    title="Hero Video player"
+                    className="absolute inset-0 h-full w-full"
+                    allowFullScreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  />
+                </div>
+
+                {/* Waitlist form */}
+                <form
+                  onSubmit={handleSubmit}
+                  className="mx-auto flex w-full max-w-md flex-col gap-3 rounded-2xl bg-black/40 px-4 py-4 backdrop-blur-md border border-white/10"
+                >
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="video-waitlist-name"
+                      className="text-xs font-medium text-white/80"
+                    >
+                      First Name
+                    </label>
+                    <input
+                      id="video-waitlist-name"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="w-full rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="Llewellyn"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="video-waitlist-email"
+                      className="text-xs font-medium text-white/80"
+                    >
+                      Email
+                    </label>
+                    <input
+                      id="video-waitlist-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex justify-center">
+                    <RainbowButton
+                      type="submit"
+                      className="px-8 py-3 text-base font-semibold"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Joining..." : "Join Waitlist"}
+                    </RainbowButton>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
