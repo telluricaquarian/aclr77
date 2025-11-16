@@ -3,9 +3,7 @@
 
 import { Play, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
-
-// ⭐ Add RainbowButton import
+import { useState, type FormEvent } from "react";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 
 type AnimationStyle =
@@ -28,14 +26,46 @@ interface HeroVideoProps {
 }
 
 const animationVariants = {
-  "from-bottom": { initial: { y: "100%", opacity: 0 }, animate: { y: 0, opacity: 1 }, exit: { y: "100%", opacity: 0 } },
-  "from-center": { initial: { scale: 0.5, opacity: 0 }, animate: { scale: 1, opacity: 1 }, exit: { scale: 0.5, opacity: 0 } },
-  "from-top": { initial: { y: "-100%", opacity: 0 }, animate: { y: 0, opacity: 1 }, exit: { y: "-100%", opacity: 0 } },
-  "from-left": { initial: { x: "-100%", opacity: 0 }, animate: { x: 0, opacity: 1 }, exit: { x: "-100%", opacity: 0 } },
-  "from-right": { initial: { x: "100%", opacity: 0 }, animate: { x: 0, opacity: 1 }, exit: { x: "100%", opacity: 0 } },
-  fade: { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } },
-  "top-in-bottom-out": { initial: { y: "-100%", opacity: 0 }, animate: { y: 0, opacity: 1 }, exit: { y: "100%", opacity: 0 } },
-  "left-in-right-out": { initial: { x: "-100%", opacity: 0 }, animate: { x: 0, opacity: 1 }, exit: { x: "100%", opacity: 0 } },
+  "from-bottom": {
+    initial: { y: "100%", opacity: 0 },
+    animate: { y: 0, opacity: 1 },
+    exit: { y: "100%", opacity: 0 },
+  },
+  "from-center": {
+    initial: { scale: 0.5, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    exit: { scale: 0.5, opacity: 0 },
+  },
+  "from-top": {
+    initial: { y: "-100%", opacity: 0 },
+    animate: { y: 0, opacity: 1 },
+    exit: { y: "-100%", opacity: 0 },
+  },
+  "from-left": {
+    initial: { x: "-100%", opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: { x: "-100%", opacity: 0 },
+  },
+  "from-right": {
+    initial: { x: "100%", opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: { x: "100%", opacity: 0 },
+  },
+  fade: {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+  },
+  "top-in-bottom-out": {
+    initial: { y: "-100%", opacity: 0 },
+    animate: { y: 0, opacity: 1 },
+    exit: { y: "100%", opacity: 0 },
+  },
+  "left-in-right-out": {
+    initial: { x: "-100%", opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: { x: "100%", opacity: 0 },
+  },
 };
 
 export function HeroVideoDialog({
@@ -46,7 +76,54 @@ export function HeroVideoDialog({
   className = "",
 }: HeroVideoProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const selectedAnimation = animationVariants[animationStyle];
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!firstName || !email) {
+      alert("Please enter your name and email.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: firstName,
+          email,
+          role: "",
+          companySize: "",
+          message: "",
+          source: "video-modal",
+        }),
+      });
+
+      if (response.ok) {
+        alert("Thank you for joining the waitlist!");
+        setIsVideoOpen(false);
+        setFirstName("");
+        setEmail("");
+      } else {
+        console.error("Waitlist error:", await response.text());
+        alert("Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      console.error("Waitlist error:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className={`relative w-full ${className}`}>
@@ -93,8 +170,13 @@ export function HeroVideoDialog({
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === "Escape" || e.key === "Enter" || e.key === " ")
+              if (
+                e.key === "Escape" ||
+                e.key === "Enter" ||
+                e.key === " "
+              ) {
                 setIsVideoOpen(false);
+              }
             }}
             onClick={() => setIsVideoOpen(false)}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md"
@@ -107,33 +189,3 @@ export function HeroVideoDialog({
             >
               {/* Close Button */}
               <motion.button
-                onClick={() => setIsVideoOpen(false)}
-                className="absolute -top-16 right-0 rounded-full bg-neutral-900/50 p-2 text-white ring-1 backdrop-blur-md dark:bg-neutral-100/50 dark:text-black"
-              >
-                <XIcon className="size-5" />
-              </motion.button>
-
-              {/* Video Frame */}
-              <div className="relative aspect-video overflow-hidden rounded-2xl border-2 border-white">
-                <iframe
-                  src={videoSrc}
-                  title="Hero Video player"
-                  className="absolute inset-0 h-full w-full"
-                  allowFullScreen
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                />
-              </div>
-
-              {/* ⭐ RainbowButton Positioned Under Video */}
-              <div className="mt-6 flex justify-center">
-                <RainbowButton className="px-8 py-3 text-base font-semibold">
-                  Join Waitlist
-                </RainbowButton>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
