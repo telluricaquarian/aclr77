@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export const SolarLogo = ({ className }: { className?: string }) => (
   <Image
-    src="/images/typelogo.svg"
+    src="/images/typography.png"
     alt="Areculateir Logo"
     width={110}   // was 140
     height={38}   // was 48
