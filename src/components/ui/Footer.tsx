@@ -19,13 +19,16 @@ const Footer = () => {
         { label: "Funnel Optimization", href: "#" },
       ],
     },
+
     resources: {
       title: "Resources",
       items: [
-        { label: "Gumroad", href: "#" },
-        { label: "Community", href: "#" },
-        { label: "Contact", href: "#" },
-        { label: "Support", href: "#" },
+        { label: "Design Sensibilities – Notable Design Figures", href: "#" },
+        { label: "Web Design Styles", href: "#" },
+        { label: "U.X & U.I Psychology", href: "#" },
+        { label: "Media Buying Mental Models", href: "#" },
+        { label: "Copywriting Formulas", href: "#" },
+        { label: "V.S.L Formulas", href: "#" },
         { label: "Privacy Policy", href: "#" },
         { label: "Terms of Service", href: "#" },
       ],
@@ -60,7 +63,7 @@ const Footer = () => {
 
           {/* Right */}
           <div
-            className="absolute inset-y-0 right-0 -my-20 w-px"
+            className="absolute inset-y-0 right-0 -my-20 w-ppx"
             style={{ maskImage: "linear-gradient(transparent, white 5rem)" }}
           >
             <svg className="h-full w-full" preserveAspectRatio="none">
@@ -77,6 +80,7 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Decorative Pattern Divider */}
         <svg className="mb-10 h-20 w-full border-y border-dashed border-gray-300 stroke-gray-300">
           <defs>
             <pattern
@@ -98,10 +102,15 @@ const Footer = () => {
               })}
             </pattern>
           </defs>
-          <rect stroke="none" width="100%" height="100%" fill="url(#diagonal-footer-pattern)" />
+          <rect
+            stroke="none"
+            width="100%"
+            height="100%"
+            fill="url(#diagonal-footer-pattern)"
+          />
         </svg>
 
-        {/* Left block: logo + socials */}
+        {/* Logo + Socials */}
         <div className="mr-auto flex w-full justify-between lg:w-fit lg:flex-col">
           <Link
             href="/"
@@ -156,7 +165,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Footer Sections: Solutions + Resources only */}
+        {/* Footer Sections: Solutions + Resources */}
         {Object.entries(sections).map(([key, section]) => (
           <div key={key} className="mt-10 min-w-44 pl-2 lg:mt-0 lg:pl-0">
             <h3 className="mb-4 font-medium text-gray-900 sm:text-sm">
