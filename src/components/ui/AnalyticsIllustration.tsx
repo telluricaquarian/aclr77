@@ -1,4 +1,3 @@
-import { LineChartIllustration } from "../../../public/images/LineChartIllustration"
 import {
   Table,
   TableBody,
