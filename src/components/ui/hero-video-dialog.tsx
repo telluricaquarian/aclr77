@@ -185,7 +185,7 @@ export function HeroVideoDialog({
               {...selectedAnimation}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="relative mx-4 w-full max-w-4xl md:mx-0"
-              onClick={(e) => e.stopPropagation()} // prevent modal click from closing
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
               <motion.button
@@ -217,7 +217,7 @@ export function HeroVideoDialog({
                       htmlFor="video-waitlist-name"
                       className="text-xs font-medium text-white/80"
                     >
-                      First Name
+                      First Name *
                     </label>
                     <input
                       id="video-waitlist-name"
@@ -225,7 +225,7 @@ export function HeroVideoDialog({
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       className="w-full rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      placeholder="Llewellyn"
+                      placeholder="your name"
                     />
                   </div>
 
@@ -234,7 +234,7 @@ export function HeroVideoDialog({
                       htmlFor="video-waitlist-email"
                       className="text-xs font-medium text-white/80"
                     >
-                      Email
+                      Email *
                     </label>
                     <input
                       id="video-waitlist-email"
