@@ -5,8 +5,8 @@ export const SolarLogo = ({ className }: { className?: string }) => (
   <Image
     src="/images/typelogo.svg"
     alt="Areculateir Logo"
-    width={140}
-    height={48}
+    width={110}   // was 140
+    height={38}   // was 48
     priority
     className={className}
   />
