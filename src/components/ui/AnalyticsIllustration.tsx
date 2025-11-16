@@ -54,16 +54,21 @@ export default function FieldPerformance() {
         </p>
         <p className="mt-1 text-sm font-medium">
           <span className="text-emerald-700">+430 Leads (4.1%)</span>{" "}
-          <span className="font-normal text-gray-500">Highest Performing Campaign</span>
+          <span className="font-normal text-gray-500">
+            Highest Performing Campaign
+          </span>
         </p>
-        <LineChartIllustration className="mt-8 w-full min-w-200 shrink-0" />
+
+        {/* Chart removed; table still shown below */}
 
         <TableRoot className="mt-6 min-w-200">
           <Table>
             <TableHead>
               <TableRow>
                 <TableHeaderCell>Marketing Campaigns</TableHeaderCell>
-                <TableHeaderCell className="text-right">Amount Spent</TableHeaderCell>
+                <TableHeaderCell className="text-right">
+                  Amount Spent
+                </TableHeaderCell>
                 <TableHeaderCell className="text-right">
                   Results
                 </TableHeaderCell>
