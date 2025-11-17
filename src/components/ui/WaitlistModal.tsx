@@ -48,13 +48,14 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
 
     const isQuote = modalType === "quote";
     const title = isQuote ? "Join Waitlist" : "Join Waitlist";
-    const description = "Get a Free Prototype / Makeshift Build created by Areculateir℠ Quote & proposal provided in tandem with the prototype";
+    const description =
+        "Get a Free Prototype / Makeshift Build created by Areculateir℠ Quote & proposal provided in tandem with the prototype";
 
     return (
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* Backdrop with blur */}
+                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -82,7 +83,7 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
                                 <X className="h-5 w-5" />
                             </button>
 
-                            {/* Logo/Brand */}
+                            {/* Logo */}
                             <div className="mb-6 flex items-center gap-2">
                                 <Image
                                     src="/images/aa.png"
@@ -95,19 +96,18 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
                             </div>
 
                             {/* Title & Description */}
-                            <h2 className="mb-2 text-2xl font-semibold text-white">
-                                {title}
-                            </h2>
+                            <h2 className="mb-2 text-2xl font-semibold text-white">{title}</h2>
                             <p className="mb-6 text-sm text-zinc-400">{description}</p>
 
-                            {/* Form Fields */}
+                            {/* Form */}
                             <div className="space-y-4">
+                                {/* Name */}
                                 <div>
                                     <label
                                         htmlFor="name"
                                         className="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-400"
                                     >
-                                        Name
+                                        Name <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -121,12 +121,13 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
                                     />
                                 </div>
 
+                                {/* Email */}
                                 <div>
                                     <label
                                         htmlFor="email"
                                         className="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-400"
                                     >
-                                        Email
+                                        Email <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="email"
