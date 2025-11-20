@@ -31,6 +31,7 @@ const Footer = () => {
         { label: "V.S.L Formulas", href: "#" },
         { label: "Optimizing Cursor", href: "#" },
         { label: "Using Resend for Email", href: "#" },
+        { label: "Lead Generation", href: "#" },
         { label: "Privacy Policy", href: "#" },
         { label: "Terms of Service", href: "#" },
       ],
