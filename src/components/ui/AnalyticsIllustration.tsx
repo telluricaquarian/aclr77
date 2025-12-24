@@ -1,0 +1,145 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRoot,
+  TableRow,
+} from "../Table"
+
+const summary = [
+  {
+    name: "Awareness & Engagement Campaign",
+    value: "$1,555.00",
+    planted: "54,343",
+    water: "100,467",
+    yield: "3.2",
+    efficiency: "$0.23",
+    nutrients: "Using Ad set Budget",
+    bgColor: "bg-amber-500",
+    changeType: "positive",
+  },
+  {
+    name: "Lead Generation Campaign",
+    value: "$2,346.00",
+    planted: "1,234",
+    water: "222,132",
+    yield: "5.3",
+    efficiency: "+5.6%",
+    nutrients: "Using Ad set Budget",
+    bgColor: "bg-emerald-500",
+    changeType: "positive",
+  },
+  {
+    name: "Conversion Campaign",
+    value: "$4323.20",
+    planted: "111",
+    water: "12,645",
+    yield: "4.3",
+    efficiency: "-6.3%",
+    nutrients: "Using Ad set Budget",
+    bgColor: "bg-yellow-400",
+    changeType: "negative",
+  },
+]
+
+export default function FieldPerformance() {
+  return (
+    <div className="h-150 shrink-0 overflow-hidden mask-[radial-gradient(white_30%,transparent_90%)] perspective-[4000px] perspective-origin-center">
+      <div className="-translate-y-10 -translate-z-10 rotate-x-10 rotate-y-20 -rotate-z-10 transform-3d">
+        <h3 className="text-sm text-gray-500">Field Yield Performance</h3>
+        <p className="mt-1 text-3xl font-semibold text-gray-900">
+          32,227 Leads Generated
+        </p>
+        <p className="mt-1 text-sm font-medium">
+          <span className="text-emerald-700">+430 Leads (4.1%)</span>{" "}
+          <span className="font-normal text-gray-500">
+            Highest Performing Campaign
+          </span>
+        </p>
+
+        {/* Chart removed; table still shown below */}
+
+        <TableRoot className="mt-6 min-w-200">
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell>Marketing Campaigns</TableHeaderCell>
+                <TableHeaderCell className="text-right">
+                  Amount Spent
+                </TableHeaderCell>
+                <TableHeaderCell className="text-right">
+                  Results
+                </TableHeaderCell>
+                <TableHeaderCell className="text-right">
+                  Reach
+                </TableHeaderCell>
+                <TableHeaderCell className="text-right">
+                  Frequency
+                </TableHeaderCell>
+                <TableHeaderCell className="text-right">
+                  Cost Per Result
+                </TableHeaderCell>
+                <TableHeaderCell className="text-right">
+                  Budget
+                </TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {summary.map((item) => (
+                <TableRow key={item.name}>
+                  <TableCell className="font-medium text-gray-900">
+                    <div className="flex space-x-3">
+                      <span
+                        className={item.bgColor + " w-1 shrink-0 rounded"}
+                        aria-hidden="true"
+                      />
+                      <span>{item.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">{item.value}</TableCell>
+                  <TableCell className="text-right">{item.planted}</TableCell>
+                  <TableCell className="text-right">{item.water}</TableCell>
+                  <TableCell className="text-right">
+                    <span
+                      className={
+                        item.changeType === "positive"
+                          ? "text-emerald-700"
+                          : "text-red-700"
+                      }
+                    >
+                      {item.yield}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span
+                      className={
+                        item.changeType === "positive"
+                          ? "text-emerald-700"
+                          : "text-red-700"
+                      }
+                    >
+                      {item.efficiency}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span
+                      className={
+                        item.changeType === "positive"
+                          ? "text-emerald-700"
+                          : "text-red-700"
+                      }
+                    >
+                      {item.nutrients}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableRoot>
+      </div>
+    </div>
+  )
+}
