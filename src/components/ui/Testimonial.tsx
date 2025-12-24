@@ -6,7 +6,7 @@ export default function Testimonial() {
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <video
           className="h-full w-full object-cover"
-          src="/images/brandingvideo.mp4"
+          src="/images/aclrvideo.mp4"
           autoPlay
           loop
           muted
