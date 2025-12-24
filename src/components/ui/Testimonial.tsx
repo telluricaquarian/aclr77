@@ -1,22 +1,22 @@
-import Image from "next/image"
-
 export default function Testimonial() {
   return (
     <section className="relative mx-auto w-full max-w-6xl overflow-hidden rounded-xl shadow-2xl shadow-[#366A79]/70">
-      {/* Background Image */}
-      <div className="absolute inset-0 -z-10">
-        <Image
-          alt="clouds background"
-          src="/images/brandingnew.png"
-          fill
-          className="object-cover"
-          priority
+
+      {/* Background Video */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <video
+          className="h-full w-full object-cover"
+          src="/images/brandingvideo.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
         />
       </div>
 
       {/* Helmet Image */}
       <div className="absolute top-76 -right-14 w-76 sm:top-48 sm:right-3 sm:w-92 md:top-48 md:right-0 md:w-100 lg:top-64 lg:right-12 lg:w-136">
-        <Image
+        <img
           alt="ACLR helmet"
           src="/images/helmetclean.png"
           width={1080}
@@ -46,7 +46,7 @@ export default function Testimonial() {
         {/* Profile Section */}
         <div className="mt-14 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
           <div className="relative shrink-0 rounded-full bg-white/15 p-0.5 ring-1 ring-white/20">
-            <Image
+            <img
               alt="llewellyn"
               src="/images/llewellyn.png"
               width={56}
