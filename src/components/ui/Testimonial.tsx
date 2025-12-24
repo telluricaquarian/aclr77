@@ -47,8 +47,8 @@ export default function Testimonial() {
         <div className="mt-14 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
           <div className="relative shrink-0 rounded-full bg-white/15 p-0.5 ring-1 ring-white/20">
             <img
-              alt="llewellyn"
-              src="/images/llewellyn.png"
+              alt="Areculateir helmet"
+              src="/images/orangehelmet.png"
               width={56}
               height={56}
               className="rounded-full border object-contain"
