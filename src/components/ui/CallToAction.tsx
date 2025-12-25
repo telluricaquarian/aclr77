@@ -46,7 +46,7 @@ export function CallToAction() {
               {/* Video enhancement (fades in once it can play) */}
               <video
                 className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700"
-                src="/images/aclr77thumb.mp4"
+                src="/images/aclrvideo.mp4"
                 autoPlay
                 loop
                 muted
