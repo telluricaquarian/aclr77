@@ -49,7 +49,7 @@ export default function Testimonial() {
           <div className="relative shrink-0 rounded-full bg-white/15 p-0.5 ring-1 ring-white/20">
             <img
               alt="Areculateir helmet"
-              src="/images/orangehelmet.png"
+              src="/images/displaypicture.png"
               width={56}
               height={56}
               className="rounded-full border object-contain"
