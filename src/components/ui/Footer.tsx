@@ -24,7 +24,10 @@ const Footer = () => {
       title: "Resources",
       items: [
         { label: "Design Sensibilities – Notable Design Figures", href: "#" },
-        { label: "Web Design Styles", href: "#" },
+        {
+          label: "Web design",
+          href: "https://resourceareculateir.vercel.app/web-design",
+        },
         { label: "U.X & U.I Psychology", href: "#" },
         { label: "Media Buying Mental Models", href: "#" },
         { label: "Copywriting Formulas", href: "#" },
@@ -168,7 +171,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Footer Sections: Solutions + Resources */}
+        {/* Footer Sections */}
         {Object.entries(sections).map(([key, section]) => (
           <div key={key} className="mt-10 min-w-44 pl-2 lg:mt-0 lg:pl-0">
             <h3 className="mb-4 font-medium text-gray-900 sm:text-sm">
