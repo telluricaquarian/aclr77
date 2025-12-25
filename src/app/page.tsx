@@ -15,11 +15,6 @@ export default function Home() {
         <Hero />
       </div>
 
-      {/* 🟠 Spartan MP4 Carousel Section */}
-      <div className="mt-40 px-4 xl:px-0">
-        <SpartanCarouselSection />
-      </div>
-
       {/* Features */}
       <div className="mt-52 px-4 xl:px-0">
         <Features />
@@ -28,6 +23,11 @@ export default function Home() {
       {/* Testimonial */}
       <div className="mt-32 px-4 xl:px-0">
         <Testimonial />
+      </div>
+
+      {/* 🟠 Spartan MP4 Carousel Section (moved down) */}
+      <div className="mt-32 px-4 xl:px-0">
+        <SpartanCarouselSection />
       </div>
 
       <FeatureDivider className="my-16 max-w-6xl" />
