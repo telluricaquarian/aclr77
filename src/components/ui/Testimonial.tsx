@@ -52,7 +52,7 @@ export default function Testimonial() {
             <div className="h-10 w-10 overflow-hidden rounded-full ring-1 ring-black/10">
               <img
                 alt="Areculateir helmet"
-                src="/images/orangehelmet.png"
+                src="/images/llewellyn.png"
                 width={56}
                 height={56}
                 className="h-full w-full object-cover"
