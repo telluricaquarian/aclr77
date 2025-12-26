@@ -58,7 +58,7 @@ export function NavBar() {
             <nav className="hidden sm:block md:absolute md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:transform">
               <div className="flex items-center gap-10 font-medium">
                 <a href="#solutions" onClick={go("solutions")} className="px-2 py-1 text-gray-900 font-semibold">
-                  High End UI
+                  Web Design w/ High End UI
                 </a>
                 <a href="#farm-management" onClick={go("farm-management")} className="px-2 py-1 text-gray-600 italic">
                   Client Acquisition (by discretion)
@@ -119,7 +119,7 @@ export function NavBar() {
             <ul className="space-y-5 font-medium">
               <li>
                 <a href="#solutions" onClick={go("solutions")} className="block text-gray-900">
-                  High End UI
+                  Web Design w/ High End UI
                 </a>
               </li>
               <li>
