@@ -1,10 +1,17 @@
-import { GeistSans } from "geist/font/sans"
-import type { Metadata } from "next"
-import "./globals.css"
+import { GeistSans } from "geist/font/sans";
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+import "./globals.css";
 
-import Footer from "@/components/ui/Footer"
-import { NavBar } from "@/components/ui/Navbar"
-import { siteConfig } from "./siteConfig"
+import Footer from "@/components/ui/Footer";
+import { NavBar } from "@/components/ui/Navbar";
+import { siteConfig } from "./siteConfig";
+
+const redaction = localFont({
+  src: "../../public/fonts/RedactionItalic-lgB8w.otf",
+  display: "swap",
+  variable: "--font-redaction",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://yoururl.com"),
@@ -35,15 +42,15 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={redaction.variable}>
       <body
         className={`${GeistSans.className} min-h-screen overflow-x-hidden scroll-auto bg-gray-50 antialiased selection:bg-orange-100 selection:text-orange-600`}
       >
@@ -52,5 +59,5 @@ export default function RootLayout({
         <Footer />
       </body>
     </html>
-  )
+  );
 }
