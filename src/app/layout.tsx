@@ -8,7 +8,7 @@ import { NavBar } from "@/components/ui/Navbar";
 import { siteConfig } from "./siteConfig";
 
 const redaction = localFont({
-  src: "/fonts/RedactionItalic-lgB8w.otf",
+  src: "../../public/fonts/RedactionItalic-lgB8w.otf",
   display: "swap",
   variable: "--font-redaction",
 });
@@ -18,12 +18,7 @@ export const metadata: Metadata = {
   title: siteConfig.name,
   description: siteConfig.description,
   keywords: ["Marketing", "Database", "Software"],
-  authors: [
-    {
-      name: "yourname",
-      url: "",
-    },
-  ],
+  authors: [{ name: "yourname", url: "" }],
   creator: "Founded by Llewellyn",
   openGraph: {
     type: "website",
@@ -39,16 +34,12 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     creator: "@yourname",
   },
-  icons: {
-    icon: "/favicon.ico",
-  },
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={redaction.variable}>
       <body
