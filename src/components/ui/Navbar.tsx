@@ -61,7 +61,7 @@ export function NavBar() {
                   High End UI
                 </a>
                 <a href="#farm-management" onClick={go("farm-management")} className="px-2 py-1 text-gray-600 italic">
-                  Media Buying (by discretion)
+                  Client Acquisition (by discretion)
                 </a>
                 <a href="#solar-analytics" onClick={go("solar-analytics")} className="px-2 py-1 text-gray-600 italic">
                   Funnel Optimization (by discretion)
