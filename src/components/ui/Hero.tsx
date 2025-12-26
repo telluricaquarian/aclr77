@@ -36,7 +36,7 @@ export function Hero() {
         <h1 className="mt-8 text-center text-5xl font-semibold tracking-tighter text-gray-900 sm:text-8xl sm:leading-22">
           <FadeSpan>
             Build a{" "}
-            <span className="font-redaction italic text-[#ED4D30]">
+            <span className="font-redaction italic font-normal text-[#ED4D30] [font-synthesis:none] antialiased [text-rendering:optimizeLegibility]">
               Website
             </span>
           </FadeSpan>{" "}
