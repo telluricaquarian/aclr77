@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
+import { StickyVoiceCta } from "@/components/sticky-voice-cta"; // <-- this path matches your git status
 import Footer from "@/components/ui/Footer";
 import { NavBar } from "@/components/ui/Navbar";
 import { siteConfig } from "./siteConfig";
@@ -48,22 +49,10 @@ export default function RootLayout({
         <NavBar />
         {children}
         <Footer />
+
+        {/* Sticky voice agent CTA */}
+        <StickyVoiceCta />
       </body>
-      import "./globals.css";
-      import {StickyVoiceCta} from "@/components/sticky-voice-cta";
-
-      export default function RootLayout({children}: {children: React.ReactNode }) {
-  return (
-      <html lang="en">
-        <body>
-          {children}
-
-          {/* Sticky call widget */}
-          <StickyVoiceCta phoneNumber="+1XXXXXXXXXX" />
-        </body>
-      </html>
-      );
-}
     </html>
   );
 }
