@@ -124,7 +124,7 @@ export function NavBar() {
               </li>
               <li>
                 <a href="#farm-management" onClick={go("farm-management")} className="block text-gray-700 italic">
-                  Media Buying (by discretion)
+                  Client Acquisition (by discretion)
                 </a>
               </li>
               <li>
