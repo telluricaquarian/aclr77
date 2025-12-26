@@ -49,6 +49,21 @@ export default function RootLayout({
         {children}
         <Footer />
       </body>
+      import "./globals.css";
+      import {StickyVoiceCta} from "@/components/sticky-voice-cta";
+
+      export default function RootLayout({children}: {children: React.ReactNode }) {
+  return (
+      <html lang="en">
+        <body>
+          {children}
+
+          {/* Sticky call widget */}
+          <StickyVoiceCta phoneNumber="+1XXXXXXXXXX" />
+        </body>
+      </html>
+      );
+}
     </html>
   );
 }
