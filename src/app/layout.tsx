@@ -8,7 +8,7 @@ import { NavBar } from "@/components/ui/Navbar";
 import { siteConfig } from "./siteConfig";
 
 const redaction = localFont({
-  src: "../../public/fonts/RedactionItalic-lgB8w.otf",
+  src: "../../public/fonts/Redaction-Italic.otf",
   display: "swap",
   variable: "--font-redaction",
 });
