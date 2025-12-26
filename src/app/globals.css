@@ -362,6 +362,20 @@
   }
 }
 
+/*
+  ---break---
+*/
+
+@layer utilities {
+  .font-redaction {
+    font-family: var(--font-redaction), serif;
+    font-style: italic;
+    /* ← ADD THIS LINE */
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+}
+
 /* --------------------------------------------------
    ✨ ADDED: Desktop-only scaling (80% like your screenshot)
    -------------------------------------------------- */
