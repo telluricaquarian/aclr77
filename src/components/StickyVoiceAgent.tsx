@@ -42,9 +42,6 @@ function formatErr(err: unknown): string {
 
 function normalizeAssistantId(raw: string): string {
     const trimmed = (raw ?? "").trim();
-    // Accept:
-    // - "asst_<uuid>"  -> "<uuid>"
-    // - "<uuid>"       -> "<uuid>"
     if (trimmed.startsWith("asst_")) return trimmed.slice("asst_".length);
     return trimmed;
 }
@@ -202,30 +199,32 @@ export function StickyVoiceAgent() {
         [cleanupListeners, setError]
     );
 
-    const stopSession = useCallback(
-        async (closeUi: boolean) => {
-            const vapi = vapiRef.current;
-            cleanupListeners();
+    const stopVapiOnly = useCallback(async () => {
+        const vapi = vapiRef.current;
+        cleanupListeners();
+        try {
+            if (vapi) await vapi.stop();
+        } catch {
+            // ignore stop errors
+        }
+    }, [cleanupListeners]);
 
-            try {
-                if (vapi) await vapi.stop();
-            } catch {
-                // ignore stop errors
-            } finally {
-                setStatusLine("");
-                setErrorText("");
-                setUiState("idle");
-                if (closeUi) setIsOpen(false);
-            }
-        },
-        [cleanupListeners]
-    );
-
-    // ✅ NEW: close instantly (don’t wait on async stop)
+    // ✅ UI-first close (works even if vapi.stop hangs)
     const closeUiInstant = useCallback(() => {
-        setIsOpen(false);      // close immediately for UX
-        void stopSession(false); // stop in background
-    }, [stopSession]);
+        setIsOpen(false);
+        setStatusLine("");
+        setErrorText("");
+        setUiState("idle");
+        void stopVapiOnly();
+    }, [stopVapiOnly]);
+
+    // ✅ UI-first end session (same philosophy)
+    const endSessionInstant = useCallback(() => {
+        setStatusLine("");
+        setErrorText("");
+        setUiState("idle");
+        void stopVapiOnly();
+    }, [stopVapiOnly]);
 
     const startSession = useCallback(async () => {
         setIsOpen(true);
@@ -242,7 +241,6 @@ export function StickyVoiceAgent() {
             return;
         }
 
-        // This SDK expects a UUID. We accept asst_<uuid> in env and normalize here.
         if (!isUuid(assistantId)) {
             setError(
                 `Assistant ID is not a UUID after normalization.
@@ -266,17 +264,10 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         }
     }, [assistantId, bindListeners, envOk, ensureVapi, rawAssistantId, setError]);
 
-    const toggleSession = useCallback(async () => {
-        if (isActive) {
-            await stopSession(false);
-            return;
-        }
-        await startSession();
-    }, [isActive, startSession, stopSession]);
-
+    // Cleanup on unmount
     useEffect(() => {
         return () => {
-            void stopSession(true);
+            void stopVapiOnly();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -284,10 +275,14 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
     // Collapsed pill
     if (!isOpen) {
         return (
-            <div className="fixed bottom-6 left-6 z-50">
+            <div className="fixed bottom-6 left-6 z-[9999] pointer-events-auto">
                 <button
                     type="button"
-                    onClick={() => void startSession()}
+                    onPointerDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        void startSession();
+                    }}
                     className="group inline-flex items-center gap-3 rounded-full border border-black/10 bg-white px-4 py-3 shadow-lg shadow-black/10 transition hover:shadow-xl"
                     aria-label="Start voice session"
                 >
@@ -306,12 +301,11 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
 
     // Expanded card
     return (
-        // ✅ NEW: center on mobile, keep bottom-left on desktop
         <div
             className={[
-                "fixed z-50 w-[320px] max-w-[calc(100vw-3rem)]",
-                "left-1/2 -translate-x-1/2 bottom-6", // mobile centered
-                "md:left-6 md:translate-x-0",         // desktop bottom-left
+                "fixed z-[9999] pointer-events-auto w-[320px] max-w-[calc(100vw-3rem)]",
+                "left-1/2 -translate-x-1/2 bottom-6",
+                "md:left-6 md:translate-x-0",
             ].join(" ")}
         >
             <div className="rounded-2xl border border-[#F28C28]/40 bg-white shadow-xl shadow-black/10">
@@ -326,7 +320,11 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
 
                         <button
                             type="button"
-                            onClick={closeUiInstant} // ✅ NEW
+                            onPointerDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                closeUiInstant();
+                            }}
                             className="rounded-lg bg-white/10 px-2 py-1 text-xs text-white/80 hover:bg-white/15"
                             aria-label="Close voice agent"
                             title="Close"
@@ -364,7 +362,16 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                 <div className="p-4">
                     <button
                         type="button"
-                        onClick={() => void toggleSession()}
+                        onPointerDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            if (isActive) {
+                                endSessionInstant();
+                            } else {
+                                void startSession();
+                            }
+                        }}
                         className={[
                             "w-full rounded-xl px-4 py-3 text-sm font-semibold transition",
                             isActive
