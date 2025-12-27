@@ -1,45 +1,65 @@
 // src/components/StickyVoiceAgent.tsx
 "use client";
 
-import { getVapi, safeOff } from "@/lib/vapi";
+import { getVapi } from "@/lib/vapi";
+import type Vapi from "@vapi-ai/web";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type AgentUiState = "idle" | "connecting" | "listening" | "talking" | "error";
 
-function humanizeError(err: unknown) {
+type TranscriptMessage = {
+    type: "transcript";
+    role: "assistant" | "user";
+    transcript?: string;
+};
+
+type VapiMessage = TranscriptMessage | { type: string;[key: string]: unknown };
+
+type VapiOn = {
+    on: (event: string, handler: (...args: unknown[]) => void) => void;
+    stop: () => Promise<void> | void;
+    start: (assistantId: string) => Promise<void> | void;
+};
+
+function humanizeError(err: unknown): string {
     const msg =
         typeof err === "string"
             ? err
-            : (err as any)?.message || (err as any)?.toString?.() || "Unknown error";
+            : err && typeof err === "object" && "message" in err
+                ? String((err as { message: unknown }).message)
+                : "Unknown error";
 
-    // Make common browser errors more readable
-    if (msg.includes("NotAllowedError")) return "Microphone permission blocked. Enable mic access in browser settings.";
+    if (msg.includes("NotAllowedError"))
+        return "Microphone permission blocked. Enable mic access in browser settings.";
     if (msg.includes("NotFoundError")) return "No microphone found.";
-    if (msg.toLowerCase().includes("public key")) return "Invalid/missing Vapi public key.";
-    if (msg.toLowerCase().includes("assistant")) return "Invalid/missing assistant id.";
-
     return msg;
 }
 
-export default function StickyVoiceAgent() {
+async function micPreflight(): Promise<void> {
+    if (!navigator?.mediaDevices?.getUserMedia) {
+        throw new Error("Browser does not support microphone access (getUserMedia).");
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach((t) => t.stop());
+}
+
+export function StickyVoiceAgent() {
     const assistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID;
 
     const [uiState, setUiState] = useState<AgentUiState>("idle");
     const [errorText, setErrorText] = useState<string | null>(null);
     const [isActive, setIsActive] = useState(false);
 
-    // A small “talking” decay timer so transcript-based talking feels responsive
     const talkingTimer = useRef<number | null>(null);
+    const boundRef = useRef(false);
 
-    const vapi = useMemo(() => getVapi(), []);
-
-    // Track whether we already bound listeners (avoid duplicates during re-renders)
-    const listenersBound = useRef(false);
+    const vapi = useMemo(() => getVapi(), []) as Vapi | null;
 
     useEffect(() => {
-        if (!vapi || listenersBound.current) return;
+        if (!vapi || boundRef.current) return;
 
-        // --- Event handlers ---
+        const api = vapi as unknown as VapiOn;
+
         const onCallStart = () => {
             setIsActive(true);
             setErrorText(null);
@@ -55,75 +75,50 @@ export default function StickyVoiceAgent() {
         };
 
         const onSpeechStart = () => {
-            // In docs examples, speech-start/speech-end are used as real-time speech events. :contentReference[oaicite:1]{index=1}
-            // We treat this as “listening”.
             setUiState("listening");
         };
 
         const onSpeechEnd = () => {
-            // Back to listening/ready state
             if (isActive) setUiState("listening");
         };
 
-        const onMessage = (message: any) => {
-            // Vapi docs: message event contains transcript/function-call/etc. :contentReference[oaicite:2]{index=2}
-            // We infer "talking" when we receive assistant transcript chunks.
-            if (message?.type === "transcript") {
-                if (message?.role === "assistant") {
+        const onMessage = (message: unknown) => {
+            const m = message as VapiMessage;
+            if (m?.type === "transcript") {
+                const tm = m as TranscriptMessage;
+                if (tm.role === "assistant") {
                     setUiState("talking");
-
-                    // decay back to listening shortly after
                     if (talkingTimer.current) window.clearTimeout(talkingTimer.current);
                     talkingTimer.current = window.setTimeout(() => {
                         if (isActive) setUiState("listening");
                     }, 700);
                 } else {
-                    // user transcript => listening
                     if (isActive) setUiState("listening");
                 }
             }
         };
 
-        const onError = (err: any) => {
+        const onError = (err: unknown) => {
             console.error("Vapi error:", err);
             setIsActive(false);
             setUiState("error");
             setErrorText(humanizeError(err));
         };
 
-        // --- Bind listeners ---
-        vapi.on("call-start", onCallStart);
-        vapi.on("call-end", onCallEnd);
-        vapi.on("speech-start", onSpeechStart);
-        vapi.on("speech-end", onSpeechEnd);
-        vapi.on("message", onMessage);
-        vapi.on("error", onError);
+        api.on("call-start", onCallStart);
+        api.on("call-end", onCallEnd);
+        api.on("speech-start", onSpeechStart);
+        api.on("speech-end", onSpeechEnd);
+        api.on("message", onMessage);
+        api.on("error", onError);
 
-        listenersBound.current = true;
+        boundRef.current = true;
 
-        // Cleanup (best-effort; SDK may or may not implement off())
-        return () => {
-            safeOff(vapi, "call-start", onCallStart);
-            safeOff(vapi, "call-end", onCallEnd);
-            safeOff(vapi, "speech-start", onSpeechStart);
-            safeOff(vapi, "speech-end", onSpeechEnd);
-            safeOff(vapi, "message", onMessage);
-            safeOff(vapi, "error", onError);
-            listenersBound.current = false;
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [vapi]);
+        // We intentionally do NOT attempt to unbind, because different SDK
+        // versions may not provide `off`. This avoids build/runtime mismatch.
+    }, [vapi, isActive]);
 
-    async function micPreflight() {
-        if (!navigator?.mediaDevices?.getUserMedia) {
-            throw new Error("Browser does not support microphone access (getUserMedia).");
-        }
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // Immediately stop tracks; we just want permission granted.
-        stream.getTracks().forEach((t) => t.stop());
-    }
-
-    async function start() {
+    async function start(): Promise<void> {
         if (!vapi) {
             setUiState("error");
             setErrorText("Vapi SDK not initialized. Check NEXT_PUBLIC_VAPI_PUBLIC_KEY.");
@@ -138,14 +133,19 @@ export default function StickyVoiceAgent() {
         setErrorText(null);
         setUiState("connecting");
 
-        // Ensure mic permission prompt happens due to user gesture click
         await micPreflight();
 
-        // Start web call (browser voice) :contentReference[oaicite:3]{index=3}
-        await vapi.start(assistantId);
+        const api = vapi as unknown as VapiOn;
+        await api.start(assistantId);
+
+        // If events fire, state will move to listening.
+        // If they don't, at least we won't be stuck on connecting forever:
+        window.setTimeout(() => {
+            setUiState((s) => (s === "connecting" ? "listening" : s));
+        }, 1200);
     }
 
-    async function stop() {
+    async function stop(): Promise<void> {
         try {
             setUiState("idle");
             setErrorText(null);
@@ -155,7 +155,8 @@ export default function StickyVoiceAgent() {
             talkingTimer.current = null;
 
             if (vapi) {
-                await vapi.stop();
+                const api = vapi as unknown as VapiOn;
+                await api.stop();
             }
         } catch (err) {
             setUiState("error");
@@ -163,19 +164,10 @@ export default function StickyVoiceAgent() {
         }
     }
 
-    async function toggle() {
-        try {
-            if (uiState === "connecting") return;
-
-            if (isActive) {
-                await stop();
-            } else {
-                await start();
-            }
-        } catch (err) {
-            setUiState("error");
-            setErrorText(humanizeError(err));
-        }
+    async function toggle(): Promise<void> {
+        if (uiState === "connecting") return;
+        if (isActive) return stop();
+        return start();
     }
 
     const statusLabel =
@@ -197,14 +189,11 @@ export default function StickyVoiceAgent() {
                     <div className="text-xs text-white/70">{statusLabel}</div>
                 </div>
 
-                {/* “Orb” placeholder — swap this for the ElevenLabs Orb later */}
                 <div className="mb-4 flex items-center justify-center">
                     <div
                         className={[
-                            "h-28 w-28 rounded-full border border-white/10",
-                            "bg-white/10 shadow-inner",
+                            "h-28 w-28 rounded-full border border-white/10 bg-white/10 shadow-inner",
                             uiState === "talking" ? "animate-pulse" : "",
-                            uiState === "connecting" ? "opacity-80" : "",
                             uiState === "error" ? "ring-2 ring-red-500/60" : "",
                         ].join(" ")}
                         aria-label="Voice orb"
@@ -220,8 +209,7 @@ export default function StickyVoiceAgent() {
                 <button
                     onClick={toggle}
                     className={[
-                        "w-full rounded-2xl px-4 py-3 text-sm font-semibold",
-                        "transition",
+                        "w-full rounded-2xl px-4 py-3 text-sm font-semibold transition",
                         isActive ? "bg-white text-black hover:bg-white/90" : "bg-white/10 hover:bg-white/15",
                         uiState === "connecting" ? "cursor-not-allowed opacity-70" : "",
                     ].join(" ")}
@@ -237,3 +225,6 @@ export default function StickyVoiceAgent() {
         </div>
     );
 }
+
+// Also export default so ANY import style works:
+export default StickyVoiceAgent;
