@@ -48,26 +48,7 @@ async function micPreflight(): Promise<void> {
     stream.getTracks().forEach((t) => t.stop());
 }
 
-function StateChip({
-    label,
-    active,
-}: {
-    label: string;
-    active?: boolean;
-}) {
-    return (
-        <div
-            className={[
-                "rounded-md px-3 py-1 text-[11px] font-medium",
-                active
-                    ? "bg-black text-white"
-                    : "bg-black/10 text-black/60",
-            ].join(" ")}
-        >
-            {label}
-        </div>
-    );
-}
+
 
 function PlayIcon() {
     return (
