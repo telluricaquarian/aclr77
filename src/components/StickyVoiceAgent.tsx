@@ -40,21 +40,6 @@ function formatErr(err: unknown): string {
     return String(err);
 }
 
-function normalizeAssistantId(raw: string): string {
-    const trimmed = (raw ?? "").trim();
-    // Accept:
-    // - "asst_<uuid>"  -> "<uuid>"
-    // - "<uuid>"       -> "<uuid>"
-    if (trimmed.startsWith("asst_")) return trimmed.slice("asst_".length);
-    return trimmed;
-}
-
-function isUuid(v: string): boolean {
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-        v
-    );
-}
-
 function PlayIcon() {
     return (
         <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
@@ -63,14 +48,16 @@ function PlayIcon() {
     );
 }
 
-export function StickyVoiceAgent() {
-    const rawAssistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID ?? "";
-    const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY ?? "";
+function chipClass(active: boolean) {
+    return [
+        "rounded-lg px-3 py-1 text-[11px] font-medium",
+        active ? "bg-white/15 text-white" : "bg-white/10 text-white/60",
+    ].join(" ");
+}
 
-    const assistantId = useMemo(
-        () => normalizeAssistantId(rawAssistantId),
-        [rawAssistantId]
-    );
+export function StickyVoiceAgent() {
+    const assistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID ?? "";
+    const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY ?? "";
 
     const [isOpen, setIsOpen] = useState(false);
     const [uiState, setUiState] = useState<AgentUiState>("idle");
@@ -81,8 +68,8 @@ export function StickyVoiceAgent() {
     const handlersRef = useRef<Array<[string, VapiHandler]>>([]);
 
     const envOk = useMemo(() => {
-        return Boolean(publicKey) && Boolean(rawAssistantId);
-    }, [publicKey, rawAssistantId]);
+        return Boolean(publicKey) && Boolean(assistantId);
+    }, [publicKey, assistantId]);
 
     const isActive =
         uiState === "connecting" || uiState === "listening" || uiState === "talking";
@@ -159,20 +146,13 @@ export function StickyVoiceAgent() {
 
             const onMessage: VapiHandler = (msg) => {
                 if (typeof msg === "string") setStatusLine(msg);
-
                 if (typeof msg === "object" && msg) {
                     const m = msg as Record<string, unknown>;
-                    if (
-                        typeof m.type === "string" &&
-                        m.type.toLowerCase().includes("listening")
-                    ) {
+                    if (typeof m.type === "string" && m.type.toLowerCase().includes("listening")) {
                         setUiState("listening");
                         setStatusLine("Listening…");
                     }
-                    if (
-                        typeof m.type === "string" &&
-                        m.type.toLowerCase().includes("speaking")
-                    ) {
+                    if (typeof m.type === "string" && m.type.toLowerCase().includes("speaking")) {
                         setUiState("talking");
                         setStatusLine("Speaking…");
                     }
@@ -202,9 +182,18 @@ export function StickyVoiceAgent() {
         [cleanupListeners, setError]
     );
 
+    /**
+     * IMPORTANT FIX:
+     * Close the UI immediately (optimistic close) and stop the session in the background.
+     * This prevents iOS / audio teardown latency from making the close button feel broken.
+     */
     const stopSession = useCallback(
         async (closeUi: boolean) => {
             const vapi = vapiRef.current;
+
+            // ✅ instant UI close if requested
+            if (closeUi) setIsOpen(false);
+
             cleanupListeners();
 
             try {
@@ -215,7 +204,6 @@ export function StickyVoiceAgent() {
                 setStatusLine("");
                 setErrorText("");
                 setUiState("idle");
-                if (closeUi) setIsOpen(false);
             }
         },
         [cleanupListeners]
@@ -228,22 +216,7 @@ export function StickyVoiceAgent() {
         setUiState("connecting");
 
         if (!envOk) {
-            setError(
-                `Missing env vars. Ensure BOTH are set and redeployed:
-- NEXT_PUBLIC_VAPI_PUBLIC_KEY
-- NEXT_PUBLIC_VAPI_ASSISTANT_ID`
-            );
-            return;
-        }
-
-        // This SDK expects a UUID. We accept asst_<uuid> in env and normalize here.
-        if (!isUuid(assistantId)) {
-            setError(
-                `Assistant ID is not a UUID after normalization.
-Raw: "${rawAssistantId}"
-Normalized: "${assistantId}"
-Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
-            );
+            setError("Missing env vars. Need NEXT_PUBLIC_VAPI_PUBLIC_KEY and NEXT_PUBLIC_VAPI_ASSISTANT_ID.");
             return;
         }
 
@@ -253,12 +226,17 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         bindListeners(vapi);
 
         try {
-            await vapi.start(assistantId);
+            await vapi.start({ assistantId });
             setStatusLine("Connecting…");
-        } catch (e) {
-            setError(e);
+        } catch (e1) {
+            try {
+                await vapi.start(assistantId);
+                setStatusLine("Connecting…");
+            } catch (e2) {
+                setError(e2 ?? e1);
+            }
         }
-    }, [assistantId, bindListeners, envOk, ensureVapi, rawAssistantId, setError]);
+    }, [assistantId, bindListeners, envOk, ensureVapi, setError]);
 
     const toggleSession = useCallback(async () => {
         if (isActive) {
@@ -275,9 +253,15 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // ✅ Mobile centered, Desktop stays bottom-left
+    const collapsedPos =
+        "fixed bottom-6 z-50 left-1/2 -translate-x-1/2 lg:left-6 lg:translate-x-0";
+    const expandedPos =
+        "fixed bottom-6 z-50 w-[320px] max-w-[calc(100vw-3rem)] left-1/2 -translate-x-1/2 lg:left-6 lg:translate-x-0";
+
     if (!isOpen) {
         return (
-            <div className="fixed bottom-6 left-6 z-50">
+            <div className={collapsedPos}>
                 <button
                     type="button"
                     onClick={() => void startSession()}
@@ -298,28 +282,28 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
     }
 
     return (
-        <div className="fixed bottom-6 left-6 z-50 w-[320px] max-w-[calc(100vw-3rem)]">
+        <div className={expandedPos}>
             <div className="rounded-2xl border border-[#F28C28]/40 bg-white shadow-xl shadow-black/10">
-                <div className="rounded-2xl bg-black p-4 text-white">
-                    <div className="mb-3 flex items-start justify-between gap-3">
-                        <div>
-                            <div className="text-sm font-semibold">Areculateir Agent:</div>
-                            <div className="text-xs text-white/70">
-                                {uiState === "error" ? "Error" : statusLine || "Ready"}
-                            </div>
+                <div className="relative rounded-2xl bg-black p-4 text-white">
+                    <div className="mb-3 pr-10">
+                        <div className="text-sm font-semibold">Areculateir Agent:</div>
+                        <div className="text-xs text-white/70">
+                            {uiState === "error" ? "Error" : statusLine || "Ready"}
                         </div>
-
-                        <button
-                            type="button"
-                            onClick={() => void stopSession(true)}
-                            className="rounded-lg bg-white/10 px-2 py-1 text-xs text-white/80 hover:bg-white/15"
-                            aria-label="Close voice agent"
-                            title="Close"
-                        >
-                            ✕
-                        </button>
                     </div>
 
+                    {/* ✅ Close button: absolute, bigger hitbox, always clickable */}
+                    <button
+                        type="button"
+                        onClick={() => void stopSession(true)}
+                        className="absolute right-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 hover:bg-white/15 active:scale-[0.98]"
+                        aria-label="Close voice agent"
+                        title="Close"
+                    >
+                        ✕
+                    </button>
+
+                    {/* Orb placeholder */}
                     <div className="flex items-center justify-center py-4">
                         <div
                             className={[
@@ -373,11 +357,4 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
             </div>
         </div>
     );
-}
-
-function chipClass(active: boolean) {
-    return [
-        "rounded-lg px-3 py-1 text-[11px] font-medium",
-        active ? "bg-white/15 text-white" : "bg-white/10 text-white/60",
-    ].join(" ");
 }
