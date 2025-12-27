@@ -4,8 +4,11 @@ import { Phone } from "lucide-react";
 import Link from "next/link";
 
 type StickyVoiceCtaProps = {
+    /** If you have a phone number, use this (e.g. "+16175551234") */
     phoneNumber?: string;
+    /** If you want to open a web call widget/modal, use onClick instead of tel: */
     onClick?: () => void;
+    /** Optional: show/hide the tooltip text */
     label?: string;
 };
 
@@ -17,12 +20,10 @@ export function StickyVoiceCta({
     const content = (
         <div
             className="
-        group fixed bottom-5 left-5
+        group fixed bottom-5 right-5
         z-[70]
         flex items-center gap-3
-
-        /* Desktop: keep CTA visually inside sidebar */
-        lg:left-5
+        lg:left-5 lg:right-auto
       "
         >
             {/* Tooltip / pill */}
