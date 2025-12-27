@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -22,10 +23,22 @@ export function Sidebar() {
     return (
         <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-72 lg:flex-col">
             <div className="h-full border-r bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+
+                {/* Logo */}
                 <div className="px-6 pt-6 pb-4">
-                    <div className="text-xl font-semibold">A~</div>
+                    <Link href="/" aria-label="Areculateir Home" className="inline-block">
+                        <Image
+                            src="/images/typelogo.svg"
+                            alt="Areculateir"
+                            width={72}
+                            height={32}
+                            priority
+                            className="opacity-90 hover:opacity-100 transition"
+                        />
+                    </Link>
                 </div>
 
+                {/* Navigation */}
                 <div className="px-6 pb-6 space-y-8">
                     <div>
                         <div className="mb-2 inline-flex rounded-full border px-2 py-0.5 text-xs font-medium">
@@ -38,7 +51,9 @@ export function Sidebar() {
                                     href={item.href}
                                     className={cn(
                                         "block text-sm transition",
-                                        pathname === item.href ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
+                                        pathname === item.href
+                                            ? "text-foreground font-medium"
+                                            : "text-muted-foreground hover:text-foreground"
                                     )}
                                 >
                                     {item.label}
@@ -58,7 +73,9 @@ export function Sidebar() {
                                     href={item.href}
                                     className={cn(
                                         "block text-sm transition",
-                                        pathname === item.href ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
+                                        pathname === item.href
+                                            ? "text-foreground font-medium"
+                                            : "text-muted-foreground hover:text-foreground"
                                     )}
                                 >
                                     {item.label}
