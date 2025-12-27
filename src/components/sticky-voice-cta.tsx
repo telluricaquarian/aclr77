@@ -20,46 +20,31 @@ export function StickyVoiceCta({
     const content = (
         <div
             className="
-        group fixed bottom-5 right-5
-        z-[70]
-        flex items-center gap-3
+        fixed bottom-5 right-5 z-[70]
         lg:left-5 lg:right-auto
       "
         >
-            {/* Tooltip / pill */}
+            {/* Single pill CTA (icon inside) */}
             <div
                 className="
-          hidden sm:flex items-center
+          group inline-flex items-center gap-3
           rounded-xl border border-orange-200/40 bg-white/90
-          px-3 py-2 text-sm font-medium text-zinc-900
+          px-4 py-3 text-sm font-medium text-zinc-900
           shadow-lg backdrop-blur
-          transition group-hover:shadow-xl
-          lg:px-2.5 lg:py-2 lg:text-[13px]
+          transition
+          hover:shadow-xl
+          active:scale-[0.99]
+          sm:px-4 sm:py-3
+          lg:px-3 lg:py-2 lg:text-[13px]
         "
             >
                 <span className="whitespace-nowrap">{label}</span>
-                <span className="ml-2 inline-block h-[1px] w-6 bg-orange-300/80" />
-            </div>
 
-            {/* Round button */}
-            <div
-                className="
-          relative grid place-items-center
-          h-16 w-16 rounded-full
-          bg-white shadow-xl
-          ring-1 ring-black/10
-          transition
-          group-hover:scale-[1.03]
-          lg:h-14 lg:w-14
-        "
-            >
-                {/* Branded orange ring */}
-                <div className="absolute inset-0 rounded-full ring-4 ring-orange-400/30 lg:ring-3" />
-
-                {/* Icon */}
-                <div className="grid h-14 w-14 place-items-center rounded-full bg-white lg:h-12 lg:w-12">
-                    <Phone className="h-7 w-7 text-orange-500 lg:h-6 lg:w-6" strokeWidth={2.2} />
-                </div>
+                {/* Icon inside the pill */}
+                <span className="relative grid h-9 w-9 place-items-center rounded-full bg-white ring-1 ring-black/10">
+                    <span className="absolute inset-0 rounded-full ring-4 ring-orange-400/30" />
+                    <Phone className="h-5 w-5 text-orange-500" strokeWidth={2.2} />
+                </span>
             </div>
         </div>
     );
