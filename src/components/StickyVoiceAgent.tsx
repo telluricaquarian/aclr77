@@ -1,24 +1,32 @@
 "use client";
 
+import { StickyVoiceCta } from "@/components/ui/sticky-voice-cta";
+import { getVapi } from "@/lib/vapi";
 import { useCallback, useEffect, useRef } from "react";
 
-// ✅ Correct path: BOTH files live in src/components
-import { StickyVoiceCta } from "./sticky-voice-cta";
+type VapiStartArg = string | { assistantId: string };
 
-// ✅ Your helper (we’ll make sure it exists in src/lib/vapi.ts below)
-import { getVapi } from "@/lib/vapi";
+type VapiStartable = {
+    start: (arg: VapiStartArg) => Promise<unknown>;
+    stop?: () => void;
+};
+
+function asStartable(vapi: unknown): VapiStartable {
+    return vapi as VapiStartable;
+}
 
 export function StickyVoiceAgent() {
-    const vapiRef = useRef<ReturnType<typeof getVapi> | null>(null);
+    const vapiRef = useRef<unknown>(null);
 
     useEffect(() => {
-        // Create once on the client
+        // Create once on client
         vapiRef.current = getVapi();
 
         return () => {
             // Best-effort cleanup (SDK may or may not expose stop())
             try {
-                (vapiRef.current as any)?.stop?.();
+                const vapi = asStartable(vapiRef.current);
+                vapi.stop?.();
             } catch {
                 // ignore
             }
@@ -35,11 +43,16 @@ export function StickyVoiceAgent() {
         }
 
         try {
-            const vapi = vapiRef.current ?? getVapi();
+            const vapiUnknown = vapiRef.current ?? getVapi();
+            const vapi = asStartable(vapiUnknown);
 
-            // @vapi-ai/web v2.x typically supports start(assistantId)
-            await (vapi as any).start(assistantId);
-        } catch (err) {
+            // SDK variants: try object form first, then string form
+            try {
+                await vapi.start({ assistantId });
+            } catch {
+                await vapi.start(assistantId);
+            }
+        } catch (err: unknown) {
             console.error("Vapi start() failed:", err);
         }
     }, []);
