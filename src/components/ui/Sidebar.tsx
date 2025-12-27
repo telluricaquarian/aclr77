@@ -1,5 +1,6 @@
 "use client";
 
+import { StickyVoiceAgent } from "@/components/StickyVoiceAgent";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,7 +24,8 @@ export function Sidebar() {
 
     return (
         <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-80 lg:flex-col">
-            <div className="h-full border-r bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            {/* ✅ Make this a positioned container for the CTA */}
+            <div className="relative h-full border-r bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 {/* Logo area */}
                 <div className="px-6 pt-6 pb-4">
                     <Link href="/" aria-label="Home" className="inline-flex items-center">
@@ -80,6 +82,9 @@ export function Sidebar() {
                         </nav>
                     </div>
                 </div>
+
+                {/* ✅ Mount voice CTA inside sidebar. It will be absolute on desktop, fixed on mobile */}
+                <StickyVoiceAgent />
             </div>
         </aside>
     );
