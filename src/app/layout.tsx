@@ -49,14 +49,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={redaction.variable}>
+    <html lang="en" className={redaction.variable} suppressHydrationWarning>
       <body
         className={`${GeistSans.className} min-h-screen overflow-x-hidden scroll-auto bg-gray-50 antialiased selection:bg-orange-100 selection:text-orange-600`}
       >
-        {/* Desktop Sidebar */}
         <Sidebar />
 
-        {/* Main shell */}
         <div className="min-h-screen lg:pl-72">
           <NavBar />
           {children}
@@ -64,8 +62,6 @@ export default function RootLayout({
         </div>
 
         <CookieConsent />
-
-        {/* ✅ VOICE AGENT MOUNT */}
         <StickyVoiceAgent />
       </body>
     </html>

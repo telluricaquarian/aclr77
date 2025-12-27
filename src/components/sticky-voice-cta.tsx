@@ -4,11 +4,8 @@ import { Phone } from "lucide-react";
 import Link from "next/link";
 
 type StickyVoiceCtaProps = {
-    /** If you have a phone number, use this (e.g. "+16175551234") */
     phoneNumber?: string;
-    /** If you want to open a web call widget/modal, use onClick instead of tel: */
     onClick?: () => void;
-    /** Optional: show/hide the tooltip text */
     label?: string;
 };
 
@@ -20,11 +17,10 @@ export function StickyVoiceCta({
     const content = (
         <div
             className="
-        fixed bottom-5 right-5 z-[70]
-        lg:left-5 lg:right-auto
+        fixed bottom-5 left-1/2 -translate-x-1/2 z-[70]
+        lg:left-auto lg:translate-x-0 lg:right-5
       "
         >
-            {/* Single pill CTA (icon inside) */}
             <div
                 className="
           group inline-flex items-center gap-3
@@ -40,7 +36,6 @@ export function StickyVoiceCta({
             >
                 <span className="whitespace-nowrap">{label}</span>
 
-                {/* Icon inside the pill */}
                 <span className="relative grid h-9 w-9 place-items-center rounded-full bg-white ring-1 ring-black/10">
                     <span className="absolute inset-0 rounded-full ring-4 ring-orange-400/30" />
                     <Phone className="h-5 w-5 text-orange-500" strokeWidth={2.2} />
