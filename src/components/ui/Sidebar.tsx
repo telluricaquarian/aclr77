@@ -2,6 +2,7 @@
 
 import { StickyVoiceAgent } from "@/components/StickyVoiceAgent";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -24,20 +25,22 @@ export function Sidebar() {
 
     return (
         <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-80 lg:flex-col">
-            {/* ✅ Make this a positioned container for the CTA */}
             <div className="relative h-full border-r bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 {/* Logo area */}
-                <div className="px-6 pt-6 pb-4">
+                <div className="px-6 pb-4 pt-6">
                     <Link href="/" aria-label="Home" className="inline-flex items-center">
-                        <img
+                        <Image
                             src="/images/typelogo.svg"
                             alt="Areculateir type logo"
+                            width={220}
+                            height={40}
                             className="h-10 w-auto"
+                            priority
                         />
                     </Link>
                 </div>
 
-                <div className="px-6 pb-6 space-y-8">
+                <div className="space-y-8 px-6 pb-6">
                     <div>
                         <div className="mb-2 inline-flex rounded-full border px-2 py-0.5 text-xs font-medium">
                             Home
@@ -50,7 +53,7 @@ export function Sidebar() {
                                     className={cn(
                                         "block text-sm transition",
                                         pathname === item.href
-                                            ? "text-foreground font-medium"
+                                            ? "font-medium text-foreground"
                                             : "text-muted-foreground hover:text-foreground"
                                     )}
                                 >
@@ -72,7 +75,7 @@ export function Sidebar() {
                                     className={cn(
                                         "block text-sm transition",
                                         pathname === item.href
-                                            ? "text-foreground font-medium"
+                                            ? "font-medium text-foreground"
                                             : "text-muted-foreground hover:text-foreground"
                                     )}
                                 >
@@ -83,8 +86,10 @@ export function Sidebar() {
                     </div>
                 </div>
 
-                {/* ✅ Mount voice CTA inside sidebar. It will be absolute on desktop, fixed on mobile */}
-                <StickyVoiceAgent />
+                {/* Desktop-only mount inside sidebar (avoid double-mount if layout renders mobile CTA) */}
+                <div className="hidden lg:block">
+                    <StickyVoiceAgent />
+                </div>
             </div>
         </aside>
     );
