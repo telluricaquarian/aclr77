@@ -1,6 +1,6 @@
 "use client";
 
-import { StickyVoiceCta } from "@/components/ui/sticky-voice-cta";
+import { StickyVoiceCta } from "@/components/sticky-voice-cta";
 import { getVapi } from "@/lib/vapi";
 import { useCallback, useEffect, useRef } from "react";
 
@@ -19,11 +19,9 @@ export function StickyVoiceAgent() {
     const vapiRef = useRef<unknown>(null);
 
     useEffect(() => {
-        // Create once on client
         vapiRef.current = getVapi();
 
         return () => {
-            // Best-effort cleanup (SDK may or may not expose stop())
             try {
                 const vapi = asStartable(vapiRef.current);
                 vapi.stop?.();
@@ -46,7 +44,6 @@ export function StickyVoiceAgent() {
             const vapiUnknown = vapiRef.current ?? getVapi();
             const vapi = asStartable(vapiUnknown);
 
-            // SDK variants: try object form first, then string form
             try {
                 await vapi.start({ assistantId });
             } catch {
