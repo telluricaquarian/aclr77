@@ -40,6 +40,21 @@ function formatErr(err: unknown): string {
     return String(err);
 }
 
+function normalizeAssistantId(raw: string): string {
+    const trimmed = (raw ?? "").trim();
+    // Accept:
+    // - "asst_<uuid>"  -> "<uuid>"
+    // - "<uuid>"       -> "<uuid>"
+    if (trimmed.startsWith("asst_")) return trimmed.slice("asst_".length);
+    return trimmed;
+}
+
+function isUuid(v: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        v
+    );
+}
+
 function PlayIcon() {
     return (
         <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
@@ -49,8 +64,13 @@ function PlayIcon() {
 }
 
 export function StickyVoiceAgent() {
-    const assistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID ?? "";
+    const rawAssistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID ?? "";
     const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY ?? "";
+
+    const assistantId = useMemo(
+        () => normalizeAssistantId(rawAssistantId),
+        [rawAssistantId]
+    );
 
     const [isOpen, setIsOpen] = useState(false);
     const [uiState, setUiState] = useState<AgentUiState>("idle");
@@ -61,8 +81,8 @@ export function StickyVoiceAgent() {
     const handlersRef = useRef<Array<[string, VapiHandler]>>([]);
 
     const envOk = useMemo(() => {
-        return Boolean(publicKey) && Boolean(assistantId);
-    }, [publicKey, assistantId]);
+        return Boolean(publicKey) && Boolean(rawAssistantId);
+    }, [publicKey, rawAssistantId]);
 
     const isActive =
         uiState === "connecting" || uiState === "listening" || uiState === "talking";
@@ -142,11 +162,17 @@ export function StickyVoiceAgent() {
 
                 if (typeof msg === "object" && msg) {
                     const m = msg as Record<string, unknown>;
-                    if (typeof m.type === "string" && m.type.toLowerCase().includes("listening")) {
+                    if (
+                        typeof m.type === "string" &&
+                        m.type.toLowerCase().includes("listening")
+                    ) {
                         setUiState("listening");
                         setStatusLine("Listening…");
                     }
-                    if (typeof m.type === "string" && m.type.toLowerCase().includes("speaking")) {
+                    if (
+                        typeof m.type === "string" &&
+                        m.type.toLowerCase().includes("speaking")
+                    ) {
                         setUiState("talking");
                         setStatusLine("Speaking…");
                     }
@@ -204,8 +230,19 @@ export function StickyVoiceAgent() {
         if (!envOk) {
             setError(
                 `Missing env vars. Ensure BOTH are set and redeployed:
-- NEXT_PUBLIC_VAPI_PUBLIC_KEY (public key, no "pk_" prefix)
-- NEXT_PUBLIC_VAPI_ASSISTANT_ID (should start with "asst_")`
+- NEXT_PUBLIC_VAPI_PUBLIC_KEY
+- NEXT_PUBLIC_VAPI_ASSISTANT_ID`
+            );
+            return;
+        }
+
+        // This SDK expects a UUID. We accept asst_<uuid> in env and normalize here.
+        if (!isUuid(assistantId)) {
+            setError(
+                `Assistant ID is not a UUID after normalization.
+Raw: "${rawAssistantId}"
+Normalized: "${assistantId}"
+Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
             );
             return;
         }
@@ -216,13 +253,12 @@ export function StickyVoiceAgent() {
         bindListeners(vapi);
 
         try {
-            // ✅ Web SDK expects the assistant id as a STRING.
             await vapi.start(assistantId);
             setStatusLine("Connecting…");
         } catch (e) {
             setError(e);
         }
-    }, [assistantId, bindListeners, envOk, ensureVapi, setError]);
+    }, [assistantId, bindListeners, envOk, ensureVapi, rawAssistantId, setError]);
 
     const toggleSession = useCallback(async () => {
         if (isActive) {
