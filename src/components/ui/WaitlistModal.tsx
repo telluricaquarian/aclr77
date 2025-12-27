@@ -49,7 +49,7 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
     const isQuote = modalType === "quote";
     const title = isQuote ? "Join Waitlist" : "Join Waitlist";
     const description =
-        "Get a Free Prototype / Makeshift Build created by Areculateir℠ Quote & proposal provided in tandem with the prototype";
+        "Get a Free Prototype / Minimum Viable Product Build created by Areculateir℠ along with Quote & proposal provided in tandem";
 
     return (
         <AnimatePresence>
