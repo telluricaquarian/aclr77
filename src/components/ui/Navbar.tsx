@@ -23,7 +23,10 @@ export function NavBar() {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    el.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "start" });
+    el.scrollIntoView({
+      behavior: prefersReduced ? "auto" : "smooth",
+      block: "start",
+    });
 
     if (window.location.hash) {
       history.replaceState(null, "", window.location.pathname);
@@ -49,7 +52,12 @@ export function NavBar() {
         {/* relative parent for desktop centering; mobile overlay is fixed, not here */}
         <div className="relative w-full md:my-auto">
           <div className="relative flex items-center justify-between">
-            <Link href={siteConfig.baseLinks.home} aria-label="Home">
+            {/* Logo: keep on mobile, hide on desktop */}
+            <Link
+              href={siteConfig.baseLinks.home}
+              aria-label="Home"
+              className="sm:hidden"
+            >
               <span className="sr-only">Solar Tech Logo</span>
               <SolarLogo className="w-22" />
             </Link>
@@ -57,13 +65,25 @@ export function NavBar() {
             {/* desktop nav */}
             <nav className="hidden sm:block md:absolute md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:transform">
               <div className="flex items-center gap-10 font-medium">
-                <a href="#solutions" onClick={go("solutions")} className="px-2 py-1 text-gray-900 font-semibold">
+                <a
+                  href="#solutions"
+                  onClick={go("solutions")}
+                  className="px-2 py-1 text-gray-900 font-semibold"
+                >
                   Web Design w/ High End UI
                 </a>
-                <a href="#farm-management" onClick={go("farm-management")} className="px-2 py-1 text-gray-600 italic">
+                <a
+                  href="#farm-management"
+                  onClick={go("farm-management")}
+                  className="px-2 py-1 text-gray-600 italic"
+                >
                   Client Acquisition (by discretion)
                 </a>
-                <a href="#solar-analytics" onClick={go("solar-analytics")} className="px-2 py-1 text-gray-600 italic">
+                <a
+                  href="#solar-analytics"
+                  onClick={go("solar-analytics")}
+                  className="px-2 py-1 text-gray-600 italic"
+                >
                   Funnel Optimization (by discretion)
                 </a>
               </div>
@@ -123,12 +143,20 @@ export function NavBar() {
                 </a>
               </li>
               <li>
-                <a href="#farm-management" onClick={go("farm-management")} className="block text-gray-700 italic">
+                <a
+                  href="#farm-management"
+                  onClick={go("farm-management")}
+                  className="block text-gray-700 italic"
+                >
                   Client Acquisition (by discretion)
                 </a>
               </li>
               <li>
-                <a href="#solar-analytics" onClick={go("solar-analytics")} className="block text-gray-700 italic">
+                <a
+                  href="#solar-analytics"
+                  onClick={go("solar-analytics")}
+                  className="block text-gray-700 italic"
+                >
                   Funnel Optimization (by discretion)
                 </a>
               </li>
@@ -149,11 +177,7 @@ export function NavBar() {
       </header>
 
       {/* Waitlist Modal */}
-      <QuoteModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        modalType="quote"
-      />
+      <QuoteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} modalType="quote" />
     </>
   );
 }
