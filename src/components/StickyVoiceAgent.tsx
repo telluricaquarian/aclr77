@@ -64,7 +64,8 @@ export function StickyVoiceAgent() {
         return Boolean(publicKey) && Boolean(assistantId);
     }, [publicKey, assistantId]);
 
-    const isActive = uiState === "connecting" || uiState === "listening" || uiState === "talking";
+    const isActive =
+        uiState === "connecting" || uiState === "listening" || uiState === "talking";
 
     const cleanupListeners = useCallback(() => {
         const vapi = vapiRef.current;
@@ -89,7 +90,12 @@ export function StickyVoiceAgent() {
             const instance = getVapi() as unknown;
             const v = instance as VapiLike;
 
-            if (!v || typeof v.start !== "function" || typeof v.stop !== "function" || typeof v.on !== "function") {
+            if (
+                !v ||
+                typeof v.start !== "function" ||
+                typeof v.stop !== "function" ||
+                typeof v.on !== "function"
+            ) {
                 setError("Vapi SDK not initialized correctly (missing methods).");
                 return null;
             }
@@ -102,88 +108,92 @@ export function StickyVoiceAgent() {
         }
     }, [setError]);
 
-    const bindListeners = useCallback((vapi: VapiLike) => {
-        cleanupListeners();
+    const bindListeners = useCallback(
+        (vapi: VapiLike) => {
+            cleanupListeners();
 
-        const onCallStart: VapiHandler = () => {
-            setErrorText("");
-            setStatusLine("Connected");
-            // Often you start in "listening" after connect
-            setUiState("listening");
-        };
+            const onCallStart: VapiHandler = () => {
+                setErrorText("");
+                setStatusLine("Connected");
+                setUiState("listening");
+            };
 
-        const onCallEnd: VapiHandler = () => {
-            setStatusLine("");
-            setUiState("idle");
-        };
+            const onCallEnd: VapiHandler = () => {
+                setStatusLine("");
+                setUiState("idle");
+            };
 
-        const onSpeechStart: VapiHandler = () => {
-            setUiState("talking");
-            setStatusLine("Speaking…");
-        };
+            const onSpeechStart: VapiHandler = () => {
+                setUiState("talking");
+                setStatusLine("Speaking…");
+            };
 
-        const onSpeechEnd: VapiHandler = () => {
-            setUiState("listening");
-            setStatusLine("Listening…");
-        };
+            const onSpeechEnd: VapiHandler = () => {
+                setUiState("listening");
+                setStatusLine("Listening…");
+            };
 
-        const onError: VapiHandler = (err) => {
-            setError(err);
-        };
+            const onError: VapiHandler = (err) => {
+                setError(err);
+            };
 
-        const onMessage: VapiHandler = (msg) => {
-            // Some SDKs emit message objects. If it contains a string, surface it as a hint.
-            if (typeof msg === "string") setStatusLine(msg);
-            if (typeof msg === "object" && msg) {
-                const m = msg as Record<string, unknown>;
-                if (typeof m.type === "string" && m.type.toLowerCase().includes("listening")) {
-                    setUiState("listening");
-                    setStatusLine("Listening…");
+            const onMessage: VapiHandler = (msg) => {
+                if (typeof msg === "string") setStatusLine(msg);
+
+                if (typeof msg === "object" && msg) {
+                    const m = msg as Record<string, unknown>;
+                    if (typeof m.type === "string" && m.type.toLowerCase().includes("listening")) {
+                        setUiState("listening");
+                        setStatusLine("Listening…");
+                    }
+                    if (typeof m.type === "string" && m.type.toLowerCase().includes("speaking")) {
+                        setUiState("talking");
+                        setStatusLine("Speaking…");
+                    }
                 }
-                if (typeof m.type === "string" && m.type.toLowerCase().includes("speaking")) {
-                    setUiState("talking");
-                    setStatusLine("Speaking…");
+            };
+
+            const pairs: Array<[string, VapiHandler]> = [
+                ["call-start", onCallStart],
+                ["call:end", onCallEnd],
+                ["call-end", onCallEnd],
+                ["call:ended", onCallEnd],
+                ["speech-start", onSpeechStart],
+                ["speech-end", onSpeechEnd],
+                ["error", onError],
+                ["message", onMessage],
+            ];
+
+            for (const [evt, fn] of pairs) {
+                try {
+                    vapi.on(evt, fn);
+                    handlersRef.current.push([evt, fn]);
+                } catch {
+                    // ignore unknown event names
                 }
             }
-        };
+        },
+        [cleanupListeners, setError]
+    );
 
-        const pairs: Array<[string, VapiHandler]> = [
-            // Common event names (SDK differences tolerated)
-            ["call-start", onCallStart],
-            ["call:end", onCallEnd],
-            ["call-end", onCallEnd],
-            ["call:ended", onCallEnd],
-            ["speech-start", onSpeechStart],
-            ["speech-end", onSpeechEnd],
-            ["error", onError],
-            ["message", onMessage],
-        ];
+    const stopSession = useCallback(
+        async (closeUi: boolean) => {
+            const vapi = vapiRef.current;
+            cleanupListeners();
 
-        for (const [evt, fn] of pairs) {
             try {
-                vapi.on(evt, fn);
-                handlersRef.current.push([evt, fn]);
+                if (vapi) await vapi.stop();
             } catch {
-                // ignore unknown event names
+                // ignore stop errors
+            } finally {
+                setStatusLine("");
+                setErrorText("");
+                setUiState("idle");
+                if (closeUi) setIsOpen(false);
             }
-        }
-    }, [cleanupListeners, setError]);
-
-    const stopSession = useCallback(async (closeUi: boolean) => {
-        const vapi = vapiRef.current;
-        cleanupListeners();
-
-        try {
-            if (vapi) await vapi.stop();
-        } catch {
-            // ignore stop errors
-        } finally {
-            setStatusLine("");
-            setErrorText("");
-            setUiState("idle");
-            if (closeUi) setIsOpen(false);
-        }
-    }, [cleanupListeners]);
+        },
+        [cleanupListeners]
+    );
 
     const startSession = useCallback(async () => {
         setIsOpen(true);
@@ -193,7 +203,9 @@ export function StickyVoiceAgent() {
 
         if (!envOk) {
             setError(
-                `Missing env vars. Need NEXT_PUBLIC_VAPI_PUBLIC_KEY and NEXT_PUBLIC_VAPI_ASSISTANT_ID.`,
+                `Missing env vars. Ensure BOTH are set and redeployed:
+- NEXT_PUBLIC_VAPI_PUBLIC_KEY (public key, no "pk_" prefix)
+- NEXT_PUBLIC_VAPI_ASSISTANT_ID (should start with "asst_")`
             );
             return;
         }
@@ -204,19 +216,11 @@ export function StickyVoiceAgent() {
         bindListeners(vapi);
 
         try {
-            // Primary: object form
-            await vapi.start({ assistantId });
-
-            // If we get here, we’re at least attempting to connect.
+            // ✅ Web SDK expects the assistant id as a STRING.
+            await vapi.start(assistantId);
             setStatusLine("Connecting…");
-        } catch (e1) {
-            // Fallback: some SDK versions accept string assistantId
-            try {
-                await vapi.start(assistantId);
-                setStatusLine("Connecting…");
-            } catch (e2) {
-                setError(e2 ?? e1);
-            }
+        } catch (e) {
+            setError(e);
         }
     }, [assistantId, bindListeners, envOk, ensureVapi, setError]);
 
@@ -228,7 +232,6 @@ export function StickyVoiceAgent() {
         await startSession();
     }, [isActive, startSession, stopSession]);
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             void stopSession(true);
@@ -236,7 +239,6 @@ export function StickyVoiceAgent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Collapsed pill
     if (!isOpen) {
         return (
             <div className="fixed bottom-6 left-6 z-50">
@@ -259,7 +261,6 @@ export function StickyVoiceAgent() {
         );
     }
 
-    // Expanded card
     return (
         <div className="fixed bottom-6 left-6 z-50 w-[320px] max-w-[calc(100vw-3rem)]">
             <div className="rounded-2xl border border-[#F28C28]/40 bg-white shadow-xl shadow-black/10">
@@ -283,7 +284,6 @@ export function StickyVoiceAgent() {
                         </button>
                     </div>
 
-                    {/* Orb placeholder (your visual can be swapped later) */}
                     <div className="flex items-center justify-center py-4">
                         <div
                             className={[
@@ -316,7 +316,9 @@ export function StickyVoiceAgent() {
                         onClick={() => void toggleSession()}
                         className={[
                             "w-full rounded-xl px-4 py-3 text-sm font-semibold transition",
-                            isActive ? "bg-black text-white hover:bg-black/90" : "bg-gray-100 text-black hover:bg-gray-200",
+                            isActive
+                                ? "bg-black text-white hover:bg-black/90"
+                                : "bg-gray-100 text-black hover:bg-gray-200",
                         ].join(" ")}
                     >
                         {isActive ? "End session" : "Start session"}
