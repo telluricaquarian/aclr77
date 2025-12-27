@@ -18,7 +18,7 @@ export function StickyVoiceCta({
         <div
             className="
         fixed bottom-5 left-1/2 -translate-x-1/2 z-[70]
-        lg:left-auto lg:translate-x-0 lg:right-5
+        lg:absolute lg:bottom-5 lg:left-5 lg:translate-x-0
       "
         >
             <div
