@@ -10,7 +10,7 @@ import { siteConfig } from "./siteConfig";
 import { CookieConsent } from "@/components/ui/CookieConsent";
 import { Sidebar } from "@/components/ui/Sidebar";
 
-// ✅ IMPORT THE AGENT WRAPPER (NOT StickyVoiceCta)
+// ✅ Voice agent wrapper
 import { StickyVoiceAgent } from "@/components/StickyVoiceAgent";
 
 const redaction = localFont({
@@ -53,16 +53,25 @@ export default function RootLayout({
       <body
         className={`${GeistSans.className} min-h-screen overflow-x-hidden scroll-auto bg-gray-50 antialiased selection:bg-orange-100 selection:text-orange-600`}
       >
+        {/* Desktop sidebar only (already hidden on mobile inside Sidebar.tsx) */}
         <Sidebar />
 
         <div className="min-h-screen lg:pl-72">
-          <NavBar />
+          {/* ✅ Hide NavBar on mobile, show on desktop */}
+          <div className="hidden lg:block">
+            <NavBar />
+          </div>
+
           {children}
           <Footer />
         </div>
 
         <CookieConsent />
-        <StickyVoiceAgent />
+
+        {/* ✅ Mobile-only voice CTA so desktop doesn't duplicate with Sidebar-mounted CTA */}
+        <div className="lg:hidden">
+          <StickyVoiceAgent />
+        </div>
       </body>
     </html>
   );
