@@ -34,6 +34,7 @@ export function StickyVoiceCta({
           px-3 py-2 text-sm font-medium text-zinc-900
           shadow-lg backdrop-blur
           transition group-hover:shadow-xl
+          lg:px-2.5 lg:py-2 lg:text-[13px]
         "
             >
                 <span className="whitespace-nowrap">{label}</span>
@@ -49,14 +50,15 @@ export function StickyVoiceCta({
           ring-1 ring-black/10
           transition
           group-hover:scale-[1.03]
+          lg:h-14 lg:w-14
         "
             >
                 {/* Branded orange ring */}
-                <div className="absolute inset-0 rounded-full ring-4 ring-orange-400/30" />
+                <div className="absolute inset-0 rounded-full ring-4 ring-orange-400/30 lg:ring-3" />
 
                 {/* Icon */}
-                <div className="grid h-14 w-14 place-items-center rounded-full bg-white">
-                    <Phone className="h-7 w-7 text-orange-500" strokeWidth={2.2} />
+                <div className="grid h-14 w-14 place-items-center rounded-full bg-white lg:h-12 lg:w-12">
+                    <Phone className="h-7 w-7 text-orange-500 lg:h-6 lg:w-6" strokeWidth={2.2} />
                 </div>
             </div>
         </div>
