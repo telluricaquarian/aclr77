@@ -3,10 +3,13 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-import { StickyVoiceCta } from "@/components/sticky-voice-cta"; // <-- this path matches your git status
+import { StickyVoiceCta } from "@/components/sticky-voice-cta";
 import Footer from "@/components/ui/Footer";
 import { NavBar } from "@/components/ui/Navbar";
 import { siteConfig } from "./siteConfig";
+
+import { CookieConsent } from "@/components/ui/CookieConsent";
+import { Sidebar } from "@/components/ui/Sidebar";
 
 const redaction = localFont({
   src: "../../public/fonts/Redaction-Italic.otf",
@@ -40,17 +43,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className={redaction.variable}>
       <body
         className={`${GeistSans.className} min-h-screen overflow-x-hidden scroll-auto bg-gray-50 antialiased selection:bg-orange-100 selection:text-orange-600`}
       >
-        <NavBar />
-        {children}
-        <Footer />
+        {/* Desktop Sidebar */}
+        <Sidebar />
 
-        {/* Sticky voice agent CTA */}
+        {/* Main shell */}
+        <div className="min-h-screen lg:pl-72">
+          <NavBar />
+          {children}
+          <Footer />
+        </div>
+
+        <CookieConsent />
         <StickyVoiceCta />
       </body>
     </html>
