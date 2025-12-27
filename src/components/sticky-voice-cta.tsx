@@ -15,7 +15,7 @@ type StickyVoiceCtaProps = {
 export function StickyVoiceCta({
     phoneNumber,
     onClick,
-    label = "Want to talk to an Areculateir Agent?",
+    label = "Talk to an Areculateir Agent?",
 }: StickyVoiceCtaProps) {
     const content = (
         <div
