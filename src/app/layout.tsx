@@ -3,13 +3,15 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-import { StickyVoiceCta } from "@/components/sticky-voice-cta";
 import Footer from "@/components/ui/Footer";
 import { NavBar } from "@/components/ui/Navbar";
 import { siteConfig } from "./siteConfig";
 
 import { CookieConsent } from "@/components/ui/CookieConsent";
 import { Sidebar } from "@/components/ui/Sidebar";
+
+// ✅ IMPORT THE AGENT WRAPPER (NOT StickyVoiceCta)
+import { StickyVoiceAgent } from "@/components/StickyVoiceAgent";
 
 const redaction = localFont({
   src: "../../public/fonts/Redaction-Italic.otf",
@@ -62,7 +64,9 @@ export default function RootLayout({
         </div>
 
         <CookieConsent />
-        <StickyVoiceCta />
+
+        {/* ✅ VOICE AGENT MOUNT */}
+        <StickyVoiceAgent />
       </body>
     </html>
   );
