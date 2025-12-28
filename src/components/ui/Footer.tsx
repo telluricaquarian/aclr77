@@ -14,7 +14,7 @@ const Footer = () => {
     solutions: {
       title: "Solutions",
       items: [
-        { label: "High-End UI", href: "#" },
+        { label: "Web Design W/ High-End UI", href: "#" },
         { label: "Media Buying", href: "#" },
         { label: "Funnel Optimization", href: "#" },
       ],
