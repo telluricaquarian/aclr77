@@ -3,9 +3,6 @@
 import { getVapi } from "@/lib/vapi";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-// ElevenLabs Orb
-import { Orb, type AgentState } from "@/components/ui/orb";
-
 type AgentUiState = "idle" | "connecting" | "listening" | "talking" | "error";
 
 type VapiHandler = (...args: unknown[]) => void;
@@ -24,12 +21,10 @@ function formatErr(err: unknown): string {
     if (typeof err === "object") {
         const e = err as Record<string, unknown>;
 
-        // Common shapes
         if (typeof e.message === "string" && e.message.trim()) return e.message;
         if (typeof e.error === "string" && e.error.trim()) return e.error;
         if (typeof e.reason === "string" && e.reason.trim()) return e.reason;
 
-        // Sometimes message is an object / array
         if (e.message && typeof e.message !== "string") {
             try {
                 const m = JSON.stringify(e.message);
@@ -54,9 +49,6 @@ function formatErr(err: unknown): string {
 
 function normalizeAssistantId(raw: string): string {
     const trimmed = (raw ?? "").trim();
-    // Accept:
-    // - "asst_<uuid>"  -> "<uuid>"
-    // - "<uuid>"       -> "<uuid>"
     if (trimmed.startsWith("asst_")) return trimmed.slice("asst_".length);
     return trimmed;
 }
@@ -99,13 +91,6 @@ export function StickyVoiceAgent() {
 
     const isActive =
         uiState === "connecting" || uiState === "listening" || uiState === "talking";
-
-    // Map UI state -> ElevenLabs orb state
-    const orbState: AgentState = useMemo(() => {
-        if (uiState === "listening") return "listening";
-        if (uiState === "talking") return "talking";
-        return null; // idle/connecting/error -> neutral orb
-    }, [uiState]);
 
     const cleanupListeners = useCallback(() => {
         const vapi = vapiRef.current;
@@ -221,9 +206,7 @@ export function StickyVoiceAgent() {
             setIsStopping(true);
 
             try {
-                // Ensure we have an instance to stop (helps when ref got lost / hot reload)
                 const vapi = vapiRef.current ?? ensureVapi();
-
                 cleanupListeners();
 
                 try {
@@ -258,7 +241,6 @@ export function StickyVoiceAgent() {
             return;
         }
 
-        // SDK expects UUID. Accept asst_<uuid> in env and normalize here.
         if (!isUuid(assistantId)) {
             setError(
                 `Assistant ID is not a UUID after normalization.
@@ -290,7 +272,6 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         await startSession();
     }, [isActive, startSession, stopSession]);
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             void stopSession(true);
@@ -298,7 +279,6 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Collapsed pill
     if (!isOpen) {
         return (
             <div className="fixed bottom-6 left-6 z-50">
@@ -321,14 +301,11 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         );
     }
 
-    // Expanded card (mobile centered; desktop bottom-left)
     return (
         <div
             className={[
                 "fixed z-50 w-[320px] max-w-[calc(100vw-3rem)]",
-                // desktop: bottom-left
                 "left-6 bottom-6",
-                // mobile: center
                 "max-sm:left-1/2 max-sm:top-1/2 max-sm:bottom-auto max-sm:-translate-x-1/2 max-sm:-translate-y-1/2",
             ].join(" ")}
         >
@@ -357,17 +334,18 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                         </button>
                     </div>
 
-                    {/* ElevenLabs Orb */}
+                    {/* Build-safe placeholder orb (no external imports) */}
                     <div className="flex items-center justify-center py-4">
-                        <div className="bg-muted relative h-32 w-32 rounded-full p-1 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]">
-                            <div className="bg-black/30 h-full w-full overflow-hidden rounded-full shadow-[inset_0_0_12px_rgba(0,0,0,0.35)]">
-                                <Orb
-                                    colors={["#CADCFC", "#A0B9D1"]}
-                                    seed={1000}
-                                    agentState={orbState}
-                                />
-                            </div>
-                        </div>
+                        <div
+                            className={[
+                                "h-28 w-28 rounded-full",
+                                "bg-gradient-to-b from-[#CADCFC] to-[#0b1220]",
+                                "shadow-[inset_0_0_0_10px_rgba(255,255,255,0.06)]",
+                                uiState === "talking" ? "animate-pulse" : "",
+                                uiState === "listening" ? "ring-2 ring-white/40" : "",
+                                uiState === "error" ? "ring-2 ring-red-500/70" : "",
+                            ].join(" ")}
+                        />
                     </div>
 
                     <div className="flex items-center justify-center gap-2">
