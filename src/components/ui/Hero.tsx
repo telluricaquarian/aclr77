@@ -2,6 +2,7 @@
 
 import QuoteModal from "@/components/ui/WaitlistModal";
 import { RiArrowRightUpLine } from "@remixicon/react";
+import Image from "next/image";
 import { useState } from "react";
 import { FadeContainer, FadeDiv, FadeSpan } from "../Fade";
 import { HeroVideoDialog } from "./hero-video-dialog";
@@ -13,6 +14,18 @@ export function Hero() {
   return (
     <section aria-label="hero">
       <FadeContainer className="relative flex flex-col items-center justify-center">
+        {/* Logo above the pill CTA (mobile-first) */}
+        <FadeDiv className="mx-auto mb-4 flex w-full justify-center sm:mb-6">
+          <Image
+            src="/images/Aaisolate.png"
+            alt="Areculateir Aa mark"
+            width={220}
+            height={220}
+            priority
+            className="h-12 w-auto select-none sm:h-14 md:h-16"
+          />
+        </FadeDiv>
+
         <FadeDiv className="mx-auto">
           <button
             onClick={() => setIsModalOpen(true)}
