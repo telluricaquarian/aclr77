@@ -14,16 +14,18 @@ export function Hero() {
   return (
     <section aria-label="hero">
       <FadeContainer className="relative flex flex-col items-center justify-center">
-        {/* Logo above the pill CTA (mobile-first) */}
-        <FadeDiv className="mx-auto mb-4 flex w-full justify-center sm:mb-6">
-          <Image
-            src="/images/Aaisolate.png"
-            alt="Areculateir Aa mark"
-            width={220}
-            height={220}
-            priority
-            className="h-12 w-auto select-none sm:h-14 md:h-16"
-          />
+        {/* Mobile-only logo badge above the pill CTA (matches Figma tile) */}
+        <FadeDiv className="mx-auto mb-4 flex w-full justify-center sm:mb-6 md:hidden">
+          <div className="relative flex h-14 w-14 items-center justify-center rounded-xl border border-black/10 bg-white shadow-sm shadow-orange-200/60">
+            <Image
+              src="/images/Aaisolate.png"
+              alt="Areculateir Aa mark"
+              fill
+              sizes="56px"
+              priority
+              className="select-none object-contain p-2"
+            />
+          </div>
         </FadeDiv>
 
         <FadeDiv className="mx-auto">
