@@ -259,6 +259,9 @@ export function StickyVoiceAgent() {
             setIsStopping(true);
             closingRef.current = closeUi ? true : closingRef.current;
 
+            // ✅ OPTIMISTIC UI CLOSE: always collapse immediately when closeUi=true
+            if (closeUi) setIsOpen(false);
+
             try {
                 const vapi = vapiRef.current ?? ensureVapi();
 
@@ -282,7 +285,7 @@ export function StickyVoiceAgent() {
                 // Reset session tracking
                 sessionRef.current = "idle";
 
-                if (closeUi) setIsOpen(false);
+                // (No need to setIsOpen(false) here now; we did it optimistically above.)
             } finally {
                 setIsStopping(false);
                 if (closeUi) {
@@ -420,7 +423,8 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        void hangUp(true);
+                        setIsOpen(false); // ✅ immediate collapse to pill
+                        void hangUp(true); // ✅ hang up + cleanup
                     }}
                     className="absolute -right-3 -top-3 grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white text-black shadow-lg hover:bg-gray-50"
                     aria-label="Close voice agent"
@@ -482,7 +486,9 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                         }}
                         className={[
                             "w-full rounded-xl px-4 py-3 text-sm font-semibold transition",
-                            isActive ? "bg-black text-white hover:bg-black/90" : "bg-gray-100 text-black hover:bg-gray-200",
+                            isActive
+                                ? "bg-black text-white hover:bg-black/90"
+                                : "bg-gray-100 text-black hover:bg-gray-200",
                             isStopping ? "cursor-not-allowed opacity-60" : "",
                         ].join(" ")}
                     >
