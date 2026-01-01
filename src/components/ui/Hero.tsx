@@ -14,16 +14,16 @@ export function Hero() {
   return (
     <section aria-label="hero">
       <FadeContainer className="relative flex flex-col items-center justify-center">
-        {/* Mobile-only logo badge above the pill CTA (matches Figma tile) */}
-        <FadeDiv className="mx-auto mb-4 flex w-full justify-center sm:mb-6 md:hidden">
-          <div className="relative flex h-14 w-14 items-center justify-center rounded-xl border border-black/10 bg-white shadow-sm shadow-orange-200/60">
+        {/* Mobile-only logo badge above the pill CTA */}
+        <FadeDiv className="mx-auto mb-8 flex w-full justify-center md:hidden">
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-black/10 bg-white shadow-sm shadow-orange-200/60">
             <Image
               src="/images/Aaisolate.png"
               alt="Areculateir Aa mark"
               fill
-              sizes="56px"
+              sizes="48px"
               priority
-              className="select-none object-contain p-2"
+              className="select-none object-contain p-1.5"
             />
           </div>
         </FadeDiv>
@@ -48,6 +48,7 @@ export function Hero() {
           </button>
         </FadeDiv>
 
+        {/* Header spacing now defines rhythm */}
         <h1 className="mt-8 text-center text-5xl font-semibold tracking-tighter text-gray-900 sm:text-8xl sm:leading-22">
           <FadeSpan>
             Build a{" "}
