@@ -12,6 +12,10 @@ type VapiLike = {
     stop: () => Promise<unknown> | unknown;
     on: (event: string, handler: VapiHandler) => void;
     off?: (event: string, handler: VapiHandler) => void;
+
+    // Some Vapi SDK builds expose these:
+    endCall?: () => Promise<unknown> | unknown;
+    hangup?: () => Promise<unknown> | unknown;
 };
 
 function formatErr(err: unknown): string {
@@ -214,6 +218,35 @@ export function StickyVoiceAgent() {
         [cleanupListeners, setError]
     );
 
+    const stopVapiHard = useCallback(async (vapi: VapiLike | null) => {
+        if (!vapi) return;
+
+        // Try stop/endCall/hangup — different SDK builds expose different names.
+        try {
+            await vapi.stop();
+            return;
+        } catch { }
+
+        try {
+            if (typeof vapi.endCall === "function") {
+                await vapi.endCall();
+                return;
+            }
+        } catch { }
+
+        try {
+            if (typeof vapi.hangup === "function") {
+                await vapi.hangup();
+                return;
+            }
+        } catch { }
+
+        // One more attempt at stop (some SDKs throw first time during connecting)
+        try {
+            await vapi.stop();
+        } catch { }
+    }, []);
+
     /**
      * Single source of truth for hanging up.
      * - Always attempts to stop Vapi (twice, to handle "connecting" race cases).
@@ -229,30 +262,22 @@ export function StickyVoiceAgent() {
             try {
                 const vapi = vapiRef.current ?? ensureVapi();
 
-                // Clean up listeners ASAP so late events don't flip state back
-                cleanupListeners();
-
                 // Optimistic UI reset so it feels immediate
                 setStatusLine("");
                 setErrorText("");
                 setUiState("idle");
 
                 // Attempt stop #1
-                try {
-                    await vapi?.stop();
-                } catch {
-                    // ignore
-                }
+                await stopVapiHard(vapi);
 
                 // If we were starting/active, some SDK states benefit from a second stop
                 if (sessionRef.current !== "idle") {
                     await new Promise((r) => setTimeout(r, 300));
-                    try {
-                        await vapi?.stop();
-                    } catch {
-                        // ignore
-                    }
+                    await stopVapiHard(vapi);
                 }
+
+                // Clean up listeners after stopping (so call-end can still be observed if it fires fast)
+                cleanupListeners();
 
                 // Reset session tracking
                 sessionRef.current = "idle";
@@ -268,7 +293,7 @@ export function StickyVoiceAgent() {
                 }
             }
         },
-        [cleanupListeners, ensureVapi, isStopping]
+        [cleanupListeners, ensureVapi, isStopping, stopVapiHard]
     );
 
     const startSession = useCallback(async () => {
@@ -311,7 +336,12 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         bindListeners(vapi);
 
         try {
-            await vapi.start(assistantId);
+            // Some SDKs accept a string UUID, others accept { assistantId }.
+            try {
+                await vapi.start(assistantId);
+            } catch {
+                await vapi.start({ assistantId });
+            }
             setStatusLine("Connecting…");
         } catch (e) {
             sessionRef.current = "idle";
@@ -383,8 +413,23 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                 "max-sm:left-1/2 max-sm:top-1/2 max-sm:bottom-auto max-sm:-translate-x-1/2 max-sm:-translate-y-1/2",
             ].join(" ")}
         >
-            <div className="rounded-2xl border border-[#F28C28]/40 bg-white shadow-xl shadow-black/10">
-                <div className="relative rounded-2xl bg-black p-4 text-white">
+            <div className="relative rounded-2xl border border-[#F28C28]/40 bg-white shadow-xl shadow-black/10">
+                {/* Close button OUTSIDE the content area (hero-video style) */}
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        void hangUp(true);
+                    }}
+                    className="absolute -right-3 -top-3 grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white text-black shadow-lg hover:bg-gray-50"
+                    aria-label="Close voice agent"
+                    title="Close"
+                >
+                    ✕
+                </button>
+
+                <div className="rounded-2xl bg-black p-4 text-white">
                     <div className="mb-3 flex items-start justify-between gap-3">
                         <div>
                             <div className="text-sm font-semibold">Areculateir Agent:</div>
@@ -392,21 +437,6 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                                 {uiState === "error" ? "Error" : statusLine || "Ready"}
                             </div>
                         </div>
-
-                        {/* Close: MUST hang up + close UI */}
-                        <button
-                            type="button"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                void hangUp(true);
-                            }}
-                            className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15"
-                            aria-label="Close voice agent"
-                            title="Close"
-                        >
-                            ✕
-                        </button>
                     </div>
 
                     {/* MP4 "Orb" */}
@@ -452,9 +482,7 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                         }}
                         className={[
                             "w-full rounded-xl px-4 py-3 text-sm font-semibold transition",
-                            isActive
-                                ? "bg-black text-white hover:bg-black/90"
-                                : "bg-gray-100 text-black hover:bg-gray-200",
+                            isActive ? "bg-black text-white hover:bg-black/90" : "bg-gray-100 text-black hover:bg-gray-200",
                             isStopping ? "cursor-not-allowed opacity-60" : "",
                         ].join(" ")}
                     >
