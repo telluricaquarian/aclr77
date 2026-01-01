@@ -1,5 +1,6 @@
 "use client";
 
+import { StickyVoiceAgent } from "@/components/StickyVoiceAgent";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -45,16 +46,19 @@ export function Sidebar() {
             e.preventDefault();
             scrollToId(id);
 
-            // Clean up the hash if it exists
+            // Clean up the hash if it exists (matches your navbar behavior)
             if (window.location.hash) {
                 history.replaceState(null, "", window.location.pathname);
             }
         }
+        // If we're NOT on home, we let the Link navigate to "/#id"
+        // so the browser lands on the section.
     };
 
     const isActive = (id: string) => {
-        // Optional default active state on home
-        return pathname === "/" && id === "solutions";
+        // Sidebar highlight based on being on home.
+        // (Hash isn't available from next/navigation in a stable way here.)
+        return pathname === "/" && id === "solutions"; // optional: keep one default active on home
     };
 
     return (
@@ -126,6 +130,11 @@ export function Sidebar() {
                             ))}
                         </nav>
                     </div>
+                </div>
+
+                {/* Desktop-only mount inside sidebar */}
+                <div className="hidden lg:block">
+                    <StickyVoiceAgent />
                 </div>
             </div>
         </aside>
