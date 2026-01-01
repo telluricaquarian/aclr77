@@ -249,9 +249,7 @@ export function StickyVoiceAgent() {
 
     /**
      * Single source of truth for hanging up.
-     * - Always attempts to stop Vapi (twice, to handle "connecting" race cases).
-     * - Always cleans up listeners.
-     * - Optionally closes the UI.
+     * Close button and End Session should BOTH end the call.
      */
     const hangUp = useCallback(
         async (closeUi: boolean) => {
@@ -259,13 +257,19 @@ export function StickyVoiceAgent() {
             setIsStopping(true);
             closingRef.current = closeUi ? true : closingRef.current;
 
-            // ✅ OPTIMISTIC UI CLOSE: always collapse immediately when closeUi=true
+            // Snapshot whether we were mid-start or active BEFORE resetting state/ref
+            const wasSession = sessionRef.current !== "idle";
+
+            // Immediately prevent re-open races
+            sessionRef.current = "idle";
+
+            // ✅ Close immediately if requested (so UI collapses instantly)
             if (closeUi) setIsOpen(false);
 
             try {
                 const vapi = vapiRef.current ?? ensureVapi();
 
-                // Optimistic UI reset so it feels immediate
+                // Optimistic UI reset
                 setStatusLine("");
                 setErrorText("");
                 setUiState("idle");
@@ -274,22 +278,16 @@ export function StickyVoiceAgent() {
                 await stopVapiHard(vapi);
 
                 // If we were starting/active, some SDK states benefit from a second stop
-                if (sessionRef.current !== "idle") {
+                if (wasSession) {
                     await new Promise((r) => setTimeout(r, 300));
                     await stopVapiHard(vapi);
                 }
 
-                // Clean up listeners after stopping (so call-end can still be observed if it fires fast)
+                // Now clean up listeners (post-stop)
                 cleanupListeners();
-
-                // Reset session tracking
-                sessionRef.current = "idle";
-
-                // (No need to setIsOpen(false) here now; we did it optimistically above.)
             } finally {
                 setIsStopping(false);
                 if (closeUi) {
-                    // release guard next tick
                     setTimeout(() => {
                         closingRef.current = false;
                     }, 0);
@@ -300,7 +298,6 @@ export function StickyVoiceAgent() {
     );
 
     const startSession = useCallback(async () => {
-        // if we're mid-close, do nothing
         if (closingRef.current) return;
 
         sessionRef.current = "starting";
@@ -354,7 +351,7 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
 
     const toggleSession = useCallback(async () => {
         if (isActive) {
-            // End session should HANG UP but keep the UI open
+            // End session should HANG UP but keep UI open
             await hangUp(false);
             return;
         }
@@ -417,14 +414,13 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
             ].join(" ")}
         >
             <div className="relative rounded-2xl border border-[#F28C28]/40 bg-white shadow-xl shadow-black/10">
-                {/* Close button OUTSIDE the content area (hero-video style) */}
+                {/* Close button: MUST hang up + close UI */}
                 <button
                     type="button"
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        setIsOpen(false); // ✅ immediate collapse to pill
-                        void hangUp(true); // ✅ hang up + cleanup
+                        void hangUp(true); // ✅ ends call + collapses UI
                     }}
                     className="absolute -right-3 -top-3 grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white text-black shadow-lg hover:bg-gray-50"
                     aria-label="Close voice agent"
