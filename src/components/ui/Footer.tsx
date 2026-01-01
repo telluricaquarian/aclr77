@@ -69,7 +69,7 @@ const Footer = () => {
 
           {/* Right */}
           <div
-            className="absolute inset-y-0 right-0 -my-20 w-ppx"
+            className="absolute inset-y-0 right-0 -my-20 w-px"
             style={{ maskImage: "linear-gradient(transparent, white 5rem)" }}
           >
             <svg className="h-full w-full" preserveAspectRatio="none">
@@ -165,6 +165,8 @@ const Footer = () => {
                 <RiSlackFill className="size-5" />
               </Link>
             </div>
+
+            {/* Desktop-only copyright (keeps your existing placement) */}
             <div className="ml-2 hidden text-sm text-gray-700 lg:inline">
               &copy; {CURRENT_YEAR} Made with Areculateirium⁷⁷.
             </div>
@@ -191,6 +193,11 @@ const Footer = () => {
             </ul>
           </div>
         ))}
+
+        {/* Mobile-only bottom copyright */}
+        <div className="mt-10 w-full pb-6 text-center text-sm text-gray-700 lg:hidden">
+          &copy; {CURRENT_YEAR} Made with Areculateirium⁷⁷.
+        </div>
       </footer>
     </div>
   );
