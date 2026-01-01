@@ -29,14 +29,16 @@ export function Sidebar() {
                 {/* Logo area */}
                 <div className="px-6 pb-4 pt-6">
                     <Link href="/" aria-label="Home" className="inline-flex items-center">
-                        <Image
-                            src="/images/typelogo.svg"
-                            alt="Areculateir type logo"
-                            width={220}
-                            height={40}
-                            className="h-10 w-auto"
-                            priority
-                        />
+                        <div className="relative flex h-10 w-10 items-center justify-center rounded-md border border-black/10 bg-white shadow-sm">
+                            <Image
+                                src="/images/Aaisolate.png"
+                                alt="Areculateir Aa mark"
+                                fill
+                                sizes="40px"
+                                priority
+                                className="object-contain p-1.5 select-none"
+                            />
+                        </div>
                     </Link>
                 </div>
 
