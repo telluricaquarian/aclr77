@@ -20,7 +20,6 @@ function formatErr(err: unknown): string {
 
     if (typeof err === "object") {
         const e = err as Record<string, unknown>;
-
         if (typeof e.message === "string" && e.message.trim()) return e.message;
         if (typeof e.error === "string" && e.error.trim()) return e.error;
         if (typeof e.reason === "string" && e.reason.trim()) return e.reason;
@@ -87,6 +86,9 @@ export function StickyVoiceAgent() {
 
     // Video ref so we can play/pause reliably (esp. iOS)
     const videoRef = useRef<HTMLVideoElement | null>(null);
+
+    // Guard: prevents startSession from reopening while we are closing
+    const closingRef = useRef(false);
 
     const envOk = useMemo(() => {
         return Boolean(publicKey) && Boolean(rawAssistantId);
@@ -234,6 +236,9 @@ export function StickyVoiceAgent() {
     );
 
     const startSession = useCallback(async () => {
+        // if we're in the middle of closing, do nothing
+        if (closingRef.current) return;
+
         setIsOpen(true);
         setErrorText("");
         setStatusLine("Requesting microphone…");
@@ -279,6 +284,23 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         await startSession();
     }, [isActive, startSession, stopSession]);
 
+    const handleClose = useCallback(async () => {
+        // Hard-close guard so nothing reopens the UI mid-stop
+        closingRef.current = true;
+
+        // Immediately close UI for responsiveness
+        setIsOpen(false);
+
+        // Stop session + cleanup
+        await stopSession(true);
+
+        // Release guard after everything settles
+        // (next tick avoids any state races from SDK events)
+        setTimeout(() => {
+            closingRef.current = false;
+        }, 0);
+    }, [stopSession]);
+
     // Cleanup on unmount
     useEffect(() => {
         return () => {
@@ -292,8 +314,11 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         const v = videoRef.current;
         if (!v) return;
 
-        if (uiState === "talking" || uiState === "listening" || uiState === "connecting") {
-            // Try to play; ignore if autoplay is blocked (muted+playsInline usually passes)
+        if (
+            uiState === "talking" ||
+            uiState === "listening" ||
+            uiState === "connecting"
+        ) {
             void v.play().catch(() => { });
         } else {
             v.pause();
@@ -345,12 +370,13 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                             </div>
                         </div>
 
+                        {/* Close button */}
                         <button
                             type="button"
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                void stopSession(true);
+                                void handleClose();
                             }}
                             className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15"
                             aria-label="Close voice agent"
