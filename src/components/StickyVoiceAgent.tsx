@@ -1,6 +1,5 @@
 "use client";
 
-import { Orb, type AgentState } from "@/components/ui/orb";
 import { getVapi } from "@/lib/vapi";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -26,7 +25,6 @@ function formatErr(err: unknown): string {
         if (typeof e.error === "string" && e.error.trim()) return e.error;
         if (typeof e.reason === "string" && e.reason.trim()) return e.reason;
 
-        // If message is an array/object (common with API validation errors)
         if (e.message && typeof e.message !== "string") {
             try {
                 const m = JSON.stringify(e.message);
@@ -51,7 +49,6 @@ function formatErr(err: unknown): string {
 
 function normalizeAssistantId(raw: string): string {
     const trimmed = (raw ?? "").trim();
-    // Accept "asst_<uuid>" or "<uuid>"
     if (trimmed.startsWith("asst_")) return trimmed.slice("asst_".length);
     return trimmed;
 }
@@ -87,6 +84,9 @@ export function StickyVoiceAgent() {
 
     const vapiRef = useRef<VapiLike | null>(null);
     const handlersRef = useRef<Array<[string, VapiHandler]>>([]);
+
+    // Video ref so we can play/pause reliably (esp. iOS)
+    const videoRef = useRef<HTMLVideoElement | null>(null);
 
     const envOk = useMemo(() => {
         return Boolean(publicKey) && Boolean(rawAssistantId);
@@ -186,7 +186,6 @@ export function StickyVoiceAgent() {
                 ["call:end", onCallEnd],
                 ["call-end", onCallEnd],
                 ["call:ended", onCallEnd],
-                // add a couple more aliases some SDK builds use
                 ["call-stop", onCallEnd],
                 ["call-stopped", onCallEnd],
                 ["speech-start", onSpeechStart],
@@ -212,7 +211,6 @@ export function StickyVoiceAgent() {
             if (isStopping) return;
             setIsStopping(true);
 
-            // Optimistic UI reset so buttons always feel responsive (important on iOS)
             setStatusLine("");
             setErrorText("");
             setUiState("idle");
@@ -250,7 +248,6 @@ export function StickyVoiceAgent() {
             return;
         }
 
-        // This SDK expects a UUID (we normalize asst_<uuid> -> <uuid>)
         if (!isUuid(assistantId)) {
             setError(
                 `Assistant ID is not a UUID after normalization.
@@ -290,6 +287,22 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Play/pause the MP4 based on agent state
+    useEffect(() => {
+        const v = videoRef.current;
+        if (!v) return;
+
+        if (uiState === "talking" || uiState === "listening" || uiState === "connecting") {
+            // Try to play; ignore if autoplay is blocked (muted+playsInline usually passes)
+            void v.play().catch(() => { });
+        } else {
+            v.pause();
+            try {
+                v.currentTime = 0;
+            } catch { }
+        }
+    }, [uiState]);
+
     // Collapsed pill
     if (!isOpen) {
         return (
@@ -313,17 +326,12 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         );
     }
 
-    const orbState: AgentState =
-        uiState === "talking" ? "talking" : uiState === "listening" ? "listening" : null;
-
     // Expanded card
     return (
         <div
             className={[
                 "fixed z-50 w-[320px] max-w-[calc(100vw-3rem)]",
-                // Desktop: keep as-is (bottom-left)
                 "md:left-6 md:bottom-6 md:top-auto md:-translate-x-0 md:-translate-y-0",
-                // Mobile: centered
                 "max-sm:left-1/2 max-sm:top-1/2 max-sm:bottom-auto max-sm:-translate-x-1/2 max-sm:-translate-y-1/2",
             ].join(" ")}
         >
@@ -337,7 +345,6 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                             </div>
                         </div>
 
-                        {/* Bigger hit-area + positioned so it's easier on iPhone */}
                         <button
                             type="button"
                             onClick={(e) => {
@@ -353,15 +360,19 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                         </button>
                     </div>
 
-                    {/* Animated Orb */}
+                    {/* MP4 "Orb" */}
                     <div className="flex items-center justify-center py-4">
                         <div className="bg-muted relative h-28 w-28 rounded-full p-1 shadow-[inset_0_2px_8px_rgba(0,0,0,0.35)]">
                             <div className="bg-black/40 h-full w-full overflow-hidden rounded-full">
-                                <Orb
-                                    className="h-full w-full"
-                                    colors={["#CADCFC", "#0b1220"]}
-                                    seed={1000}
-                                    agentState={orbState}
+                                <video
+                                    ref={videoRef}
+                                    className="h-full w-full object-cover"
+                                    src="/images/taraspeaking.mp4"
+                                    muted
+                                    playsInline
+                                    loop
+                                    preload="auto"
+                                    aria-label="Areculateir agent animation"
                                 />
                             </div>
                         </div>
