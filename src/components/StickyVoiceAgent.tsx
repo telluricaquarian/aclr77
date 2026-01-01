@@ -20,6 +20,7 @@ function formatErr(err: unknown): string {
 
     if (typeof err === "object") {
         const e = err as Record<string, unknown>;
+
         if (typeof e.message === "string" && e.message.trim()) return e.message;
         if (typeof e.error === "string" && e.error.trim()) return e.error;
         if (typeof e.reason === "string" && e.reason.trim()) return e.reason;
@@ -87,8 +88,11 @@ export function StickyVoiceAgent() {
     // Video ref so we can play/pause reliably (esp. iOS)
     const videoRef = useRef<HTMLVideoElement | null>(null);
 
-    // Guard: prevents startSession from reopening while we are closing
+    // Prevent reopen races while we are closing/stopping
     const closingRef = useRef(false);
+
+    // Track whether a session was actually started/active (helps "double stop" logic)
+    const sessionRef = useRef<"idle" | "starting" | "active">("idle");
 
     const envOk = useMemo(() => {
         return Boolean(publicKey) && Boolean(rawAssistantId);
@@ -143,12 +147,14 @@ export function StickyVoiceAgent() {
             cleanupListeners();
 
             const onCallStart: VapiHandler = () => {
+                sessionRef.current = "active";
                 setErrorText("");
                 setStatusLine("Connected");
                 setUiState("listening");
             };
 
             const onCallEnd: VapiHandler = () => {
+                sessionRef.current = "idle";
                 setStatusLine("");
                 setErrorText("");
                 setUiState("idle");
@@ -208,37 +214,68 @@ export function StickyVoiceAgent() {
         [cleanupListeners, setError]
     );
 
-    const stopSession = useCallback(
+    /**
+     * Single source of truth for hanging up.
+     * - Always attempts to stop Vapi (twice, to handle "connecting" race cases).
+     * - Always cleans up listeners.
+     * - Optionally closes the UI.
+     */
+    const hangUp = useCallback(
         async (closeUi: boolean) => {
             if (isStopping) return;
             setIsStopping(true);
-
-            setStatusLine("");
-            setErrorText("");
-            setUiState("idle");
+            closingRef.current = closeUi ? true : closingRef.current;
 
             try {
                 const vapi = vapiRef.current ?? ensureVapi();
+
+                // Clean up listeners ASAP so late events don't flip state back
                 cleanupListeners();
 
+                // Optimistic UI reset so it feels immediate
+                setStatusLine("");
+                setErrorText("");
+                setUiState("idle");
+
+                // Attempt stop #1
                 try {
-                    if (vapi) await vapi.stop();
+                    await vapi?.stop();
                 } catch {
-                    // ignore stop errors
-                } finally {
-                    if (closeUi) setIsOpen(false);
+                    // ignore
                 }
+
+                // If we were starting/active, some SDK states benefit from a second stop
+                if (sessionRef.current !== "idle") {
+                    await new Promise((r) => setTimeout(r, 300));
+                    try {
+                        await vapi?.stop();
+                    } catch {
+                        // ignore
+                    }
+                }
+
+                // Reset session tracking
+                sessionRef.current = "idle";
+
+                if (closeUi) setIsOpen(false);
             } finally {
                 setIsStopping(false);
+                if (closeUi) {
+                    // release guard next tick
+                    setTimeout(() => {
+                        closingRef.current = false;
+                    }, 0);
+                }
             }
         },
         [cleanupListeners, ensureVapi, isStopping]
     );
 
     const startSession = useCallback(async () => {
-        // if we're in the middle of closing, do nothing
+        // if we're mid-close, do nothing
         if (closingRef.current) return;
 
+        sessionRef.current = "starting";
         setIsOpen(true);
         setErrorText("");
         setStatusLine("Requesting microphone…");
@@ -250,6 +287,7 @@ export function StickyVoiceAgent() {
 - NEXT_PUBLIC_VAPI_PUBLIC_KEY
 - NEXT_PUBLIC_VAPI_ASSISTANT_ID`
             );
+            sessionRef.current = "idle";
             return;
         }
 
@@ -260,11 +298,15 @@ Raw: "${rawAssistantId}"
 Normalized: "${assistantId}"
 Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
             );
+            sessionRef.current = "idle";
             return;
         }
 
         const vapi = ensureVapi();
-        if (!vapi) return;
+        if (!vapi) {
+            sessionRef.current = "idle";
+            return;
+        }
 
         bindListeners(vapi);
 
@@ -272,39 +314,24 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
             await vapi.start(assistantId);
             setStatusLine("Connecting…");
         } catch (e) {
+            sessionRef.current = "idle";
             setError(e);
         }
     }, [assistantId, bindListeners, envOk, ensureVapi, rawAssistantId, setError]);
 
     const toggleSession = useCallback(async () => {
         if (isActive) {
-            await stopSession(false);
+            // End session should HANG UP but keep the UI open
+            await hangUp(false);
             return;
         }
         await startSession();
-    }, [isActive, startSession, stopSession]);
-
-    const handleClose = useCallback(async () => {
-        // Hard-close guard so nothing reopens the UI mid-stop
-        closingRef.current = true;
-
-        // Immediately close UI for responsiveness
-        setIsOpen(false);
-
-        // Stop session + cleanup
-        await stopSession(true);
-
-        // Release guard after everything settles
-        // (next tick avoids any state races from SDK events)
-        setTimeout(() => {
-            closingRef.current = false;
-        }, 0);
-    }, [stopSession]);
+    }, [hangUp, isActive, startSession]);
 
     // Cleanup on unmount
     useEffect(() => {
         return () => {
-            void stopSession(true);
+            void hangUp(true);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -314,11 +341,7 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
         const v = videoRef.current;
         if (!v) return;
 
-        if (
-            uiState === "talking" ||
-            uiState === "listening" ||
-            uiState === "connecting"
-        ) {
+        if (uiState === "talking" || uiState === "listening" || uiState === "connecting") {
             void v.play().catch(() => { });
         } else {
             v.pause();
@@ -370,13 +393,13 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                             </div>
                         </div>
 
-                        {/* Close button */}
+                        {/* Close: MUST hang up + close UI */}
                         <button
                             type="button"
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                void handleClose();
+                                void hangUp(true);
                             }}
                             className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15"
                             aria-label="Close voice agent"
@@ -418,6 +441,7 @@ Fix: Use the Assistant ID from Vapi (it should be "asst_<uuid>" or "<uuid>").`
                 </div>
 
                 <div className="p-4">
+                    {/* End session: MUST hang up, but keep UI open */}
                     <button
                         type="button"
                         disabled={isStopping}
