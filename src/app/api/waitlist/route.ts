@@ -72,6 +72,14 @@ export async function POST(req: Request) {
         const sheetsWebhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
         const sheetsSecret = process.env.GOOGLE_SHEETS_SECRET;
 
+        // If webhook is configured, secret MUST be present (your Apps Script requires it).
+        if (sheetsWebhookUrl && !sheetsSecret) {
+            return NextResponse.json(
+                { ok: false, error: "Missing env: GOOGLE_SHEETS_SECRET" },
+                { status: 500 }
+            );
+        }
+
         let sheetsResult: JsonValue | string | { ok: false; error: string } = {
             ok: false,
             error: "GOOGLE_SHEETS_WEBHOOK_URL not set",
@@ -80,15 +88,16 @@ export async function POST(req: Request) {
         // 3) Log to Sheets first (non-blocking if it fails)
         if (sheetsWebhookUrl) {
             try {
+                // IMPORTANT:
+                // - Apps Script expects "secret" (exact key) in JSON body
+                // - Keep values as strings to match your sheet columns cleanly
                 const payload: Record<string, string> = {
-                    // ✅ REQUIRED by your Apps Script auth check
-                    secret: sheetsSecret || "",
-
-                    name: name || "N/A",
+                    secret: sheetsSecret!, // safe because we guarded above
+                    name: name || "",
                     email,
-                    role: role || "N/A",
-                    companySize: companySize || "N/A",
-                    message: message || "N/A",
+                    role: role || "",
+                    companySize: companySize || "",
+                    message: message || "",
                     source,
                     timestamp: new Date().toISOString(),
                 };
@@ -104,11 +113,16 @@ export async function POST(req: Request) {
                 const text = await r.text();
                 const parsed = tryParseJson(text);
 
+                // Apps Script might return 200 with {ok:false,error:"Unauthorized"}.
+                // Treat that as failure so you can see it in the API response.
                 if (!r.ok) {
                     sheetsResult = {
                         ok: false,
                         error: `Sheets webhook failed with status ${r.status}`,
                     };
+                } else if (isJsonObject(parsed) && parsed["ok"] === false) {
+                    const errMsg = typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
+                    sheetsResult = { ok: false, error: errMsg };
                 } else {
                     sheetsResult = parsed;
                 }
@@ -120,7 +134,7 @@ export async function POST(req: Request) {
             }
         }
 
-        // 4) Send Resend emails
+        // 4) Send Resend emails (also non-blocking relative to Sheets)
         if (!process.env.RESEND_API_KEY) {
             return NextResponse.json(
                 { ok: false, error: "Missing env: RESEND_API_KEY", sheets: sheetsResult },
