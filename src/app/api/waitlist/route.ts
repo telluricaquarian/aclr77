@@ -54,10 +54,7 @@ export async function POST(req: Request) {
         try {
             body = (await req.json()) as WaitlistPayload;
         } catch {
-            return NextResponse.json(
-                { ok: false, error: "Invalid JSON body" },
-                { status: 400 }
-            );
+            return NextResponse.json({ ok: false, error: "Invalid JSON body" }, { status: 400 });
         }
 
         const name = safeString(body.name);
@@ -68,30 +65,25 @@ export async function POST(req: Request) {
         const source = safeString(body.source) || "areculateir_waitlist";
 
         if (!email) {
-            return NextResponse.json(
-                { ok: false, error: "Email is required" },
-                { status: 400 }
-            );
+            return NextResponse.json({ ok: false, error: "Email is required" }, { status: 400 });
         }
 
-        if (!process.env.RESEND_API_KEY) {
-            return NextResponse.json(
-                { ok: false, error: "Missing env: RESEND_API_KEY" },
-                { status: 500 }
-            );
-        }
-
+        // 2) Sheets webhook config
         const sheetsWebhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
+        const sheetsSecret = process.env.GOOGLE_SHEETS_SECRET;
 
-        // 2) Log to Sheets first (non-blocking if it fails)
         let sheetsResult: JsonValue | string | { ok: false; error: string } = {
             ok: false,
             error: "GOOGLE_SHEETS_WEBHOOK_URL not set",
         };
 
+        // 3) Log to Sheets first (non-blocking if it fails)
         if (sheetsWebhookUrl) {
             try {
                 const payload: Record<string, string> = {
+                    // ✅ REQUIRED by your Apps Script auth check
+                    secret: sheetsSecret || "",
+
                     name: name || "N/A",
                     email,
                     role: role || "N/A",
@@ -106,6 +98,7 @@ export async function POST(req: Request) {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                     cache: "no-store",
+                    redirect: "follow",
                 });
 
                 const text = await r.text();
@@ -127,7 +120,14 @@ export async function POST(req: Request) {
             }
         }
 
-        // 3) Send Resend emails
+        // 4) Send Resend emails
+        if (!process.env.RESEND_API_KEY) {
+            return NextResponse.json(
+                { ok: false, error: "Missing env: RESEND_API_KEY", sheets: sheetsResult },
+                { status: 500 }
+            );
+        }
+
         let resendInternalId: string | null = null;
         let resendCustomerId: string | null = null;
 
@@ -174,7 +174,7 @@ export async function POST(req: Request) {
             );
         }
 
-        // 4) Success response
+        // 5) Success response
         return NextResponse.json(
             {
                 ok: true,
