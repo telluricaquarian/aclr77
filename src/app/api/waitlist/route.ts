@@ -3,16 +3,56 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-function safeString(v: unknown) {
+type WaitlistPayload = {
+    name?: string;
+    email?: string;
+    role?: string;
+    companySize?: string;
+    message?: string;
+    source?: string;
+};
+
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
+type JsonObject = { [key: string]: JsonValue };
+
+function safeString(v: unknown): string {
     return typeof v === "string" ? v.trim() : "";
+}
+
+function isJsonObject(value: unknown): value is JsonObject {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function tryParseJson(text: string): JsonValue | string {
+    try {
+        return JSON.parse(text) as JsonValue;
+    } catch {
+        return text;
+    }
+}
+
+// Resend SDK response shape can vary by version. We'll safely extract an id.
+function extractResendId(result: unknown): string | null {
+    if (!isJsonObject(result)) return null;
+
+    // common shapes: { data: { id: "..." } } OR { id: "..." }
+    const data = result["data"];
+    if (isJsonObject(data)) {
+        const id = data["id"];
+        return typeof id === "string" ? id : null;
+    }
+
+    const id = result["id"];
+    return typeof id === "string" ? id : null;
 }
 
 export async function POST(req: Request) {
     try {
-        // 1) Parse body safely
-        let body: any = null;
+        // 1) Parse JSON body safely
+        let body: WaitlistPayload;
         try {
-            body = await req.json();
+            body = (await req.json()) as WaitlistPayload;
         } catch {
             return NextResponse.json(
                 { ok: false, error: "Invalid JSON body" },
@@ -20,12 +60,12 @@ export async function POST(req: Request) {
             );
         }
 
-        const name = safeString(body?.name);
-        const email = safeString(body?.email);
-        const role = safeString(body?.role);
-        const companySize = safeString(body?.companySize);
-        const message = safeString(body?.message);
-        const source = safeString(body?.source) || "areculateir_waitlist";
+        const name = safeString(body.name);
+        const email = safeString(body.email);
+        const role = safeString(body.role);
+        const companySize = safeString(body.companySize);
+        const message = safeString(body.message);
+        const source = safeString(body.source) || "areculateir_waitlist";
 
         if (!email) {
             return NextResponse.json(
@@ -34,7 +74,6 @@ export async function POST(req: Request) {
             );
         }
 
-        // 2) Validate env (this is the #1 cause of 500s locally)
         if (!process.env.RESEND_API_KEY) {
             return NextResponse.json(
                 { ok: false, error: "Missing env: RESEND_API_KEY" },
@@ -42,15 +81,17 @@ export async function POST(req: Request) {
             );
         }
 
-        // Optional Google Sheets webhook (Apps Script Web App URL)
         const sheetsWebhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
 
-        // 3) Fire Google Sheets logging FIRST (so you don't lose leads if email fails)
-        // We do it in a try/catch so it never blocks signups.
-        let sheetsResult: any = null;
+        // 2) Log to Sheets first (non-blocking if it fails)
+        let sheetsResult: JsonValue | string | { ok: false; error: string } = {
+            ok: false,
+            error: "GOOGLE_SHEETS_WEBHOOK_URL not set",
+        };
+
         if (sheetsWebhookUrl) {
             try {
-                const payload = {
+                const payload: Record<string, string> = {
                     name: name || "N/A",
                     email,
                     role: role || "N/A",
@@ -68,30 +109,30 @@ export async function POST(req: Request) {
                 });
 
                 const text = await r.text();
-                try {
-                    sheetsResult = JSON.parse(text);
-                } catch {
-                    sheetsResult = text;
-                }
+                const parsed = tryParseJson(text);
 
                 if (!r.ok) {
-                    // We don't fail the request; we just report it back for debugging
-                    sheetsResult = { ok: false, status: r.status, data: sheetsResult };
+                    sheetsResult = {
+                        ok: false,
+                        error: `Sheets webhook failed with status ${r.status}`,
+                    };
+                } else {
+                    sheetsResult = parsed;
                 }
-            } catch (e: any) {
-                sheetsResult = { ok: false, error: e?.message ?? "Sheets webhook failed" };
+            } catch (e: unknown) {
+                sheetsResult = {
+                    ok: false,
+                    error: e instanceof Error ? e.message : "Sheets webhook failed",
+                };
             }
-        } else {
-            sheetsResult = { ok: false, error: "GOOGLE_SHEETS_WEBHOOK_URL not set" };
         }
 
-        // 4) Resend emails (internal + customer)
-        // If Resend throws, we still return a JSON response with the reason.
+        // 3) Send Resend emails
         let resendInternalId: string | null = null;
         let resendCustomerId: string | null = null;
 
         try {
-            const internal = await resend.emails.send({
+            const internalResult = await resend.emails.send({
                 from: "Areculateir Support <support@areculateir.com>",
                 to: ["areculateirstudios@gmail.com"],
                 subject: "New Waitlist Signup!",
@@ -105,11 +146,9 @@ export async function POST(req: Request) {
         `,
             });
 
-            // Resend SDK returns { data, error } in some versions; handle both shapes
-            // @ts-ignore
-            resendInternalId = internal?.data?.id ?? internal?.id ?? null;
+            resendInternalId = extractResendId(internalResult);
 
-            const customer = await resend.emails.send({
+            const customerResult = await resend.emails.send({
                 from: "Areculateir Support <support@areculateir.com>",
                 to: [email],
                 subject: "You’re on the Areculateir waitlist ✅",
@@ -121,23 +160,21 @@ export async function POST(req: Request) {
         `,
             });
 
-            // @ts-ignore
-            resendCustomerId = customer?.data?.id ?? customer?.id ?? null;
-        } catch (e: any) {
-            // IMPORTANT: still return ok:true if Sheets succeeded, so you still capture leads.
-            // But we surface the Resend error for debugging.
+            resendCustomerId = extractResendId(customerResult);
+        } catch (e: unknown) {
+            // Still return ok:true so leads are captured (Sheets likely already captured)
             return NextResponse.json(
                 {
                     ok: true,
                     warning: "Waitlist captured but email sending failed",
-                    resendError: e?.message ?? String(e),
+                    resendError: e instanceof Error ? e.message : "Resend failed",
                     sheets: sheetsResult,
                 },
                 { status: 200 }
             );
         }
 
-        // 5) Success
+        // 4) Success response
         return NextResponse.json(
             {
                 ok: true,
@@ -146,10 +183,10 @@ export async function POST(req: Request) {
             },
             { status: 200 }
         );
-    } catch (error: any) {
-        console.error("Waitlist error:", error);
+    } catch (e: unknown) {
+        console.error("Waitlist error:", e);
         return NextResponse.json(
-            { ok: false, error: error?.message ?? "Something went wrong" },
+            { ok: false, error: e instanceof Error ? e.message : "Something went wrong" },
             { status: 500 }
         );
     }
