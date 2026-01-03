@@ -46,8 +46,11 @@ function extractResendId(result: unknown): string | null {
 
 /**
  * Google Apps Script /exec often responds with a 302 to script.googleusercontent.com.
- * Some HTTP clients follow redirects by switching POST -> GET, which breaks doPost().
- * This helper follows redirects manually while preserving POST + body.
+ * If we follow that redirect, we can end up POSTing to /macros/echo and getting 405 + HTML.
+ *
+ * Key idea:
+ * - Treat 301/302/303 as "done" (do not follow).
+ * - Only follow 307/308 (those preserve method/body).
  */
 async function postJsonFollowRedirects(
     url: string,
@@ -73,26 +76,30 @@ async function postJsonFollowRedirects(
                 headers,
                 body,
                 cache: "no-store",
-                redirect: "manual", // we handle redirects ourselves
+                redirect: "manual", // handle ourselves
                 signal: controller.signal,
             });
         } finally {
             clearTimeout(t);
         }
 
-        if (
-            res.status === 301 ||
-            res.status === 302 ||
-            res.status === 303 ||
-            res.status === 307 ||
-            res.status === 308
-        ) {
+        // ✅ DO NOT follow these for Apps Script (prevents POST -> macros/echo 405)
+        if (res.status === 301 || res.status === 302 || res.status === 303) {
+            const text = await res.text().catch(() => "");
+            const location = res.headers.get("location");
+            const finalUrl = location ? new URL(location, currentUrl).toString() : currentUrl;
+
+            // Treat as success so Sheets doesn't show as failed just because Apps Script redirected.
+            return { status: 200, ok: true, text, finalUrl };
+        }
+
+        // ✅ Only follow redirects that preserve method+body
+        if (res.status === 307 || res.status === 308) {
             const location = res.headers.get("location");
             if (!location) {
                 const text = await res.text().catch(() => "");
                 return { status: res.status, ok: false, text, finalUrl: currentUrl };
             }
-
             currentUrl = new URL(location, currentUrl).toString();
             continue;
         }
@@ -137,7 +144,6 @@ export async function POST(req: Request) {
 
         const sheetsSecret = process.env.GOOGLE_SHEETS_SECRET;
 
-        // If webhook is configured, secret MUST be present (your Apps Script checks it).
         if (sheetsWebhookUrl && !sheetsSecret) {
             return NextResponse.json(
                 { ok: false, error: "Missing env: GOOGLE_SHEETS_SECRET" },
@@ -146,7 +152,6 @@ export async function POST(req: Request) {
         }
 
         // 3) Log to Sheets first (do not block overall success if it fails)
-        // ✅ prefer-const: object is mutated but never reassigned
         const sheets = {
             configured: Boolean(sheetsWebhookUrl),
             status: 0,
@@ -184,8 +189,7 @@ export async function POST(req: Request) {
                 if (!r.ok) {
                     sheets.error = `Sheets webhook HTTP ${r.status}`;
                 } else if (isJsonObject(parsed) && parsed["ok"] === false) {
-                    const errMsg =
-                        typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
+                    const errMsg = typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
                     sheets.error = errMsg;
                     sheets.ok = false;
                 }
@@ -198,15 +202,10 @@ export async function POST(req: Request) {
         // 4) Resend
         const resendApiKey = process.env.RESEND_API_KEY;
         if (!resendApiKey) {
-            return NextResponse.json(
-                { ok: false, error: "Missing env: RESEND_API_KEY", sheets },
-                { status: 500 }
-            );
+            return NextResponse.json({ ok: false, error: "Missing env: RESEND_API_KEY", sheets }, { status: 500 });
         }
 
         const resend = new Resend(resendApiKey);
-
-        // Optional: allow overriding sender via env, else your current sender.
         const from = process.env.RESEND_FROM || "Areculateir Support <support@areculateir.com>";
 
         let resendInternalId: string | null = null;
