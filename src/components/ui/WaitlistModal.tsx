@@ -11,10 +11,6 @@ interface QuoteModalProps {
     modalType: "quote" | "prototype";
 }
 
-type WaitlistResponse =
-    | { ok: true; resend?: unknown; sheets?: unknown; warning?: string }
-    | { ok: false; error?: string };
-
 function safeText(v: unknown) {
     return typeof v === "string" ? v.trim() : "";
 }
@@ -53,47 +49,42 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
             return;
         }
 
+        const WEBAPP_URL = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBAPP_URL;
+        const SECRET = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_SECRET;
+
+        if (!WEBAPP_URL || !SECRET) {
+            setLastError("Missing Google Sheets webhook configuration (.env.local).");
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
-            const payload = {
-                name,
-                email,
-                role: safeText(formData.role) || "N/A",
-                companySize: safeText(formData.companySize) || "N/A",
-                message: safeText(formData.message) || "N/A",
-                source: `waitlist-modal:${isQuote ? "quote" : "prototype"}`,
-            };
+            const role = safeText(formData.role) || "N/A";
+            const companySize = safeText(formData.companySize) || "N/A";
+            const message = safeText(formData.message) || "N/A";
+            const source = `waitlist-modal:${isQuote ? "quote" : "prototype"}`;
+            const timestamp = new Date().toISOString();
 
-            const response = await fetch("/api/waitlist", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+            // Build querystring to match your Apps Script doGet(e) contract
+            const url = new URL(WEBAPP_URL);
+            url.searchParams.set("secret", SECRET);
+            url.searchParams.set("email", email);
+            url.searchParams.set("name", name);
+            url.searchParams.set("role", role);
+            url.searchParams.set("companySize", companySize);
+            url.searchParams.set("message", message);
+            url.searchParams.set("source", source);
+            url.searchParams.set("timestamp", timestamp);
 
-            // Always try to read the body so we can show real errors
-            let data: WaitlistResponse | null = null;
-            const text = await response.text();
-            try {
-                data = JSON.parse(text) as WaitlistResponse;
-            } catch {
-                data = null;
-            }
+            /**
+             * Apps Script + browser CORS can be annoying.
+             * mode:"no-cors" ensures the request is sent successfully, but you can't read the response.
+             * That's fine here: the goal is "row appended".
+             */
+            await fetch(url.toString(), { method: "GET", mode: "no-cors" });
 
-            if (!response.ok) {
-                const msg =
-                    (data && "error" in data && data.error) ||
-                    `Request failed (${response.status})`;
-                setLastError(msg);
-                return;
-            }
-
-            if (data && "ok" in data && data.ok === false) {
-                setLastError(data.error || "Something went wrong. Please try again.");
-                return;
-            }
-
-            // Success
+            // Success UX
             alert("Thank you for joining the waitlist!");
             setFormData({ name: "", email: "", role: "", companySize: "", message: "" });
             onClose();
