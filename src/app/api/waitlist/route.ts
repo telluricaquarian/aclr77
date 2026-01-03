@@ -53,26 +53,16 @@ type SheetsCallResult = {
 };
 
 /**
- * Google Apps Script /exec often replies with a 302 to script.googleusercontent.com/macros/echo.
- * Some clients then turn POST into GET and Apps Script never receives doPost().
- *
- * This helper follows redirects MANUALLY and ALWAYS re-POSTs with the same body.
+ * Apps Script is now GET-based (query params), not POST.
+ * This helper calls /exec?secret=...&email=... etc.
+ * It also manually follows redirects (Apps Script often 302s).
  */
-async function postJsonFollowRedirects(
+async function getFollowRedirects(
     url: string,
-    payload: Record<string, string>,
     opts?: { timeoutMs?: number; maxRedirects?: number }
 ): Promise<SheetsCallResult> {
-    const timeoutMs = opts?.timeoutMs ?? 10_000;
+    const timeoutMs = opts?.timeoutMs ?? 15_000;
     const maxRedirects = opts?.maxRedirects ?? 5;
-
-    const body = JSON.stringify(payload);
-
-    // Add a couple headers that help some proxies understand "this is JSON"
-    const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-        Accept: "application/json,text/plain,*/*",
-    };
 
     let currentUrl = url;
     const redirects: string[] = [];
@@ -84,25 +74,20 @@ async function postJsonFollowRedirects(
         let res: Response;
         try {
             res = await fetch(currentUrl, {
-                method: "POST",
-                headers,
-                body,
+                method: "GET",
                 cache: "no-store",
-                redirect: "manual", // we handle redirects ourselves
+                redirect: "manual",
                 signal: controller.signal,
+                headers: {
+                    Accept: "application/json,text/plain,*/*",
+                },
             });
         } finally {
             clearTimeout(t);
         }
 
-        // Redirect? Follow it, but KEEP POST+body.
-        if (
-            res.status === 301 ||
-            res.status === 302 ||
-            res.status === 303 ||
-            res.status === 307 ||
-            res.status === 308
-        ) {
+        // Handle redirects manually
+        if ([301, 302, 303, 307, 308].includes(res.status)) {
             const location = res.headers.get("location");
             const text = await res.text().catch(() => "");
 
@@ -151,12 +136,12 @@ export async function POST(req: Request) {
         }
 
         // 2) Sheets webhook config
-        const sheetsWebhookUrl =
+        const sheetsWebhookBase =
             process.env.GOOGLE_SHEETS_WEBHOOK_URL || process.env.GOOGLE_SHEETS_WEBAPP_URL;
 
         const sheetsSecret = process.env.GOOGLE_SHEETS_SECRET;
 
-        if (sheetsWebhookUrl && !sheetsSecret) {
+        if (sheetsWebhookBase && !sheetsSecret) {
             return NextResponse.json(
                 { ok: false, error: "Missing env: GOOGLE_SHEETS_SECRET" },
                 { status: 500 }
@@ -165,7 +150,7 @@ export async function POST(req: Request) {
 
         // 3) Log to Sheets first (do not block overall success if it fails)
         const sheets = {
-            configured: Boolean(sheetsWebhookUrl),
+            configured: Boolean(sheetsWebhookBase),
             status: 0,
             ok: false,
             finalUrl: "",
@@ -174,26 +159,26 @@ export async function POST(req: Request) {
             error: null as string | null,
         };
 
-        if (sheetsWebhookUrl) {
+        if (sheetsWebhookBase) {
             try {
-                const payload: Record<string, string> = {
-                    secret: sheetsSecret!, // safe because we guarded above
+                // Build GET /exec?secret=...&email=... etc
+                const params = new URLSearchParams({
+                    secret: sheetsSecret!, // guarded above
+                    timestamp: new Date().toISOString(),
                     name: name || "",
                     email,
                     role: role || "",
                     companySize: companySize || "",
                     message: message || "",
                     source,
-                    timestamp: new Date().toISOString(),
-                };
-
-                // Truth test in Vercel logs
-                console.log("SHEETS URL:", sheetsWebhookUrl);
-
-                const r = await postJsonFollowRedirects(sheetsWebhookUrl, payload, {
-                    timeoutMs: 15_000,
-                    maxRedirects: 5,
                 });
+
+                const fullUrl = `${sheetsWebhookBase}?${params.toString()}`;
+
+                // ✅ log only the base URL (don’t leak secret)
+                console.log("SHEETS URL (base):", sheetsWebhookBase);
+
+                const r = await getFollowRedirects(fullUrl, { timeoutMs: 15_000, maxRedirects: 5 });
 
                 sheets.status = r.status;
                 sheets.finalUrl = r.finalUrl;
@@ -202,7 +187,7 @@ export async function POST(req: Request) {
                 const parsed = tryParseJson(r.text);
                 sheets.data = parsed;
 
-                // ✅ Only count as success if Apps Script returns JSON with ok:true
+                // Success only if JSON includes { ok: true }
                 if (isJsonObject(parsed) && parsed["ok"] === true) {
                     sheets.ok = true;
                 } else {
@@ -210,18 +195,12 @@ export async function POST(req: Request) {
 
                     if (!r.ok) {
                         sheets.error = `Sheets webhook HTTP ${r.status}`;
-                    } else if (typeof parsed === "string" && parsed.includes("Moved Temporarily")) {
-                        sheets.error =
-                            "Sheets webhook redirected (Moved Temporarily) and did not return JSON {ok:true}. Check deployment access + auth + redirect chain.";
                     } else if (isJsonObject(parsed) && parsed["ok"] === false) {
-                        const errMsg =
-                            typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
-                        sheets.error = errMsg;
+                        sheets.error = typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
                     } else {
                         sheets.error = "Sheets webhook did not return expected JSON {ok:true}.";
                     }
 
-                    // extra debug (safe)
                     console.log("SHEETS STATUS:", r.status);
                     console.log("SHEETS FINAL URL:", r.finalUrl);
                     if (r.redirects.length) console.log("SHEETS REDIRECTS:", r.redirects);
