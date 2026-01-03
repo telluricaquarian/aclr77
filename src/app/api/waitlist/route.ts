@@ -46,7 +46,7 @@ function extractResendId(result: unknown): string | null {
 
 /**
  * Google Apps Script /exec often responds with a 302 to script.googleusercontent.com.
- * Many HTTP clients will follow that redirect by switching POST -> GET, which breaks doPost().
+ * Some HTTP clients follow redirects by switching POST -> GET, which breaks doPost().
  * This helper follows redirects manually while preserving POST + body.
  */
 async function postJsonFollowRedirects(
@@ -131,10 +131,9 @@ export async function POST(req: Request) {
         }
 
         // 2) Sheets webhook config
-        // Prefer GOOGLE_SHEETS_WEBAPP_URL (what you added to .env.local),
-        // but also support the older name GOOGLE_SHEETS_WEBHOOK_URL.
+        // Support either env name (you can keep only one in prod).
         const sheetsWebhookUrl =
-            process.env.GOOGLE_SHEETS_WEBAPP_URL || process.env.GOOGLE_SHEETS_WEBHOOK_URL;
+            process.env.GOOGLE_SHEETS_WEBHOOK_URL || process.env.GOOGLE_SHEETS_WEBAPP_URL;
 
         const sheetsSecret = process.env.GOOGLE_SHEETS_SECRET;
 
@@ -147,7 +146,8 @@ export async function POST(req: Request) {
         }
 
         // 3) Log to Sheets first (do not block overall success if it fails)
-        let sheets = {
+        // ✅ prefer-const: object is mutated but never reassigned
+        const sheets = {
             configured: Boolean(sheetsWebhookUrl),
             status: 0,
             ok: false,
@@ -181,11 +181,11 @@ export async function POST(req: Request) {
                 const parsed = tryParseJson(r.text);
                 sheets.data = parsed;
 
-                // Normalize Apps Script error shapes into sheets.error
                 if (!r.ok) {
                     sheets.error = `Sheets webhook HTTP ${r.status}`;
                 } else if (isJsonObject(parsed) && parsed["ok"] === false) {
-                    const errMsg = typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
+                    const errMsg =
+                        typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
                     sheets.error = errMsg;
                     sheets.ok = false;
                 }
@@ -198,7 +198,6 @@ export async function POST(req: Request) {
         // 4) Resend
         const resendApiKey = process.env.RESEND_API_KEY;
         if (!resendApiKey) {
-            // Still return Sheets diagnostics so you can debug end-to-end
             return NextResponse.json(
                 { ok: false, error: "Missing env: RESEND_API_KEY", sheets },
                 { status: 500 }
@@ -207,12 +206,15 @@ export async function POST(req: Request) {
 
         const resend = new Resend(resendApiKey);
 
+        // Optional: allow overriding sender via env, else your current sender.
+        const from = process.env.RESEND_FROM || "Areculateir Support <support@areculateir.com>";
+
         let resendInternalId: string | null = null;
         let resendCustomerId: string | null = null;
 
         try {
             const internalResult = await resend.emails.send({
-                from: "Areculateir Support <support@areculateir.com>",
+                from,
                 to: ["areculateirstudios@gmail.com"],
                 subject: "New Waitlist Signup!",
                 html: `
@@ -228,7 +230,7 @@ export async function POST(req: Request) {
             resendInternalId = extractResendId(internalResult);
 
             const customerResult = await resend.emails.send({
-                from: "Areculateir Support <support@areculateir.com>",
+                from,
                 to: [email],
                 subject: "You’re on the Areculateir waitlist ✅",
                 html: `
@@ -241,7 +243,6 @@ export async function POST(req: Request) {
 
             resendCustomerId = extractResendId(customerResult);
         } catch (e: unknown) {
-            // Keep ok:true so leads can still be captured (sheets may have worked)
             return NextResponse.json(
                 {
                     ok: true,
