@@ -174,6 +174,9 @@ export async function POST(req: Request) {
                     timestamp: new Date().toISOString(),
                 };
 
+                // ✅ FASTEST TRUTH TEST: confirm what URL is actually being used in prod logs
+                console.log("SHEETS URL:", sheetsWebhookUrl);
+
                 const r = await postJsonFollowRedirects(sheetsWebhookUrl, payload, {
                     timeoutMs: 10_000,
                     maxRedirects: 3,
@@ -189,7 +192,8 @@ export async function POST(req: Request) {
                 if (!r.ok) {
                     sheets.error = `Sheets webhook HTTP ${r.status}`;
                 } else if (isJsonObject(parsed) && parsed["ok"] === false) {
-                    const errMsg = typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
+                    const errMsg =
+                        typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
                     sheets.error = errMsg;
                     sheets.ok = false;
                 }
@@ -202,7 +206,10 @@ export async function POST(req: Request) {
         // 4) Resend
         const resendApiKey = process.env.RESEND_API_KEY;
         if (!resendApiKey) {
-            return NextResponse.json({ ok: false, error: "Missing env: RESEND_API_KEY", sheets }, { status: 500 });
+            return NextResponse.json(
+                { ok: false, error: "Missing env: RESEND_API_KEY", sheets },
+                { status: 500 }
+            );
         }
 
         const resend = new Resend(resendApiKey);
