@@ -49,11 +49,36 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
             return;
         }
 
-        const WEBAPP_URL = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBAPP_URL;
-        const SECRET = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_SECRET;
+        // Primary env var names (what we want)
+        const WEBAPP_URL =
+            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBAPP_URL ||
+            // Fallbacks (in case env was named slightly differently)
+            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBAPP_URI ||
+            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_URL;
+
+        const SECRET =
+            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_SECRET ||
+            // Fallbacks
+            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WAITLIST_SECRET ||
+            process.env.NEXT_PUBLIC_SHEETS_SECRET;
+
+        // Debug: verify what the browser bundle actually has
+        console.log("ENV CHECK", {
+            WEBAPP_URL,
+            SECRET_present: Boolean(SECRET),
+        });
 
         if (!WEBAPP_URL || !SECRET) {
-            setLastError("Missing Google Sheets webhook configuration (.env.local).");
+            const missing = [
+                !WEBAPP_URL ? "NEXT_PUBLIC_GOOGLE_SHEETS_WEBAPP_URL" : null,
+                !SECRET ? "NEXT_PUBLIC_GOOGLE_SHEETS_SECRET" : null,
+            ]
+                .filter(Boolean)
+                .join(" & ");
+
+            setLastError(
+                `Missing Google Sheets webhook configuration. Check .env.local for: ${missing} (then restart pnpm dev).`
+            );
             return;
         }
 
