@@ -44,26 +44,38 @@ function extractResendId(result: unknown): string | null {
     return typeof id === "string" ? id : null;
 }
 
+type SheetsCallResult = {
+    status: number;
+    ok: boolean;
+    text: string;
+    finalUrl: string;
+    redirects: string[];
+};
+
 /**
- * Google Apps Script /exec often responds with a 302 to script.googleusercontent.com.
- * If we follow that redirect, we can end up POSTing to /macros/echo and getting 405 + HTML.
+ * Google Apps Script /exec often replies with a 302 to script.googleusercontent.com/macros/echo.
+ * Some clients then turn POST into GET and Apps Script never receives doPost().
  *
- * Key idea:
- * - Treat 301/302/303 as "done" (do not follow).
- * - Only follow 307/308 (those preserve method/body).
+ * This helper follows redirects MANUALLY and ALWAYS re-POSTs with the same body.
  */
 async function postJsonFollowRedirects(
     url: string,
     payload: Record<string, string>,
     opts?: { timeoutMs?: number; maxRedirects?: number }
-): Promise<{ status: number; ok: boolean; text: string; finalUrl: string }> {
+): Promise<SheetsCallResult> {
     const timeoutMs = opts?.timeoutMs ?? 10_000;
-    const maxRedirects = opts?.maxRedirects ?? 3;
+    const maxRedirects = opts?.maxRedirects ?? 5;
 
     const body = JSON.stringify(payload);
-    const headers = { "Content-Type": "application/json" };
+
+    // Add a couple headers that help some proxies understand "this is JSON"
+    const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        Accept: "application/json,text/plain,*/*",
+    };
 
     let currentUrl = url;
+    const redirects: string[] = [];
 
     for (let i = 0; i <= maxRedirects; i++) {
         const controller = new AbortController();
@@ -76,36 +88,36 @@ async function postJsonFollowRedirects(
                 headers,
                 body,
                 cache: "no-store",
-                redirect: "manual", // handle ourselves
+                redirect: "manual", // we handle redirects ourselves
                 signal: controller.signal,
             });
         } finally {
             clearTimeout(t);
         }
 
-        // ✅ DO NOT follow these for Apps Script (prevents POST -> macros/echo 405)
-        if (res.status === 301 || res.status === 302 || res.status === 303) {
+        // Redirect? Follow it, but KEEP POST+body.
+        if (
+            res.status === 301 ||
+            res.status === 302 ||
+            res.status === 303 ||
+            res.status === 307 ||
+            res.status === 308
+        ) {
+            const location = res.headers.get("location");
             const text = await res.text().catch(() => "");
-            const location = res.headers.get("location");
-            const finalUrl = location ? new URL(location, currentUrl).toString() : currentUrl;
 
-            // Treat as success so Sheets doesn't show as failed just because Apps Script redirected.
-            return { status: 200, ok: true, text, finalUrl };
-        }
-
-        // ✅ Only follow redirects that preserve method+body
-        if (res.status === 307 || res.status === 308) {
-            const location = res.headers.get("location");
             if (!location) {
-                const text = await res.text().catch(() => "");
-                return { status: res.status, ok: false, text, finalUrl: currentUrl };
+                return { status: res.status, ok: false, text, finalUrl: currentUrl, redirects };
             }
-            currentUrl = new URL(location, currentUrl).toString();
+
+            const nextUrl = new URL(location, currentUrl).toString();
+            redirects.push(nextUrl);
+            currentUrl = nextUrl;
             continue;
         }
 
-        const text = await res.text();
-        return { status: res.status, ok: res.ok, text, finalUrl: currentUrl };
+        const text = await res.text().catch(() => "");
+        return { status: res.status, ok: res.ok, text, finalUrl: currentUrl, redirects };
     }
 
     return {
@@ -113,6 +125,7 @@ async function postJsonFollowRedirects(
         ok: false,
         text: "Too many redirects calling Sheets webhook",
         finalUrl: currentUrl,
+        redirects,
     };
 }
 
@@ -138,7 +151,6 @@ export async function POST(req: Request) {
         }
 
         // 2) Sheets webhook config
-        // Support either env name (you can keep only one in prod).
         const sheetsWebhookUrl =
             process.env.GOOGLE_SHEETS_WEBHOOK_URL || process.env.GOOGLE_SHEETS_WEBAPP_URL;
 
@@ -157,6 +169,7 @@ export async function POST(req: Request) {
             status: 0,
             ok: false,
             finalUrl: "",
+            redirects: [] as string[],
             data: null as JsonValue | string | null,
             error: null as string | null,
         };
@@ -174,28 +187,45 @@ export async function POST(req: Request) {
                     timestamp: new Date().toISOString(),
                 };
 
-                // ✅ FASTEST TRUTH TEST: confirm what URL is actually being used in prod logs
+                // Truth test in Vercel logs
                 console.log("SHEETS URL:", sheetsWebhookUrl);
 
                 const r = await postJsonFollowRedirects(sheetsWebhookUrl, payload, {
-                    timeoutMs: 10_000,
-                    maxRedirects: 3,
+                    timeoutMs: 15_000,
+                    maxRedirects: 5,
                 });
 
                 sheets.status = r.status;
-                sheets.ok = r.ok;
                 sheets.finalUrl = r.finalUrl;
+                sheets.redirects = r.redirects;
 
                 const parsed = tryParseJson(r.text);
                 sheets.data = parsed;
 
-                if (!r.ok) {
-                    sheets.error = `Sheets webhook HTTP ${r.status}`;
-                } else if (isJsonObject(parsed) && parsed["ok"] === false) {
-                    const errMsg =
-                        typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
-                    sheets.error = errMsg;
+                // ✅ Only count as success if Apps Script returns JSON with ok:true
+                if (isJsonObject(parsed) && parsed["ok"] === true) {
+                    sheets.ok = true;
+                } else {
                     sheets.ok = false;
+
+                    if (!r.ok) {
+                        sheets.error = `Sheets webhook HTTP ${r.status}`;
+                    } else if (typeof parsed === "string" && parsed.includes("Moved Temporarily")) {
+                        sheets.error =
+                            "Sheets webhook redirected (Moved Temporarily) and did not return JSON {ok:true}. Check deployment access + auth + redirect chain.";
+                    } else if (isJsonObject(parsed) && parsed["ok"] === false) {
+                        const errMsg =
+                            typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
+                        sheets.error = errMsg;
+                    } else {
+                        sheets.error = "Sheets webhook did not return expected JSON {ok:true}.";
+                    }
+
+                    // extra debug (safe)
+                    console.log("SHEETS STATUS:", r.status);
+                    console.log("SHEETS FINAL URL:", r.finalUrl);
+                    if (r.redirects.length) console.log("SHEETS REDIRECTS:", r.redirects);
+                    console.log("SHEETS RAW (first 200):", (r.text || "").slice(0, 200));
                 }
             } catch (e: unknown) {
                 sheets.error = e instanceof Error ? e.message : "Sheets webhook failed";
