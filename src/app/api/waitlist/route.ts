@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 type WaitlistPayload = {
     name?: string;
     email?: string;
@@ -36,7 +34,6 @@ function tryParseJson(text: string): JsonValue | string {
 function extractResendId(result: unknown): string | null {
     if (!isJsonObject(result)) return null;
 
-    // common shapes: { data: { id: "..." } } OR { id: "..." }
     const data = result["data"];
     if (isJsonObject(data)) {
         const id = data["id"];
@@ -45,6 +42,71 @@ function extractResendId(result: unknown): string | null {
 
     const id = result["id"];
     return typeof id === "string" ? id : null;
+}
+
+/**
+ * Google Apps Script /exec often responds with a 302 to script.googleusercontent.com.
+ * Many HTTP clients will follow that redirect by switching POST -> GET, which breaks doPost().
+ * This helper follows redirects manually while preserving POST + body.
+ */
+async function postJsonFollowRedirects(
+    url: string,
+    payload: Record<string, string>,
+    opts?: { timeoutMs?: number; maxRedirects?: number }
+): Promise<{ status: number; ok: boolean; text: string; finalUrl: string }> {
+    const timeoutMs = opts?.timeoutMs ?? 10_000;
+    const maxRedirects = opts?.maxRedirects ?? 3;
+
+    const body = JSON.stringify(payload);
+    const headers = { "Content-Type": "application/json" };
+
+    let currentUrl = url;
+
+    for (let i = 0; i <= maxRedirects; i++) {
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), timeoutMs);
+
+        let res: Response;
+        try {
+            res = await fetch(currentUrl, {
+                method: "POST",
+                headers,
+                body,
+                cache: "no-store",
+                redirect: "manual", // we handle redirects ourselves
+                signal: controller.signal,
+            });
+        } finally {
+            clearTimeout(t);
+        }
+
+        if (
+            res.status === 301 ||
+            res.status === 302 ||
+            res.status === 303 ||
+            res.status === 307 ||
+            res.status === 308
+        ) {
+            const location = res.headers.get("location");
+            if (!location) {
+                const text = await res.text().catch(() => "");
+                return { status: res.status, ok: false, text, finalUrl: currentUrl };
+            }
+
+            currentUrl = new URL(location, currentUrl).toString();
+            continue;
+        }
+
+        const text = await res.text();
+        return { status: res.status, ok: res.ok, text, finalUrl: currentUrl };
+    }
+
+    return {
+        status: 508,
+        ok: false,
+        text: "Too many redirects calling Sheets webhook",
+        finalUrl: currentUrl,
+    };
 }
 
 export async function POST(req: Request) {
@@ -69,10 +131,14 @@ export async function POST(req: Request) {
         }
 
         // 2) Sheets webhook config
-        const sheetsWebhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
+        // Prefer GOOGLE_SHEETS_WEBAPP_URL (what you added to .env.local),
+        // but also support the older name GOOGLE_SHEETS_WEBHOOK_URL.
+        const sheetsWebhookUrl =
+            process.env.GOOGLE_SHEETS_WEBAPP_URL || process.env.GOOGLE_SHEETS_WEBHOOK_URL;
+
         const sheetsSecret = process.env.GOOGLE_SHEETS_SECRET;
 
-        // If webhook is configured, secret MUST be present (your Apps Script requires it).
+        // If webhook is configured, secret MUST be present (your Apps Script checks it).
         if (sheetsWebhookUrl && !sheetsSecret) {
             return NextResponse.json(
                 { ok: false, error: "Missing env: GOOGLE_SHEETS_SECRET" },
@@ -80,17 +146,18 @@ export async function POST(req: Request) {
             );
         }
 
-        let sheetsResult: JsonValue | string | { ok: false; error: string } = {
+        // 3) Log to Sheets first (do not block overall success if it fails)
+        let sheets = {
+            configured: Boolean(sheetsWebhookUrl),
+            status: 0,
             ok: false,
-            error: "GOOGLE_SHEETS_WEBHOOK_URL not set",
+            finalUrl: "",
+            data: null as JsonValue | string | null,
+            error: null as string | null,
         };
 
-        // 3) Log to Sheets first (non-blocking if it fails)
         if (sheetsWebhookUrl) {
             try {
-                // IMPORTANT:
-                // - Apps Script expects "secret" (exact key) in JSON body
-                // - Keep values as strings to match your sheet columns cleanly
                 const payload: Record<string, string> = {
                     secret: sheetsSecret!, // safe because we guarded above
                     name: name || "",
@@ -102,45 +169,43 @@ export async function POST(req: Request) {
                     timestamp: new Date().toISOString(),
                 };
 
-                const r = await fetch(sheetsWebhookUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                    cache: "no-store",
-                    redirect: "follow",
+                const r = await postJsonFollowRedirects(sheetsWebhookUrl, payload, {
+                    timeoutMs: 10_000,
+                    maxRedirects: 3,
                 });
 
-                const text = await r.text();
-                const parsed = tryParseJson(text);
+                sheets.status = r.status;
+                sheets.ok = r.ok;
+                sheets.finalUrl = r.finalUrl;
 
-                // Apps Script might return 200 with {ok:false,error:"Unauthorized"}.
-                // Treat that as failure so you can see it in the API response.
+                const parsed = tryParseJson(r.text);
+                sheets.data = parsed;
+
+                // Normalize Apps Script error shapes into sheets.error
                 if (!r.ok) {
-                    sheetsResult = {
-                        ok: false,
-                        error: `Sheets webhook failed with status ${r.status}`,
-                    };
+                    sheets.error = `Sheets webhook HTTP ${r.status}`;
                 } else if (isJsonObject(parsed) && parsed["ok"] === false) {
                     const errMsg = typeof parsed["error"] === "string" ? parsed["error"] : "Sheets rejected";
-                    sheetsResult = { ok: false, error: errMsg };
-                } else {
-                    sheetsResult = parsed;
+                    sheets.error = errMsg;
+                    sheets.ok = false;
                 }
             } catch (e: unknown) {
-                sheetsResult = {
-                    ok: false,
-                    error: e instanceof Error ? e.message : "Sheets webhook failed",
-                };
+                sheets.error = e instanceof Error ? e.message : "Sheets webhook failed";
+                sheets.ok = false;
             }
         }
 
-        // 4) Send Resend emails (also non-blocking relative to Sheets)
-        if (!process.env.RESEND_API_KEY) {
+        // 4) Resend
+        const resendApiKey = process.env.RESEND_API_KEY;
+        if (!resendApiKey) {
+            // Still return Sheets diagnostics so you can debug end-to-end
             return NextResponse.json(
-                { ok: false, error: "Missing env: RESEND_API_KEY", sheets: sheetsResult },
+                { ok: false, error: "Missing env: RESEND_API_KEY", sheets },
                 { status: 500 }
             );
         }
+
+        const resend = new Resend(resendApiKey);
 
         let resendInternalId: string | null = null;
         let resendCustomerId: string | null = null;
@@ -176,24 +241,24 @@ export async function POST(req: Request) {
 
             resendCustomerId = extractResendId(customerResult);
         } catch (e: unknown) {
-            // Still return ok:true so leads are captured (Sheets likely already captured)
+            // Keep ok:true so leads can still be captured (sheets may have worked)
             return NextResponse.json(
                 {
                     ok: true,
-                    warning: "Waitlist captured but email sending failed",
+                    warning: "Waitlist received but email sending failed",
                     resendError: e instanceof Error ? e.message : "Resend failed",
-                    sheets: sheetsResult,
+                    sheets,
                 },
                 { status: 200 }
             );
         }
 
-        // 5) Success response
+        // 5) Success
         return NextResponse.json(
             {
                 ok: true,
                 resend: { internalId: resendInternalId, customerId: resendCustomerId },
-                sheets: sheetsResult,
+                sheets,
             },
             { status: 200 }
         );
