@@ -25,97 +25,62 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [lastError, setLastError] = useState<string>("");
-
-    const isQuote = modalType === "quote";
-    const title = "Join Waitlist";
-    const description =
-        "Get a Free Prototype / Minimum Viable Product Build created by Areculateir℠ along with Quote & proposal provided in tandem";
+    const [lastError, setLastError] = useState("");
 
     const canSubmit = useMemo(() => {
-        return safeText(formData.email).length > 0 && safeText(formData.name).length > 0;
-    }, [formData.email, formData.name]);
+        return (
+            safeText(formData.name).length > 0 &&
+            safeText(formData.email).length > 0
+        );
+    }, [formData]);
 
     const handleSubmit = async () => {
         if (isSubmitting) return;
 
         setLastError("");
 
-        const name = safeText(formData.name);
-        const email = safeText(formData.email);
+        const payload = {
+            name: safeText(formData.name),
+            email: safeText(formData.email),
+            role: safeText(formData.role),
+            companySize: safeText(formData.companySize),
+            message: safeText(formData.message),
+            source: `waitlist-modal:${modalType}`,
+        };
 
-        if (!name || !email) {
+        if (!payload.name || !payload.email) {
             setLastError("Please enter your name and email.");
-            return;
-        }
-
-        // Primary env var names (what we want)
-        const WEBAPP_URL =
-            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBAPP_URL ||
-            // Fallbacks (in case env was named slightly differently)
-            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBAPP_URI ||
-            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_URL;
-
-        const SECRET =
-            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_SECRET ||
-            // Fallbacks
-            process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WAITLIST_SECRET ||
-            process.env.NEXT_PUBLIC_SHEETS_SECRET;
-
-        // Debug: verify what the browser bundle actually has
-        console.log("ENV CHECK", {
-            WEBAPP_URL,
-            SECRET_present: Boolean(SECRET),
-        });
-
-        if (!WEBAPP_URL || !SECRET) {
-            const missing = [
-                !WEBAPP_URL ? "NEXT_PUBLIC_GOOGLE_SHEETS_WEBAPP_URL" : null,
-                !SECRET ? "NEXT_PUBLIC_GOOGLE_SHEETS_SECRET" : null,
-            ]
-                .filter(Boolean)
-                .join(" & ");
-
-            setLastError(
-                `Missing Google Sheets webhook configuration. Check .env.local for: ${missing} (then restart pnpm dev).`
-            );
             return;
         }
 
         setIsSubmitting(true);
 
         try {
-            const role = safeText(formData.role) || "N/A";
-            const companySize = safeText(formData.companySize) || "N/A";
-            const message = safeText(formData.message) || "N/A";
-            const source = `waitlist-modal:${isQuote ? "quote" : "prototype"}`;
-            const timestamp = new Date().toISOString();
+            const res = await fetch("/api/waitlist", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
 
-            // Build querystring to match your Apps Script doGet(e) contract
-            const url = new URL(WEBAPP_URL);
-            url.searchParams.set("secret", SECRET);
-            url.searchParams.set("email", email);
-            url.searchParams.set("name", name);
-            url.searchParams.set("role", role);
-            url.searchParams.set("companySize", companySize);
-            url.searchParams.set("message", message);
-            url.searchParams.set("source", source);
-            url.searchParams.set("timestamp", timestamp);
+            const data = await res.json();
 
-            /**
-             * Apps Script + browser CORS can be annoying.
-             * mode:"no-cors" ensures the request is sent successfully, but you can't read the response.
-             * That's fine here: the goal is "row appended".
-             */
-            await fetch(url.toString(), { method: "GET", mode: "no-cors" });
+            if (!res.ok || !data?.ok) {
+                throw new Error(data?.error || "Submission failed");
+            }
 
             // Success UX
-            alert("Thank you for joining the waitlist!");
-            setFormData({ name: "", email: "", role: "", companySize: "", message: "" });
+            setFormData({
+                name: "",
+                email: "",
+                role: "",
+                companySize: "",
+                message: "",
+            });
             onClose();
-        } catch (error) {
-            console.error("Waitlist submit error:", error);
-            setLastError("Network error. Please try again.");
+            alert("Thank you — you're on the waitlist.");
+        } catch (err) {
+            console.error(err);
+            setLastError("Something went wrong. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -125,106 +90,78 @@ const QuoteModal = ({ isOpen, onClose, modalType }: QuoteModalProps) => {
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
                         className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md"
                         onClick={onClose}
                     />
 
-                    {/* Modal */}
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                             className="relative w-full max-w-md rounded-2xl bg-gradient-to-b from-zinc-900 to-zinc-950 p-8 shadow-2xl"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            {/* Close button */}
                             <button
                                 onClick={onClose}
-                                className="absolute right-4 top-4 rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
-                                aria-label="Close"
-                                type="button"
+                                className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-white"
                             >
                                 <X className="h-5 w-5" />
                             </button>
 
-                            {/* Logo */}
                             <div className="mb-6 flex items-center gap-2">
                                 <Image
                                     src="/images/aa.png"
                                     alt="Areculateir Logo"
                                     width={32}
                                     height={32}
-                                    className="h-8 w-8"
                                 />
-                                <div className="text-sm text-zinc-400">ACLR77</div>
+                                <span className="text-sm text-zinc-400">ACLR77</span>
                             </div>
 
-                            {/* Title & Description */}
-                            <h2 className="mb-2 text-2xl font-semibold text-white">{title}</h2>
-                            <p className="mb-6 text-sm text-zinc-400">{description}</p>
+                            <h2 className="mb-2 text-2xl font-semibold text-white">
+                                Join Waitlist
+                            </h2>
+                            <p className="mb-6 text-sm text-zinc-400">
+                                Get a Free Prototype / MVP built by Areculateir℠.
+                            </p>
 
-                            {/* Form */}
                             <div className="space-y-4">
-                                {/* Name */}
-                                <div>
-                                    <label
-                                        htmlFor="name"
-                                        className="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-400"
-                                    >
-                                        Name <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600"
-                                        placeholder="Your name"
-                                        autoComplete="name"
-                                    />
-                                </div>
+                                <input
+                                    placeholder="Name *"
+                                    value={formData.name}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, name: e.target.value })
+                                    }
+                                    className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-white"
+                                />
 
-                                {/* Email */}
-                                <div>
-                                    <label
-                                        htmlFor="email"
-                                        className="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-400"
-                                    >
-                                        Email <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600"
-                                        placeholder="your@email.com"
-                                        autoComplete="email"
-                                    />
-                                </div>
+                                <input
+                                    type="email"
+                                    placeholder="Email *"
+                                    value={formData.email}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, email: e.target.value })
+                                    }
+                                    className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-white"
+                                />
 
-                                {/* Error */}
-                                {lastError ? (
-                                    <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                                {lastError && (
+                                    <div className="rounded bg-red-500/10 p-2 text-sm text-red-300">
                                         {lastError}
                                     </div>
-                                ) : null}
+                                )}
 
                                 <button
                                     onClick={handleSubmit}
                                     disabled={!canSubmit || isSubmitting}
-                                    className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3 font-semibold text-white transition-all hover:from-orange-600 hover:to-amber-600 hover:shadow-lg hover:shadow-orange-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-                                    type="button"
+                                    className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 py-3 font-semibold text-white disabled:opacity-50"
                                 >
-                                    {isSubmitting ? "Joining..." : "Join Waitlist"}
+                                    {isSubmitting ? "Submitting…" : "Join Waitlist"}
                                 </button>
                             </div>
                         </motion.div>
