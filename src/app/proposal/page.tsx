@@ -16,9 +16,11 @@ export default function ProposalPage() {
                 </h1>
 
                 <p className="mx-auto mt-6 max-w-2xl text-sm leading-6 text-zinc-600 sm:text-base">
-                    Enter a few details and we’ll generate a structured proposal outlining
-                    scope, flows, and investment. Built for serious upgrades and
-                    conversion-ready systems.
+                    Enter a few details below and we’ll generate a tailored{" "}
+                    <span className="font-redaction italic text-orange-500">
+                        proposal
+                    </span>{" "}
+                    automatically.
                 </p>
             </div>
 
