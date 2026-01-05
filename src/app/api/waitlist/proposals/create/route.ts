@@ -1,15 +1,28 @@
 import { NextResponse } from "next/server";
 
+type ProposalRequestBody = {
+    ownerName?: unknown;
+    email?: unknown;
+    businessName?: unknown;
+    serviceArea?: unknown;
+    industry?: unknown;
+    source?: unknown;
+};
+
+function asTrimmedString(v: unknown): string {
+    return typeof v === "string" ? v.trim() : String(v ?? "").trim();
+}
+
 export async function POST(req: Request) {
     try {
-        const body = await req.json();
+        const body = (await req.json()) as ProposalRequestBody;
 
-        const ownerName = String(body.ownerName || "").trim();
-        const email = String(body.email || "").trim();
-        const businessName = String(body.businessName || "").trim();
-        const serviceArea = String(body.serviceArea || "").trim();
-        const industry = String(body.industry || "").trim();
-        const source = String(body.source || "proposal_page_form").trim();
+        const ownerName = asTrimmedString(body.ownerName);
+        const email = asTrimmedString(body.email);
+        const businessName = asTrimmedString(body.businessName);
+        const serviceArea = asTrimmedString(body.serviceArea);
+        const industry = asTrimmedString(body.industry);
+        const source = asTrimmedString(body.source) || "proposal_page_form";
 
         if (!ownerName || !email || !businessName || !serviceArea) {
             return NextResponse.json(
@@ -42,9 +55,18 @@ export async function POST(req: Request) {
         const res = await fetch(u.toString(), { method: "GET" });
 
         if (!res.ok) {
-            const txt = await res.text().catch(() => "");
+            let txt = "";
+            try {
+                txt = await res.text();
+            } catch {
+                // ignore
+            }
+
             return NextResponse.json(
-                { ok: false, error: `Sheets webhook failed (${res.status}). ${txt}`.trim() },
+                {
+                    ok: false,
+                    error: `Sheets webhook failed (${res.status}). ${txt}`.trim(),
+                },
                 { status: 502 }
             );
         }
@@ -52,12 +74,19 @@ export async function POST(req: Request) {
         // Apps Script usually returns JSON, but don’t hard-fail if it returns text
         const text = await res.text();
         try {
-            const parsed = JSON.parse(text);
-            if (parsed && parsed.ok === false) {
-                return NextResponse.json(
-                    { ok: false, error: parsed.error || "Sheet error" },
-                    { status: 502 }
-                );
+            const parsed: unknown = JSON.parse(text);
+            if (
+                parsed &&
+                typeof parsed === "object" &&
+                "ok" in parsed &&
+                (parsed as { ok?: unknown }).ok === false
+            ) {
+                const errMsg =
+                    "error" in parsed && typeof (parsed as { error?: unknown }).error === "string"
+                        ? (parsed as { error: string }).error
+                        : "Sheet error";
+
+                return NextResponse.json({ ok: false, error: errMsg }, { status: 502 });
             }
         } catch {
             // ignore JSON parse failure
@@ -68,10 +97,8 @@ export async function POST(req: Request) {
             requestId: crypto.randomUUID(),
             message: "Request received — check your inbox shortly.",
         });
-    } catch (err: any) {
-        return NextResponse.json(
-            { ok: false, error: err?.message || "Server error" },
-            { status: 500 }
-        );
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Server error";
+        return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
 }
