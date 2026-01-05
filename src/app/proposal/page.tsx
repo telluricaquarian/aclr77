@@ -12,19 +12,20 @@ export default function ProposalPage() {
                 </div>
 
                 <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
-                    Generate a high-end functional website proposal
+                    Generate a high-end functional{" "}
+                    <span className="font-redaction italic text-orange-500">
+                        website
+                    </span>{" "}
+                    proposal
                 </h1>
 
                 <p className="mx-auto mt-6 max-w-2xl text-sm leading-6 text-zinc-600 sm:text-base">
-                    Enter a few details below and we’ll generate a tailored{" "}
-                    <span className="font-redaction italic text-orange-500">
-                        proposal
-                    </span>{" "}
+                    Enter a few details below and we’ll generate a tailored proposal
                     automatically.
                 </p>
             </div>
 
-            {/* Form Card (matches the prototype layout intention) */}
+            {/* Form Card */}
             <section className="mt-12 w-full max-w-3xl">
                 <div className="rounded-2xl bg-white p-8 shadow-[0_30px_90px_rgba(0,0,0,0.25)] ring-1 ring-black/10">
                     <ProposalGeneratorForm />
