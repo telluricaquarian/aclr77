@@ -163,11 +163,11 @@ export default function PrototypePage() {
                     <div className="rounded-2xl bg-white p-3 shadow-[0_30px_90px_rgba(0,0,0,0.12)] ring-1 ring-black/10">
                         <Image
                             src="/images/Aaisolate.png"
-                            alt="Areculateir Aa mark"
-                            width={44}
-                            height={44}
+                            alt="Areculateir logo"
+                            width={32}
+                            height={32}
+                            className="h-8 w-8 object-contain select-none"
                             priority
-                            className="h-8 w-auto select-none"
                         />
                     </div>
                 </div>
