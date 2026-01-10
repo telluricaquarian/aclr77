@@ -14,7 +14,7 @@ export default function ProposalPage() {
                         alt="Areculateir logo"
                         width={32}
                         height={32}
-                        className="h-8 w-8 select-none"
+                        className="h-8 w-8 object-contain select-none"
                         priority
                     />
                 </div>

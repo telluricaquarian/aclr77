@@ -1,36 +1,25 @@
-// src/app/(main)/layout.tsx
-import { StickyVoiceAgent } from "@/components/StickyVoiceAgent";
+import { StickyVoiceAgent } from "@/components/StickyVoiceAgent"; // or StickyVoiceCta
 import { CookieConsent } from "@/components/ui/CookieConsent";
 import Footer from "@/components/ui/Footer";
 import { NavBar } from "@/components/ui/Navbar";
 import { Sidebar } from "@/components/ui/Sidebar";
 
-export default function MainLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
     return (
-        <>
-            {/* Desktop sidebar only */}
-            <Sidebar />
+        <div className="min-h-screen">
+            <div className="flex min-h-screen">
+                <Sidebar />
 
-            <div className="min-h-screen lg:pl-72">
-                {/* Desktop-only navbar */}
-                <div className="hidden lg:block">
+                {/* Main column */}
+                <div className="min-w-0 flex-1 pl-64">
                     <NavBar />
+                    {children}
+                    <Footer />
                 </div>
-
-                {children}
-                <Footer />
             </div>
 
             <CookieConsent />
-
-            {/* Mobile-only voice CTA */}
-            <div className="lg:hidden">
-                <StickyVoiceAgent />
-            </div>
-        </>
+            <StickyVoiceAgent />
+        </div>
     );
 }
