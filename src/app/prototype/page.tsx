@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import React, { useMemo, useState } from "react";
 
 type PrototypeResult = {
@@ -35,6 +34,10 @@ function clampText(v: string, max = 2000) {
     return s.length > max ? s.slice(0, max) : s;
 }
 
+function safeFileName(name: string) {
+    return name.replace(/[^\w.\-() ]+/g, "_").slice(0, 120);
+}
+
 export default function PrototypePage() {
     const [businessName, setBusinessName] = useState("");
     const [serviceArea, setServiceArea] = useState("");
@@ -42,6 +45,10 @@ export default function PrototypePage() {
     const [description, setDescription] = useState("");
     const [offer, setOffer] = useState("");
     const [notes, setNotes] = useState("");
+
+    // NEW: logo upload
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -59,96 +66,77 @@ export default function PrototypePage() {
         return result ? JSON.stringify(result, null, 2) : "";
     }, [result]);
 
+    function onLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const f = e.target.files?.[0] ?? null;
+
+        // Clean up previous preview URL
+        if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
+
+        if (!f) {
+            setLogoFile(null);
+            setLogoPreviewUrl(null);
+            return;
+        }
+
+        // Basic validation
+        const maxMB = 5;
+        const isTooBig = f.size > maxMB * 1024 * 1024;
+        if (isTooBig) {
+            setError(`Logo file is too large. Max ${maxMB}MB.`);
+            e.target.value = "";
+            setLogoFile(null);
+            setLogoPreviewUrl(null);
+            return;
+        }
+
+        setError(null);
+        setLogoFile(f);
+        setLogoPreviewUrl(URL.createObjectURL(f));
+    }
+
     async function onGenerate(e: React.FormEvent) {
         e.preventDefault();
         setError(null);
 
         if (!isValid) {
-            setError(
-                "Please fill Business name, a solid description (20+ chars), and your offer."
-            );
+            setError("Please fill Business name, a solid description (20+ chars), and your offer.");
             return;
         }
 
         setIsSubmitting(true);
+
         try {
-            // For now: local stub generator (compiles/deploys)
-            // Next: swap for POST to /api/prototype/generate (Gemini)
-            const base = businessName.trim();
+            // ✅ We now POST to an API route using FormData so we can include the logo file.
+            const fd = new FormData();
+            fd.set("businessName", businessName.trim());
+            fd.set("serviceArea", serviceArea.trim());
+            fd.set("industry", industry.trim());
+            fd.set("description", description.trim());
+            fd.set("offer", offer.trim());
+            fd.set("notes", notes.trim());
 
-            const draft: PrototypeResult = {
-                headline: `${base} — High-end site prototype + quote`,
-                theme: {
-                    palette: ["#0B0F1A", "#FFFFFF", "#ED4D30", "#F4F4F5"],
-                    typography: "Geist Sans + Accent Italic (Redaction-like)",
-                    vibe: "Premium, conversion-first, minimal, confident",
-                },
-                sitemap: ["Home", "Services", "Case Studies", "About", "Contact"],
-                sections: [
-                    "Hero (headline + sub + CTA)",
-                    "Trust strip (logos/testimonials)",
-                    "Services (3–6 cards)",
-                    "Proof (case studies)",
-                    "Process (steps)",
-                    "FAQ",
-                    "CTA band",
-                    "Footer",
-                ],
-                pages: [
-                    {
-                        route: "/",
-                        purpose: "Convert visitors into calls/leads",
-                        components: ["Hero", "Services", "Case Studies", "FAQ", "CTA"],
-                    },
-                    {
-                        route: "/services",
-                        purpose: "Clarify offer + pricing anchors",
-                        components: ["Service tiers", "Deliverables", "FAQ", "CTA"],
-                    },
-                    {
-                        route: "/contact",
-                        purpose: "Capture lead with form + scheduling",
-                        components: ["Contact form", "Calendly embed (optional)", "Map (optional)"],
-                    },
-                ],
-                quote: {
-                    rangeAUD: { low: 4500, high: 12000 },
-                    timelineWeeks: { low: 2, high: 6 },
-                    assumptions: [
-                        "Single brand, single language",
-                        "Client provides logo/brand assets (or we create)",
-                        "Copy is drafted from your inputs and refined once",
-                    ],
-                },
-                copy: {
-                    heroHeadline: `Build a high-end ${industry.trim() || "business"
-                        } website that converts.`,
-                    heroSubheadline:
-                        "Designed with premium UI components, clear messaging, and fast performance — optimized for calls and leads.",
-                    primaryCta: "Get a quote",
-                    secondaryCta: "See examples",
-                },
-            };
+            if (logoFile) {
+                // Preserve a safe filename (some browsers use "image.png" etc.)
+                fd.set("logo", logoFile, safeFileName(logoFile.name));
+            }
 
-            const extra = [
-                serviceArea.trim() ? `Service area: ${serviceArea.trim()}` : null,
-                industry.trim() ? `Industry: ${industry.trim()}` : null,
-                notes.trim() ? `Notes: ${clampText(notes.trim(), 300)}` : null,
-            ].filter(Boolean) as string[];
+            const res = await fetch("/api/prototype/generate", {
+                method: "POST",
+                body: fd,
+            });
 
-            if (extra.length) draft.quote.assumptions.unshift(...extra);
+            const json = (await res.json()) as
+                | { ok: true; result: PrototypeResult }
+                | { ok: false; error: string };
 
-            draft.quote.assumptions.unshift(`Offer: ${clampText(offer.trim(), 250)}`);
-            draft.quote.assumptions.unshift(
-                `Description: ${clampText(description.trim(), 350)}`
-            );
+            if (!json.ok) {
+                throw new Error(json.error || "Failed to generate.");
+            }
 
-            setResult(draft);
+            setResult(json.result);
         } catch (err: unknown) {
             const message =
-                err instanceof Error
-                    ? err.message
-                    : "Something went wrong generating the prototype.";
+                err instanceof Error ? err.message : "Something went wrong generating the prototype.";
             setError(message);
         } finally {
             setIsSubmitting(false);
@@ -157,19 +145,16 @@ export default function PrototypePage() {
 
     return (
         <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+            {/* Header */}
             <div className="mx-auto max-w-2xl text-center">
-                {/* Aa boxed logo (matches proposal vibe) */}
-                <div className="mx-auto mb-5 flex w-full justify-center">
-                    <div className="rounded-2xl bg-white p-3 shadow-[0_30px_90px_rgba(0,0,0,0.12)] ring-1 ring-black/10">
-                        <Image
-                            src="/images/Aaisolate.png"
-                            alt="Areculateir logo"
-                            width={32}
-                            height={32}
-                            className="h-8 w-8 object-contain select-none"
-                            priority
-                        />
-                    </div>
+                <div className="mx-auto mb-4 flex justify-center">
+                    {/* Uses your existing Aa mark asset path — change if needed */}
+                    {/* If you're using next/image elsewhere, feel free to swap to Image */}
+                    <img
+                        src="/images/Aaisolate.png"
+                        alt="Areculateir Aa mark"
+                        className="h-12 w-12 select-none rounded-xl shadow-sm"
+                    />
                 </div>
 
                 <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl">
@@ -179,8 +164,7 @@ export default function PrototypePage() {
                 </h1>
 
                 <p className="mt-4 text-sm leading-6 text-zinc-600 sm:text-base">
-                    Enter the core business inputs. For now this generates a local draft.
-                    Next we’ll wire it to Gemini for higher quality and structured output.
+                    Enter the core business inputs. Next we’ll wire it to Gemini for higher quality and structured output.
                 </p>
             </div>
 
@@ -188,6 +172,32 @@ export default function PrototypePage() {
                 {/* Form */}
                 <div className="rounded-2xl bg-white p-6 shadow-[0_30px_90px_rgba(0,0,0,0.12)] ring-1 ring-black/10">
                     <form onSubmit={onGenerate} className="space-y-4">
+                        {/* NEW: Logo upload */}
+                        <div>
+                            <label className="text-sm font-medium">Brand logo (optional)</label>
+                            <div className="mt-2 flex items-center gap-4">
+                                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border bg-zinc-50">
+                                    {logoPreviewUrl ? (
+                                        <img src={logoPreviewUrl} alt="Logo preview" className="h-full w-full object-contain" />
+                                    ) : (
+                                        <span className="text-xs text-zinc-400">No logo</span>
+                                    )}
+                                </div>
+
+                                <div className="flex-1">
+                                    <input
+                                        type="file"
+                                        accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                                        onChange={onLogoChange}
+                                        className="block w-full text-sm"
+                                    />
+                                    <p className="mt-1 text-xs text-zinc-500">
+                                        PNG/JPG/SVG/WebP. Max 5MB. Later we’ll extract a palette from this.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
                             <label className="text-sm font-medium">Business / Brand Name *</label>
                             <input
@@ -221,9 +231,7 @@ export default function PrototypePage() {
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium">
-                                Description of business + products/services *
-                            </label>
+                            <label className="text-sm font-medium">Description of business + products/services *</label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
@@ -234,9 +242,7 @@ export default function PrototypePage() {
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium">
-                                Offer + example prices (what you sell) *
-                            </label>
+                            <label className="text-sm font-medium">Offer + example prices (what you sell) *</label>
                             <textarea
                                 value={offer}
                                 onChange={(e) => setOffer(e.target.value)}
@@ -271,8 +277,7 @@ export default function PrototypePage() {
                         </button>
 
                         <p className="text-xs text-zinc-500">
-                            Next step: connect this button to a server route that calls Gemini
-                            and returns structured JSON.
+                            Next step: this calls <code>/api/prototype/generate</code>. After that we’ll swap the stub for Gemini.
                         </p>
                     </form>
                 </div>
@@ -280,15 +285,11 @@ export default function PrototypePage() {
                 {/* Output */}
                 <div className="rounded-2xl bg-zinc-50 p-6 ring-1 ring-black/10">
                     {!result ? (
-                        <div className="text-sm text-zinc-600">
-                            Output will appear here after generation.
-                        </div>
+                        <div className="text-sm text-zinc-600">Output will appear here after generation.</div>
                     ) : (
                         <div className="space-y-6">
                             <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
-                                <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                                    Summary
-                                </div>
+                                <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Summary</div>
                                 <div className="mt-2 text-lg font-semibold">{result.headline}</div>
 
                                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -315,9 +316,7 @@ export default function PrototypePage() {
                                 <summary className="cursor-pointer text-sm font-semibold text-zinc-800">
                                     Full text (copy/paste JSON)
                                 </summary>
-                                <pre className="mt-4 whitespace-pre-wrap break-words text-xs text-zinc-800">
-                                    {resultText}
-                                </pre>
+                                <pre className="mt-4 whitespace-pre-wrap break-words text-xs text-zinc-800">{resultText}</pre>
                             </details>
                         </div>
                     )}
