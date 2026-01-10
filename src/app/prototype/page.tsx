@@ -1,7 +1,8 @@
 "use client";
 
+import { Upload } from "lucide-react";
 import Image from "next/image";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 type PrototypeResult = {
     headline: string;
@@ -48,6 +49,13 @@ export default function PrototypePage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<PrototypeResult | null>(null);
+
+    // Revoke blob URL on unmount / change to prevent memory leaks
+    useEffect(() => {
+        return () => {
+            if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
+        };
+    }, [logoPreviewUrl]);
 
     const isValid = useMemo(() => {
         return (
@@ -119,7 +127,7 @@ export default function PrototypePage() {
 
             const json = (await res.json()) as
                 | { ok: true; result: PrototypeResult }
-                | { ok: false; error: string };
+                | { ok: false; error?: string };
 
             if (!json.ok) {
                 throw new Error(json.error || "Failed to generate.");
@@ -128,7 +136,9 @@ export default function PrototypePage() {
             setResult(json.result);
         } catch (err: unknown) {
             const message =
-                err instanceof Error ? err.message : "Something went wrong generating the prototype.";
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong generating the prototype.";
             setError(message);
         } finally {
             setIsSubmitting(false);
@@ -138,13 +148,14 @@ export default function PrototypePage() {
     return (
         <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
             <div className="mx-auto max-w-2xl text-center">
+                {/* Match proposal logo tile size */}
                 <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-xl border bg-white shadow-sm">
                     <Image
                         src="/images/Aaisolate.png"
                         alt="Areculateir logo"
                         width={32}
                         height={32}
-                        className="h-8 w-8 object-contain select-none"
+                        className="h-8 w-8 select-none object-contain"
                         priority
                     />
                 </div>
@@ -170,13 +181,18 @@ export default function PrototypePage() {
                             <div className="mt-2 flex items-center gap-4">
                                 <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border bg-zinc-50">
                                     {logoPreviewUrl ? (
-                                        <img
+                                        <Image
                                             src={logoPreviewUrl}
                                             alt="Logo preview"
+                                            width={56}
+                                            height={56}
                                             className="h-full w-full object-contain"
+                                            unoptimized
                                         />
                                     ) : (
-                                        <span className="text-xs text-zinc-400">No logo</span>
+                                        <div className="flex flex-col items-center justify-center text-zinc-400">
+                                            <Upload className="h-5 w-5" />
+                                        </div>
                                     )}
                                 </div>
 
