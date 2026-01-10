@@ -138,10 +138,13 @@ export default function PrototypePage() {
         <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
             <div className="mx-auto max-w-2xl text-center">
                 <div className="mx-auto mb-4 flex justify-center">
-                    <img
+                    <Image
                         src="/images/Aaisolate.png"
-                        alt="Areculateir Aa mark"
-                        className="h-12 w-12 select-none rounded-xl shadow-sm"
+                        alt="Areculateir logo"
+                        width={32}
+                        height={32}
+                        className="h-8 w-8 object-contain select-none"
+                        priority
                     />
                 </div>
 
