@@ -20,18 +20,20 @@ export function SolarAnalytics() {
           id="solar-analytics"
           className="relative scroll-my-24 text-lg font-semibold tracking-tight text-orange-500"
         >
-          Funnel Optimization
+          Agentic Workflows
           <div className="absolute top-1 -left-[8px] h-5 w-[3px] rounded-r-sm bg-orange-500" />
         </h2>
 
         <p className="mt-2 max-w-lg text-3xl font-semibold tracking-tighter text-balance text-gray-900 md:text-4xl">
-          Iteration and Strategic Tweaking of Your Funnel
+          Autonomous Systems That Operate Your Funnel
         </p>
+
         <p className="mt-3 max-w-2xl text-base text-gray-600 md:text-lg">
-          Conversion Rate Optimization applied to your full system — site,
-          landing pages, and media. We iterate design, copy, offer flow, and
-          sequencing to remove friction and guide the right visitors to the next
-          step.
+          We design agentic workflows that observe behavior, make decisions, and
+          take action across your acquisition and conversion stack. These
+          systems route intent, trigger follow-ups, generate assets, and adapt
+          flows in real time — reducing manual overhead while increasing speed,
+          consistency, and conversion velocity.
         </p>
       </div>
 
@@ -42,27 +44,27 @@ export function SolarAnalytics() {
 
       <Divider className="mt-0" />
 
-      {/* 4 cards: Overview + ToFu + MoFu + BoFu */}
+      {/* 4 cards: Overview + System Layers */}
       <div className="grid grid-cols-1 grid-rows-2 gap-6 md:grid-cols-4 md:grid-rows-1">
         <StickerCard
           Icon={RiPieChartFill}
-          title="What is Funnel Optimization"
-          description="CRO across your whole journey. Rapid tests to refine messaging, UI/UX, and offer flow so more qualified users convert with less friction."
+          title="What Are Agentic Workflows"
+          description="Autonomous systems that continuously observe signals, make decisions, and execute actions across your funnel — replacing manual processes with compounding operational leverage."
         />
         <StickerCard
           Icon={RiNavigationFill}
-          title="Top of Funnel (ToFu)"
-          description="Awareness & qualification. Hooks, creative, and angles that stop scrolls, build relevance, and pre-frame the value your audience cares about."
+          title="Top of System"
+          description="Intent detection and qualification. Agents analyze behavior, route attention, and pre-frame value before a human ever intervenes."
         />
         <StickerCard
           Icon={RiRobot3Fill}
-          title="Middle of Funnel (MoFu)"
-          description="Consideration & proof. UGC, testimonials, comparisons, and retargeting that answer objections and move curiosity toward intent."
+          title="Middle of System"
+          description="Dynamic nurturing and objection handling. Proof, messaging, and follow-ups adapt automatically based on user signals and engagement."
         />
         <StickerCard
           Icon={RiDropFill}
-          title="Bottom of Funnel (BoFu)"
-          description="Conversion & AOV. Landing/checkout UX that reduces friction, adds urgency, and increases average order value with smart bundling and offers."
+          title="Bottom of System"
+          description="Automated conversion and handoff. Scheduling, proposals, onboarding, and next steps executed with minimal friction and zero delays."
         />
       </div>
     </section>
