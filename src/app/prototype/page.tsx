@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useMemo, useState } from "react";
 
 type PrototypeResult = {
@@ -71,8 +72,8 @@ export default function PrototypePage() {
 
         setIsSubmitting(true);
         try {
-            // ✅ For now: local “stub generator” (so it compiles and deploys).
-            // Next step: swap this for a POST to /api/prototype/generate (Gemini).
+            // For now: local stub generator (compiles/deploys)
+            // Next: swap for POST to /api/prototype/generate (Gemini)
             const base = businessName.trim();
 
             const draft: PrototypeResult = {
@@ -129,21 +130,15 @@ export default function PrototypePage() {
                 },
             };
 
-            // Lightly mix in some user specifics
             const extra = [
                 serviceArea.trim() ? `Service area: ${serviceArea.trim()}` : null,
                 industry.trim() ? `Industry: ${industry.trim()}` : null,
                 notes.trim() ? `Notes: ${clampText(notes.trim(), 300)}` : null,
             ].filter(Boolean) as string[];
 
-            if (extra.length) {
-                draft.quote.assumptions.unshift(...extra);
-            }
+            if (extra.length) draft.quote.assumptions.unshift(...extra);
 
-            // Add offer + description into assumptions to keep it visible in output for now
-            draft.quote.assumptions.unshift(
-                `Offer: ${clampText(offer.trim(), 250)}`
-            );
+            draft.quote.assumptions.unshift(`Offer: ${clampText(offer.trim(), 250)}`);
             draft.quote.assumptions.unshift(
                 `Description: ${clampText(description.trim(), 350)}`
             );
@@ -163,9 +158,26 @@ export default function PrototypePage() {
     return (
         <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
             <div className="mx-auto max-w-2xl text-center">
+                {/* Aa boxed logo (matches proposal vibe) */}
+                <div className="mx-auto mb-5 flex w-full justify-center">
+                    <div className="rounded-2xl bg-white p-3 shadow-[0_30px_90px_rgba(0,0,0,0.12)] ring-1 ring-black/10">
+                        <Image
+                            src="/images/Aaisolate.png"
+                            alt="Areculateir Aa mark"
+                            width={44}
+                            height={44}
+                            priority
+                            className="h-8 w-auto select-none"
+                        />
+                    </div>
+                </div>
+
                 <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl">
-                    Prototype Generator + Quote
+                    Prototype{" "}
+                    <span className="font-redaction italic text-[#ED4D30]">Website</span>{" "}
+                    Generator + Quote
                 </h1>
+
                 <p className="mt-4 text-sm leading-6 text-zinc-600 sm:text-base">
                     Enter the core business inputs. For now this generates a local draft.
                     Next we’ll wire it to Gemini for higher quality and structured output.
@@ -259,7 +271,8 @@ export default function PrototypePage() {
                         </button>
 
                         <p className="text-xs text-zinc-500">
-                            Next step: connect this button to a server route that calls Gemini and returns structured JSON.
+                            Next step: connect this button to a server route that calls Gemini
+                            and returns structured JSON.
                         </p>
                     </form>
                 </div>
@@ -267,7 +280,9 @@ export default function PrototypePage() {
                 {/* Output */}
                 <div className="rounded-2xl bg-zinc-50 p-6 ring-1 ring-black/10">
                     {!result ? (
-                        <div className="text-sm text-zinc-600">Output will appear here after generation.</div>
+                        <div className="text-sm text-zinc-600">
+                            Output will appear here after generation.
+                        </div>
                     ) : (
                         <div className="space-y-6">
                             <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
