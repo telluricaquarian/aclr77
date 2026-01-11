@@ -80,13 +80,10 @@ function asString(v: unknown): string {
 // -----------------------------
 // Helpers
 // -----------------------------
-function blobToBase64(buffer: ArrayBuffer) {
-    return Buffer.from(buffer).toString("base64");
-}
-
 function cleanJsonText(s: string) {
     let t = (s ?? "").trim();
 
+    // strip ```json fences
     const fence = t.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
     if (fence?.[1]) t = fence[1].trim();
 
@@ -114,24 +111,39 @@ function extractFirstJsonObject(text: string) {
 
 type ParseFailed = { __parse_failed: true; __raw: string };
 
+/**
+ * Robust JSON parsing:
+ * - tries JSON.parse
+ * - tries jsonrepair + JSON.parse
+ * - tries extracting {...} then repair + parse
+ */
 function parseModelJson(textRaw: string): unknown | ParseFailed {
     const text = cleanJsonText(textRaw);
 
+    // 1) direct parse
     try {
         return JSON.parse(text);
-    } catch { }
+    } catch {
+        // continue
+    }
 
+    // 2) repair whole text
     try {
         const repaired = jsonrepair(text);
         return JSON.parse(repaired);
-    } catch { }
+    } catch {
+        // continue
+    }
 
+    // 3) extract {...} and repair
     const block = extractFirstJsonObject(text);
     if (block) {
         try {
             const repaired = jsonrepair(block);
             return JSON.parse(repaired);
-        } catch { }
+        } catch {
+            // continue
+        }
     }
 
     return { __parse_failed: true, __raw: text.slice(0, 2000) };
@@ -140,20 +152,28 @@ function parseModelJson(textRaw: string): unknown | ParseFailed {
 function normalizeOutput(raw: unknown): unknown {
     const out: Record<string, unknown> = isRecord(raw) ? { ...raw } : {};
 
+    // brand sometimes comes back as a JSON-string
     out.brand = safeJsonParse(out.brand);
 
-    if (Array.isArray(out.sitemap) && typeof out.sitemap[0] === "string") {
-        out.sitemap = out.sitemap.map((p) => ({
-            path: String(p),
-            purpose: "Describe the page purpose.",
-        }));
+    // sitemap sometimes comes back as ["/", "/services", ...]
+    if (Array.isArray(out.sitemap)) {
+        if (out.sitemap.length > 0 && typeof out.sitemap[0] === "string") {
+            out.sitemap = out.sitemap.map((p) => ({
+                path: String(p),
+                purpose: "Describe the page purpose.",
+            }));
+        }
     }
 
+    // pages sometimes comes back as:
+    // - string (parse or wrap)
+    // - array (convert)
     if (typeof out.pages === "string") {
         const maybeParsed = safeJsonParse(out.pages);
-        out.pages = isRecord(maybeParsed)
-            ? maybeParsed
-            : {
+        if (isRecord(maybeParsed)) {
+            out.pages = maybeParsed;
+        } else {
+            out.pages = {
                 "/": {
                     sections: [
                         {
@@ -165,41 +185,63 @@ function normalizeOutput(raw: unknown): unknown {
                     ],
                 },
             };
+        }
     }
 
     if (Array.isArray(out.pages)) {
         const rec: Record<string, { sections: unknown }> = {};
         for (const item of out.pages) {
             if (!isRecord(item)) continue;
-            const route = String(item.route ?? item.path ?? item.slug ?? "");
+
+            const routeVal = item.route ?? item.path ?? item.slug;
+            const route = routeVal ? String(routeVal) : "";
             if (!route) continue;
-            rec[route] = { sections: Array.isArray(item.sections) ? item.sections : [] };
+
+            const sections = Array.isArray(item.sections) ? item.sections : [];
+            rec[route] = { sections };
         }
-        out.pages = rec;
+        out.pages = Object.keys(rec).length ? rec : {};
     }
 
+    // Ensure sections objects
     if (isRecord(out.pages)) {
-        for (const page of Object.values(out.pages)) {
-            if (!isRecord(page)) continue;
-            const secs = page.sections;
-            if (Array.isArray(secs)) {
-                page.sections = secs.map((sec, i) => {
-                    const r = isRecord(sec) ? sec : {};
+        for (const [, pageVal] of Object.entries(out.pages)) {
+            if (!isRecord(pageVal)) continue;
+
+            const secs = (pageVal as Record<string, unknown>).sections;
+
+            if (Array.isArray(secs) && secs.length > 0 && typeof secs[0] === "string") {
+                (pageVal as Record<string, unknown>).sections = secs.map((s, idx) => ({
+                    id: `section-${idx + 1}`,
+                    headline: String(s),
+                    subcopy: "",
+                    ctas: [],
+                }));
+            }
+
+            const secs2 = (pageVal as Record<string, unknown>).sections;
+            if (Array.isArray(secs2)) {
+                (pageVal as Record<string, unknown>).sections = secs2.map((sec, idx) => {
+                    const secRec = isRecord(sec) ? sec : {};
+                    const ctasVal = secRec.ctas;
+
                     return {
-                        id: asString(r.id ?? `section-${i + 1}`),
-                        headline: asString(r.headline ?? ""),
-                        subcopy: asString(r.subcopy ?? ""),
-                        ctas: Array.isArray(r.ctas) ? r.ctas.map(String) : [],
+                        id: asString(secRec.id ?? `section-${idx + 1}`),
+                        headline: asString(secRec.headline ?? ""),
+                        subcopy: asString(secRec.subcopy ?? ""),
+                        ctas: Array.isArray(ctasVal) ? ctasVal.map(String) : [],
                     };
                 });
             }
         }
     }
 
-    if (Array.isArray(out.files) && typeof out.files[0] === "string") {
+    // files sometimes comes back as array of strings; drop it
+    if (Array.isArray(out.files) && out.files.length > 0 && typeof out.files[0] === "string") {
         delete out.files;
     }
 
+    // If brand is still wrong type, force a minimal brand object
     if (!isRecord(out.brand)) {
         out.brand = {
             name: String(out.brand ?? "Brand"),
@@ -257,9 +299,7 @@ export async function POST(req: Request) {
             config: {
                 systemInstruction: "Return STRICT JSON only.",
                 responseMimeType: "application/json",
-                responseJsonSchema: zodToJsonSchema(
-                    OutputSchema as unknown as z.ZodTypeAny
-                ),
+                responseJsonSchema: zodToJsonSchema(OutputSchema as unknown as z.ZodTypeAny),
                 temperature: 0.2,
             },
         });
