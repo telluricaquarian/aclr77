@@ -4,6 +4,7 @@
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { Play, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import Image from "next/image";
 import { useMemo, useState, type FormEvent } from "react";
 
 type AnimationStyle =
@@ -66,7 +67,7 @@ const animationVariants = {
     animate: { x: 0, opacity: 1 },
     exit: { x: "100%", opacity: 0 },
   },
-};
+} as const;
 
 function safeTrim(v: unknown) {
   return typeof v === "string" ? v.trim() : "";
@@ -174,10 +175,6 @@ export function HeroVideoDialog({
         className="group relative mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border bg-transparent p-0 shadow-lg"
       >
         <div className="relative aspect-video w-full">
-          import Image from "next/image";
-
-          // ...
-
           <Image
             src={thumbnailSrc}
             alt={thumbnailAlt ?? "Video thumbnail"}
@@ -302,7 +299,7 @@ export function HeroVideoDialog({
                     </div>
                   ) : null}
 
-                  <div className="pt-2 flex justify-center">
+                  <div className="flex justify-center pt-2">
                     <RainbowButton
                       type="submit"
                       className="px-8 py-3 text-base font-semibold"

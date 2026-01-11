@@ -64,6 +64,19 @@ const OutputSchema = z.object({
         .optional(),
 });
 
+type Output = z.infer<typeof OutputSchema>;
+
+// -----------------------------
+// Tiny type guards
+// -----------------------------
+function isRecord(v: unknown): v is Record<string, unknown> {
+    return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function asString(v: unknown): string {
+    return typeof v === "string" ? v : String(v ?? "");
+}
+
 // -----------------------------
 // Helpers
 // -----------------------------
@@ -100,18 +113,20 @@ function extractFirstJsonObject(text: string) {
     return text.slice(start, end + 1);
 }
 
+type ParseFailed = { __parse_failed: true; __raw: string };
+
 /**
  * Robust JSON parsing:
  * - tries JSON.parse
  * - tries jsonrepair + JSON.parse
  * - tries extracting {...} then repair + parse
  */
-function parseModelJson(textRaw: string) {
+function parseModelJson(textRaw: string): unknown | ParseFailed {
     const text = cleanJsonText(textRaw);
 
     // 1) direct parse
     try {
-        return JSON.parse(text);
+        return JSON.parse(text) as unknown;
     } catch {
         // continue
     }
@@ -119,7 +134,7 @@ function parseModelJson(textRaw: string) {
     // 2) repair whole text
     try {
         const repaired = jsonrepair(text);
-        return JSON.parse(repaired);
+        return JSON.parse(repaired) as unknown;
     } catch {
         // continue
     }
@@ -129,7 +144,7 @@ function parseModelJson(textRaw: string) {
     if (block) {
         try {
             const repaired = jsonrepair(block);
-            return JSON.parse(repaired);
+            return JSON.parse(repaired) as unknown;
         } catch {
             // continue
         }
@@ -138,8 +153,8 @@ function parseModelJson(textRaw: string) {
     return { __parse_failed: true, __raw: text.slice(0, 2000) };
 }
 
-function normalizeOutput(raw: any) {
-    const out: any = typeof raw === "object" && raw ? raw : {};
+function normalizeOutput(raw: unknown): unknown {
+    const out: Record<string, unknown> = isRecord(raw) ? { ...raw } : {};
 
     // brand sometimes comes back as a JSON-string
     out.brand = safeJsonParse(out.brand);
@@ -147,7 +162,7 @@ function normalizeOutput(raw: any) {
     // sitemap sometimes comes back as ["/", "/services", ...]
     if (Array.isArray(out.sitemap)) {
         if (out.sitemap.length > 0 && typeof out.sitemap[0] === "string") {
-            out.sitemap = out.sitemap.map((p: string) => ({
+            out.sitemap = out.sitemap.map((p) => ({
                 path: String(p),
                 purpose: "Describe the page purpose.",
             }));
@@ -159,7 +174,7 @@ function normalizeOutput(raw: any) {
     // - array (convert)
     if (typeof out.pages === "string") {
         const maybeParsed = safeJsonParse(out.pages);
-        if (typeof maybeParsed === "object" && maybeParsed && !Array.isArray(maybeParsed)) {
+        if (isRecord(maybeParsed)) {
             out.pages = maybeParsed;
         } else {
             out.pages = {
@@ -178,12 +193,12 @@ function normalizeOutput(raw: any) {
     }
 
     if (Array.isArray(out.pages)) {
-        const rec: Record<string, any> = {};
+        const rec: Record<string, { sections: unknown }> = {};
         for (const item of out.pages) {
-            const route =
-                item && (item.route || item.path || item.slug)
-                    ? String(item.route || item.path || item.slug)
-                    : "";
+            if (!isRecord(item)) continue;
+
+            const routeVal = item.route ?? item.path ?? item.slug;
+            const route = routeVal ? String(routeVal) : "";
             if (!route) continue;
 
             const sections = Array.isArray(item.sections) ? item.sections : [];
@@ -193,14 +208,14 @@ function normalizeOutput(raw: any) {
     }
 
     // Ensure sections objects
-    if (out.pages && typeof out.pages === "object" && !Array.isArray(out.pages)) {
-        for (const [, page] of Object.entries(out.pages)) {
-            if (!page || typeof page !== "object") continue;
+    if (isRecord(out.pages)) {
+        for (const [, pageVal] of Object.entries(out.pages)) {
+            if (!isRecord(pageVal)) continue;
 
-            const secs = (page as any).sections;
+            const secs = (pageVal as Record<string, unknown>).sections;
 
             if (Array.isArray(secs) && secs.length > 0 && typeof secs[0] === "string") {
-                (page as any).sections = secs.map((s: string, idx: number) => ({
+                (pageVal as Record<string, unknown>).sections = secs.map((s, idx) => ({
                     id: `section-${idx + 1}`,
                     headline: String(s),
                     subcopy: "",
@@ -208,13 +223,19 @@ function normalizeOutput(raw: any) {
                 }));
             }
 
-            if (Array.isArray((page as any).sections)) {
-                (page as any).sections = (page as any).sections.map((sec: any, idx: number) => ({
-                    id: String(sec?.id ?? `section-${idx + 1}`),
-                    headline: String(sec?.headline ?? ""),
-                    subcopy: String(sec?.subcopy ?? ""),
-                    ctas: Array.isArray(sec?.ctas) ? sec.ctas.map(String) : [],
-                }));
+            const secs2 = (pageVal as Record<string, unknown>).sections;
+            if (Array.isArray(secs2)) {
+                (pageVal as Record<string, unknown>).sections = secs2.map((sec, idx) => {
+                    const secRec = isRecord(sec) ? sec : {};
+                    const ctasVal = secRec.ctas;
+
+                    return {
+                        id: asString(secRec.id ?? `section-${idx + 1}`),
+                        headline: asString(secRec.headline ?? ""),
+                        subcopy: asString(secRec.subcopy ?? ""),
+                        ctas: Array.isArray(ctasVal) ? ctasVal.map(String) : [],
+                    };
+                });
             }
         }
     }
@@ -225,7 +246,7 @@ function normalizeOutput(raw: any) {
     }
 
     // If brand is still wrong type, force a minimal brand object
-    if (!out.brand || typeof out.brand !== "object" || Array.isArray(out.brand)) {
+    if (!isRecord(out.brand)) {
         out.brand = {
             name: String(out.brand ?? "Brand"),
             tagline: "High-end systems that convert.",
@@ -277,7 +298,7 @@ export async function POST(req: Request) {
 
         // Optional logo upload
         const logo = form.get("logo");
-        let logoPart: any = null;
+        let logoPart: { inlineData: { mimeType: string; data: string } } | null = null;
 
         if (logo instanceof Blob && logo.size > 0) {
             const ab = await logo.arrayBuffer();
@@ -373,20 +394,22 @@ ${JSON.stringify(jsonExample, null, 2)}
             },
         });
 
-        const parsedAny = parseModelJson(response.text ?? "");
+        const parsed = parseModelJson(response.text ?? "");
 
-        if ((parsedAny as any)?.__parse_failed) {
+        if (isRecord(parsed) && parsed.__parse_failed === true) {
+            const raw = typeof parsed.__raw === "string" ? parsed.__raw : "";
             return NextResponse.json(
-                { ok: false, error: "Model did not return valid JSON", raw: (parsedAny as any).__raw },
+                { ok: false, error: "Model did not return valid JSON", raw },
                 { status: 502 }
             );
         }
 
-        const normalized = normalizeOutput(parsedAny);
-        const validated = OutputSchema.parse(normalized);
+        const normalized = normalizeOutput(parsed);
+        const validated: Output = OutputSchema.parse(normalized);
 
         return NextResponse.json({ ok: true, result: validated });
-    } catch (err: any) {
-        return NextResponse.json({ ok: false, error: err?.message ?? "Unknown error" }, { status: 400 });
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        return NextResponse.json({ ok: false, error: message }, { status: 400 });
     }
 }
