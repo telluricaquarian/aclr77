@@ -87,7 +87,6 @@ function blobToBase64(buffer: ArrayBuffer) {
 function cleanJsonText(s: string) {
     let t = (s ?? "").trim();
 
-    // strip ```json fences
     const fence = t.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
     if (fence?.[1]) t = fence[1].trim();
 
@@ -115,39 +114,24 @@ function extractFirstJsonObject(text: string) {
 
 type ParseFailed = { __parse_failed: true; __raw: string };
 
-/**
- * Robust JSON parsing:
- * - tries JSON.parse
- * - tries jsonrepair + JSON.parse
- * - tries extracting {...} then repair + parse
- */
 function parseModelJson(textRaw: string): unknown | ParseFailed {
     const text = cleanJsonText(textRaw);
 
-    // 1) direct parse
     try {
-        return JSON.parse(text) as unknown;
-    } catch {
-        // continue
-    }
+        return JSON.parse(text);
+    } catch { }
 
-    // 2) repair whole text
     try {
         const repaired = jsonrepair(text);
-        return JSON.parse(repaired) as unknown;
-    } catch {
-        // continue
-    }
+        return JSON.parse(repaired);
+    } catch { }
 
-    // 3) extract {...} and repair
     const block = extractFirstJsonObject(text);
     if (block) {
         try {
             const repaired = jsonrepair(block);
-            return JSON.parse(repaired) as unknown;
-        } catch {
-            // continue
-        }
+            return JSON.parse(repaired);
+        } catch { }
     }
 
     return { __parse_failed: true, __raw: text.slice(0, 2000) };
@@ -156,28 +140,20 @@ function parseModelJson(textRaw: string): unknown | ParseFailed {
 function normalizeOutput(raw: unknown): unknown {
     const out: Record<string, unknown> = isRecord(raw) ? { ...raw } : {};
 
-    // brand sometimes comes back as a JSON-string
     out.brand = safeJsonParse(out.brand);
 
-    // sitemap sometimes comes back as ["/", "/services", ...]
-    if (Array.isArray(out.sitemap)) {
-        if (out.sitemap.length > 0 && typeof out.sitemap[0] === "string") {
-            out.sitemap = out.sitemap.map((p) => ({
-                path: String(p),
-                purpose: "Describe the page purpose.",
-            }));
-        }
+    if (Array.isArray(out.sitemap) && typeof out.sitemap[0] === "string") {
+        out.sitemap = out.sitemap.map((p) => ({
+            path: String(p),
+            purpose: "Describe the page purpose.",
+        }));
     }
 
-    // pages sometimes comes back as:
-    // - string (parse or wrap)
-    // - array (convert)
     if (typeof out.pages === "string") {
         const maybeParsed = safeJsonParse(out.pages);
-        if (isRecord(maybeParsed)) {
-            out.pages = maybeParsed;
-        } else {
-            out.pages = {
+        out.pages = isRecord(maybeParsed)
+            ? maybeParsed
+            : {
                 "/": {
                     sections: [
                         {
@@ -189,63 +165,41 @@ function normalizeOutput(raw: unknown): unknown {
                     ],
                 },
             };
-        }
     }
 
     if (Array.isArray(out.pages)) {
         const rec: Record<string, { sections: unknown }> = {};
         for (const item of out.pages) {
             if (!isRecord(item)) continue;
-
-            const routeVal = item.route ?? item.path ?? item.slug;
-            const route = routeVal ? String(routeVal) : "";
+            const route = String(item.route ?? item.path ?? item.slug ?? "");
             if (!route) continue;
-
-            const sections = Array.isArray(item.sections) ? item.sections : [];
-            rec[route] = { sections };
+            rec[route] = { sections: Array.isArray(item.sections) ? item.sections : [] };
         }
-        out.pages = Object.keys(rec).length ? rec : {};
+        out.pages = rec;
     }
 
-    // Ensure sections objects
     if (isRecord(out.pages)) {
-        for (const [, pageVal] of Object.entries(out.pages)) {
-            if (!isRecord(pageVal)) continue;
-
-            const secs = (pageVal as Record<string, unknown>).sections;
-
-            if (Array.isArray(secs) && secs.length > 0 && typeof secs[0] === "string") {
-                (pageVal as Record<string, unknown>).sections = secs.map((s, idx) => ({
-                    id: `section-${idx + 1}`,
-                    headline: String(s),
-                    subcopy: "",
-                    ctas: [],
-                }));
-            }
-
-            const secs2 = (pageVal as Record<string, unknown>).sections;
-            if (Array.isArray(secs2)) {
-                (pageVal as Record<string, unknown>).sections = secs2.map((sec, idx) => {
-                    const secRec = isRecord(sec) ? sec : {};
-                    const ctasVal = secRec.ctas;
-
+        for (const page of Object.values(out.pages)) {
+            if (!isRecord(page)) continue;
+            const secs = page.sections;
+            if (Array.isArray(secs)) {
+                page.sections = secs.map((sec, i) => {
+                    const r = isRecord(sec) ? sec : {};
                     return {
-                        id: asString(secRec.id ?? `section-${idx + 1}`),
-                        headline: asString(secRec.headline ?? ""),
-                        subcopy: asString(secRec.subcopy ?? ""),
-                        ctas: Array.isArray(ctasVal) ? ctasVal.map(String) : [],
+                        id: asString(r.id ?? `section-${i + 1}`),
+                        headline: asString(r.headline ?? ""),
+                        subcopy: asString(r.subcopy ?? ""),
+                        ctas: Array.isArray(r.ctas) ? r.ctas.map(String) : [],
                     };
                 });
             }
         }
     }
 
-    // files sometimes comes back as array of strings; drop it
-    if (Array.isArray(out.files) && out.files.length > 0 && typeof out.files[0] === "string") {
+    if (Array.isArray(out.files) && typeof out.files[0] === "string") {
         delete out.files;
     }
 
-    // If brand is still wrong type, force a minimal brand object
     if (!isRecord(out.brand)) {
         out.brand = {
             name: String(out.brand ?? "Brand"),
@@ -272,134 +226,49 @@ export async function POST(req: Request) {
     try {
         const form = await req.formData();
 
-        // Old keys (from your curl)
-        const businessName = String(form.get("businessName") ?? "").trim();
-        const description = String(form.get("description") ?? "").trim();
-        const industry = String(form.get("industry") ?? "").trim();
-        const serviceArea = String(form.get("serviceArea") ?? "").trim();
-
-        // New + fallback merge
         const rawInput = {
-            companyName: String(form.get("companyName") ?? "").trim() || businessName,
-            offer: String(form.get("offer") ?? "").trim() || description || "Prototype website build",
-            audience:
-                String(form.get("audience") ?? "").trim() ||
-                [industry, serviceArea, description].filter(Boolean).join(" — ").slice(0, 600) ||
-                "Founders and operators",
-            primaryCta: String(form.get("primaryCta") ?? "").trim() || "Request a prototype",
-            pages:
-                String(form.get("pages") ?? "").trim() ||
-                "Home, Services, Workflows, Resources, Contact, Prototype",
-            tone: String(form.get("tone") ?? "").trim() || "Premium, minimal, conversion-first, no hype",
+            companyName: String(form.get("companyName") ?? "").trim(),
+            offer: String(form.get("offer") ?? "").trim(),
+            audience: String(form.get("audience") ?? "").trim(),
+            primaryCta: String(form.get("primaryCta") ?? "").trim(),
+            pages: String(form.get("pages") ?? "").trim(),
+            tone: String(form.get("tone") ?? "").trim(),
             notes: String(form.get("notes") ?? "").trim(),
         };
 
         const input = InputSchema.parse(rawInput);
 
-        // Optional logo upload
-        const logo = form.get("logo");
-        let logoPart: { inlineData: { mimeType: string; data: string } } | null = null;
-
-        if (logo instanceof Blob && logo.size > 0) {
-            const ab = await logo.arrayBuffer();
-            const base64 = blobToBase64(ab);
-            const mimeType = (logo as File).type || "image/png";
-            logoPart = { inlineData: { mimeType, data: base64 } };
-        }
-
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
-            return NextResponse.json({ ok: false, error: "GEMINI_API_KEY not set on server." }, { status: 500 });
+            return NextResponse.json({ ok: false, error: "GEMINI_API_KEY not set." }, { status: 500 });
         }
 
-        const model = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
         const ai = new GoogleGenAI({ apiKey });
-
-        const jsonExample = {
-            brand: {
-                name: "Example Co",
-                tagline: "High-end systems that convert.",
-                voice: ["Minimal", "Direct", "Confident"],
-                colors: { background: "#0B0F1A", foreground: "#FFFFFF", accent: "#ED4D30" },
-                typography: { primary: "Geist Sans", accent: "Redaction Italic" },
-                logoPlacement: {
-                    navbar: true,
-                    footer: true,
-                    sizeHint: "24–32px height",
-                    fileNameExpected: "client-logo.png",
-                },
-            },
-            sitemap: [
-                { path: "/", purpose: "Convert visitors into leads" },
-                { path: "/services", purpose: "Explain offer + deliverables" },
-            ],
-            pages: {
-                "/": {
-                    sections: [
-                        {
-                            id: "hero",
-                            headline: "Secure your position.",
-                            subcopy: "Short supporting copy.",
-                            ctas: ["Start Project"],
-                        },
-                    ],
-                },
-            },
-        };
-
-        const systemInstruction = `
-Return STRICT JSON only. No markdown. No tables. No commentary.
-
-Types MUST match:
-- brand must be an OBJECT (not a string)
-- sitemap must be an ARRAY OF OBJECTS {path,purpose} (not strings)
-- pages MUST be an OBJECT/record keyed by route. NEVER a string. NEVER an array.
-- files is OPTIONAL. If included, it MUST be an array of objects {path, content}. Otherwise OMIT it.
-
-Do NOT repeat keys. Do NOT duplicate "brand" keys.
-
-If a logo image is provided:
-- Treat it as the production logo mark (do NOT invent a new logo)
-- Assume developer will save it as /public/client-logo.(png|svg)
-- Set logoPlacement.navbar=true and footer=true
-`.trim();
-
-        const prompt = `
-Client brief:
-- Company: ${input.companyName}
-- Offer: ${input.offer}
-- Audience: ${input.audience}
-- Primary CTA: ${input.primaryCta}
-- Pages: ${input.pages}
-- Tone: ${input.tone}
-- Notes: ${input.notes}
-
-Output JSON must match this example SHAPE (values can differ):
-${JSON.stringify(jsonExample, null, 2)}
-`.trim();
+        const model = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
 
         const response = await ai.models.generateContent({
             model,
             contents: [
                 {
                     role: "user",
-                    parts: [{ text: prompt }, ...(logoPart ? [logoPart] : [])],
+                    parts: [{ text: JSON.stringify(input, null, 2) }],
                 },
             ],
             config: {
-                systemInstruction,
+                systemInstruction: "Return STRICT JSON only.",
                 responseMimeType: "application/json",
-                responseJsonSchema: zodToJsonSchema(OutputSchema),
+                responseJsonSchema: zodToJsonSchema(
+                    OutputSchema as unknown as z.ZodTypeAny
+                ),
                 temperature: 0.2,
             },
         });
 
         const parsed = parseModelJson(response.text ?? "");
 
-        if (isRecord(parsed) && parsed.__parse_failed === true) {
-            const raw = typeof parsed.__raw === "string" ? parsed.__raw : "";
+        if (isRecord(parsed) && parsed.__parse_failed) {
             return NextResponse.json(
-                { ok: false, error: "Model did not return valid JSON", raw },
+                { ok: false, error: "Invalid JSON from model", raw: parsed.__raw },
                 { status: 502 }
             );
         }
