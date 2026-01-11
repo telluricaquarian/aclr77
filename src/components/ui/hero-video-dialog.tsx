@@ -174,17 +174,22 @@ export function HeroVideoDialog({
         className="group relative mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border bg-transparent p-0 shadow-lg"
       >
         <div className="relative aspect-video w-full">
-          <img
+          import Image from "next/image";
+
+          // ...
+
+          <Image
             src={thumbnailSrc}
-            alt={thumbnailAlt}
-            width={1920}
-            height={1080}
-            className="absolute inset-0 h-full w-full object-cover"
+            alt={thumbnailAlt ?? "Video thumbnail"}
+            fill
+            sizes="(max-width: 768px) 92vw, 768px"
+            className="object-cover"
+            priority
           />
 
           {/* Play Button */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex size-28 items-center justify-center rounded-full bg-black/10 backdrop-blur-md">
+            <div className="flex size-28 items-center justify-center rounded-full bg-black/10">
               <div className="relative flex size-20 items-center justify-center rounded-full bg-gradient-to-b from-white/90 to-white shadow-md transition-transform duration-200 ease-out group-hover:scale-110">
                 <Play
                   className="size-8 text-black"

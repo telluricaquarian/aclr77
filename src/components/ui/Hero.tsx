@@ -73,7 +73,7 @@ export function Hero() {
         <HeroVideoDialog
           className="mt-10 w-full max-w-3xl mx-auto"
           videoSrc="https://fast.wistia.net/embed/iframe/4hojzyo8f0?seo=false&videoFoam=true"
-          thumbnailSrc="https://fast.wistia.com/embed/medias/4hojzyo8f0/swatch"
+          thumbnailSrc="/images/aclr77thumb.png"
           thumbnailAlt="Building with Premium UI – Example"
           animationStyle="from-center"
         />
