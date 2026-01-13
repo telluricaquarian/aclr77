@@ -193,11 +193,11 @@ function normalizeOutput(raw: unknown): unknown {
         for (const item of out.pages) {
             if (!isRecord(item)) continue;
 
-            const routeVal = item.route ?? item.path ?? item.slug;
+            const routeVal = (item as Record<string, unknown>).route ?? (item as Record<string, unknown>).path ?? (item as Record<string, unknown>).slug;
             const route = routeVal ? String(routeVal) : "";
             if (!route) continue;
 
-            const sections = Array.isArray(item.sections) ? item.sections : [];
+            const sections = Array.isArray((item as Record<string, unknown>).sections) ? (item as Record<string, unknown>).sections : [];
             rec[route] = { sections };
         }
         out.pages = Object.keys(rec).length ? rec : {};
@@ -223,12 +223,12 @@ function normalizeOutput(raw: unknown): unknown {
             if (Array.isArray(secs2)) {
                 (pageVal as Record<string, unknown>).sections = secs2.map((sec, idx) => {
                     const secRec = isRecord(sec) ? sec : {};
-                    const ctasVal = secRec.ctas;
+                    const ctasVal = (secRec as Record<string, unknown>).ctas;
 
                     return {
-                        id: asString(secRec.id ?? `section-${idx + 1}`),
-                        headline: asString(secRec.headline ?? ""),
-                        subcopy: asString(secRec.subcopy ?? ""),
+                        id: asString((secRec as Record<string, unknown>).id ?? `section-${idx + 1}`),
+                        headline: asString((secRec as Record<string, unknown>).headline ?? ""),
+                        subcopy: asString((secRec as Record<string, unknown>).subcopy ?? ""),
                         ctas: Array.isArray(ctasVal) ? ctasVal.map(String) : [],
                     };
                 });
@@ -299,18 +299,22 @@ export async function POST(req: Request) {
             config: {
                 systemInstruction: "Return STRICT JSON only.",
                 responseMimeType: "application/json",
-                responseJsonSchema: zodToJsonSchema(OutputSchema as unknown as z.ZodTypeAny),
+                responseJsonSchema: zodToJsonSchema(OutputSchema),
                 temperature: 0.2,
             },
         });
 
-        const parsed = parseModelJson(response.text ?? "");
+        // Some SDK responses may not always surface `text` as a plain string in the same way.
+        const text =
+            (response as unknown as { text?: string }).text ??
+            (response as unknown as { response?: { text?: string } }).response?.text ??
+            "";
 
-        if (isRecord(parsed) && parsed.__parse_failed) {
-            return NextResponse.json(
-                { ok: false, error: "Invalid JSON from model", raw: parsed.__raw },
-                { status: 502 }
-            );
+        const parsed = parseModelJson(text);
+
+        if (isRecord(parsed) && (parsed as Record<string, unknown>).__parse_failed) {
+            const raw = String((parsed as Record<string, unknown>).__raw ?? "");
+            return NextResponse.json({ ok: false, error: "Invalid JSON from model", raw }, { status: 502 });
         }
 
         const normalized = normalizeOutput(parsed);
