@@ -15,8 +15,8 @@ const Footer = () => {
       title: "Solutions",
       items: [
         { label: "Web Design W/ High-End UI", href: "#" },
-        { label: "Media Buying", href: "#" },
-        { label: "Funnel Optimization", href: "#" },
+        { label: "Client/Customer Acquisition", href: "#" },
+        { label: "Agentic Workflows", href: "#" },
       ],
     },
 
