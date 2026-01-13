@@ -45,19 +45,7 @@ export default function NotFound() {
                 Go home
               </Link>
 
-              <Link
-                href="/proposal"
-                className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
-              >
-                Generate a proposal
-              </Link>
 
-              <Link
-                href="/prototype"
-                className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
-              >
-                Generate a prototype
-              </Link>
             </div>
 
             <p className="mt-4 text-xs text-zinc-500">
