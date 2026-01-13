@@ -76,7 +76,7 @@ function safeTrim(v: unknown) {
 export function HeroVideoDialog({
   animationStyle = "from-center",
   videoSrc,
-  thumbnailSrc = "/images/aclr77thumb.png",
+  thumbnailSrc = "/images/newestthumbnail.png",
   thumbnailAlt = "Video thumbnail",
   className = "",
 }: HeroVideoProps) {
