@@ -23,7 +23,7 @@ const Footer = () => {
     resources: {
       title: "Resources",
       items: [
-        { label: "Design Sensibilities – Notable Design Figures", href: "#" },
+        { label: "Design Sensibilities – Notable Design Figures", href: "https://resourceareculateir.vercel.app/design-sensibilities" },
         {
           label: "Web design",
           href: "https://resourceareculateir.vercel.app/web-design",
