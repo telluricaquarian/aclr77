@@ -18,7 +18,7 @@ const nav: NavItem[] = [
 const resources = [
     {
         label: "Design Sensibilities – Notable Design Figures",
-        href: "/design-sensibilities",
+        href: "https://resourceareculateir.vercel.app/design-sensibilities",
     },
     { label: "Web Design", href: "/web-design" },
 ];
