@@ -1,7 +1,7 @@
 import { StickyVoiceAgent } from "@/components/StickyVoiceAgent"; // or StickyVoiceCta
+import { ConditionalNavBar } from "@/components/ui/ConditionalNavBar";
 import { CookieConsent } from "@/components/ui/CookieConsent";
 import Footer from "@/components/ui/Footer";
-import { NavBar } from "@/components/ui/Navbar";
 import { Sidebar } from "@/components/ui/Sidebar";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -17,7 +17,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 <div className="min-w-0 flex-1 lg:pl-64">
                     {/* NavBar (desktop only) */}
                     <div className="hidden lg:block">
-                        <NavBar />
+                        <ConditionalNavBar />
                     </div>
 
                     {children}
