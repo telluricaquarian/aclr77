@@ -63,10 +63,10 @@ export function Hero() {
         </h1>
 
         <p className="mt-5 max-w-xl text-center text-base text-balance text-gray-700 sm:mt-8 sm:text-xl">
-          <FadeSpan>Revolutionizing site and software builds with</FadeSpan>{" "}
-          <FadeSpan>component libraries and frameworks</FadeSpan>{" "}
+          <FadeSpan>An introduction to how high-end sites</FadeSpan>{" "}
+          <FadeSpan>are actually built</FadeSpan>{" "}
           <FadeSpan>
-            to create beautiful, intuitive and functional websites and software.
+            followed by a full A-Z walkthrough.
           </FadeSpan>
         </p>
 
