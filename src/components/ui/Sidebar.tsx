@@ -12,7 +12,7 @@ type NavItem = { label: string; id: string };
 const nav: NavItem[] = [
     { label: "Web Design w/ High End UI", id: "solutions" },
     { label: "Client Acquisition (by discretion)", id: "farm-management" },
-    { label: "Funnel Optimization (by discretion)", id: "solar-analytics" },
+    { label: "Self-Annealing Agentic Workflows", id: "solar-analytics" },
 ];
 
 const resources = [
